@@ -9,6 +9,7 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.regex.Pattern;
 
+
 import nocom.common.datastructers.CompareMethod;
 import nocom.common.datastructers.MyQueue;
 import nocom.common.utils.StringUtils;
@@ -143,8 +144,8 @@ public abstract class SocketClient implements
 			try {
 				wait(10);
 			} catch (InterruptedException e) {
-				Log.println(Log.ERROR, "LOCK/wait", e
-					.getMessage());
+				Log.println(Log.ERROR, "LOCK/wait",
+					e.getMessage());
 			}
 		}
 		this._SOCKET_MUTEX = false;
@@ -155,6 +156,7 @@ public abstract class SocketClient implements
 		this._SOCKET_MUTEX = true;
 		notifyAll();
 	}
+
 
 	private boolean mutexSocketClientConnectState = true;
 
@@ -196,6 +198,7 @@ public abstract class SocketClient implements
 		this.mutexSocketClientConnectState = true;
 		notifyAll();
 	}
+
 
 	/* == */
 
@@ -669,8 +672,6 @@ public abstract class SocketClient implements
 									;
 								}
 
-								thisOutputStream.flush();
-
 								sentOK = true;
 							} catch (Exception e) {
 								Log.e(
@@ -740,6 +741,15 @@ public abstract class SocketClient implements
 							if (n > 0) {
 								boolean sentOK;
 
+								Log.println(
+									Log.VERBOSE,
+									"sendRuntime",
+									"HB(HEX):"
+										+ StringUtils
+											.toHexString(
+												buffer, n)
+										+ "; n: " + n);
+
 								/* send */
 								try {
 									thisOutputStream.write(
@@ -752,9 +762,6 @@ public abstract class SocketClient implements
 									} catch (Exception e) {
 										;
 									}
-
-									thisOutputStream
-										.flush();
 
 									sentOK = true;
 								} catch (Exception e) {
@@ -1006,8 +1013,8 @@ public abstract class SocketClient implements
 					tmp.close();
 				} catch (IOException e) {
 					Log.println(Log.ERROR,
-						"DisconnectFromServer/close", e
-							.getMessage());
+						"DisconnectFromServer/close",
+						e.getMessage());
 				}
 			}
 
