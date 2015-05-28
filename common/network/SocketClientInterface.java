@@ -15,6 +15,7 @@ public interface SocketClientInterface {
 
 	public boolean isUseBEOnlyNoAvailable ();
 
+
 	/*
 	 * ============================
 	 * configurations
@@ -80,7 +81,6 @@ public interface SocketClientInterface {
 	public static final int WHAT_MSG_HEARTBEAT =
 		0xfffff0 + 0x2;
 
-
 	/* == */
 	public static final String connectStateKeyStr =
 		"connectStateKey";
@@ -88,7 +88,8 @@ public interface SocketClientInterface {
 	public static final String receivedKeyStr =
 		"receivedFromPeerHexStr";
 	public static final String receivedRawKeyStr =
-		"recveivedRaw";
+		"receivedRaw";
+	public static final String sentKeyStr = "sentKeyStr";
 
 	public static final int SOCKET_STATE_IDLE = 0x0;
 	public static final int SOCKET_STATE_CONNECT_TIMEOUT =
