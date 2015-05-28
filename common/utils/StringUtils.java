@@ -20,13 +20,17 @@
  */
 package nocom.common.utils;
 
+
+import org.apache.http.util.EncodingUtils;
+
+
 public class StringUtils {
 
 	/**
 	 * @return: 0: NOT and arg-fail; < 0: NOT and fail at "-1 * ret - 0xff"; 1:
 	 *          YES 2: NOT and pureAZ; 3: NOT and pureNumber
 	 */
-	public static int isAZAndNumberString(String s) {
+	public static int isAZAndNumberString (String s) {
 		boolean pureAZ = true;
 		boolean pureNumber = true;
 		if ((null == s) || (s.length() <= 0)) {
@@ -36,7 +40,8 @@ public class StringUtils {
 		int l = s.length();
 		for (int i = 0; i < l; ++i) {
 			char c = s.charAt(i);
-			if (((c >= 'a') && (c <= 'z')) || ((c >= 'A') && (c <= 'Z'))) {
+			if (((c >= 'a') && (c <= 'z'))
+				|| ((c >= 'A') && (c <= 'Z'))) {
 				pureNumber = false;
 			} else if ((c >= '0') && (c <= '9')) {
 				pureAZ = false;
@@ -54,7 +59,8 @@ public class StringUtils {
 		}
 	}
 
-	public static boolean isAsciiString(String string) {
+
+	public static boolean isAsciiString (String string) {
 		if (null == string) {
 			return false;
 		}
@@ -68,7 +74,8 @@ public class StringUtils {
 		return true;
 	}
 
-	public static String toString(byte[] data) {
+
+	public static String toString (byte[] data) {
 		if ((null == data) || (data.length < 0)) {
 			return new String("");
 		}
@@ -81,7 +88,9 @@ public class StringUtils {
 		return ret;
 	}
 
-	public static String toHexString(byte[] data, int count) {
+
+	public static String
+		toHexString (byte[] data, int count) {
 		if ((null == data) || (data.length < 0)) {
 			return new String("");
 		}
@@ -95,18 +104,44 @@ public class StringUtils {
 			byte _B = (byte) data[i];
 			int B = 0xff & _B;
 			if (((B >> 4) & 0xf) > 9) {
-				ret += String.valueOf((char) ('A' + (((B >> 4) & 0xf) - 0xA)));
+				ret +=
+					String
+						.valueOf((char) ('A' + (((B >> 4) & 0xf) - 0xA)));
 			} else {
-				ret += String.valueOf((char) ('0' + ((B >> 4) & 0xf)));
+				ret +=
+					String
+						.valueOf((char) ('0' + ((B >> 4) & 0xf)));
 			}
 
 			if ((B & 0xf) > 9) {
-				ret += String.valueOf((char) ('A' + ((B & 0xf) - 0xA)));
+				ret +=
+					String
+						.valueOf((char) ('A' + ((B & 0xf) - 0xA)));
 			} else {
-				ret += String.valueOf((char) ('0' + (B & 0xf)));
+				ret +=
+					String
+						.valueOf((char) ('0' + (B & 0xf)));
 			}
 		}
 
 		return ret;
+	}
+
+
+	public static String toStringOrigin (byte[] data,
+		String encoding) {
+		/* encoding: e.x.: UTF-8 */
+		try {
+			if (null == data || null == encoding) {
+				return null;
+			}
+
+			String ret =
+				EncodingUtils.getString(data, encoding);
+
+			return ret;
+		} catch (Exception e) {
+			return null;
+		}
 	}
 }
