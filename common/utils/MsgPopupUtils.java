@@ -37,4 +37,31 @@ public class MsgPopupUtils implements
 		builder.setMessage(msg);
 		builder.show();
 	}
+
+
+	@Override
+	public
+		void
+		showYesOrNoMsg (
+			String title,
+			String msg,
+			String yesTxt,
+			String noTxt,
+			android.content.DialogInterface.OnClickListener yes,
+			android.content.DialogInterface.OnClickListener no) {
+		try {
+			AlertDialog.Builder builder =
+				new Builder(this.savedContex);
+			builder.setTitle(title);
+			builder.setPositiveButton(yesTxt, yes);
+
+			builder.setNegativeButton(noTxt, no);
+			builder
+				.setIcon(android.R.drawable.ic_dialog_info);
+			builder.setMessage(msg);
+			builder.show();
+		} catch (Exception e) {
+			;
+		}
+	}
 }
