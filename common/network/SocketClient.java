@@ -710,9 +710,10 @@ public abstract class SocketClient implements
 										msg.what =
 											toSend.whatData;
 										bundle.clear();
-										bundle.putString(
-											"sent",
-											sentFeedback);
+										bundle
+											.putString(
+												SocketClient.sentKeyStr,
+												sentFeedback);
 										msg.setData(bundle);
 										toSend.sentRcvedMsgHandler
 											.sendMessage(msg);
