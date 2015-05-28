@@ -32,28 +32,28 @@ public class ImageUtils {
 	public static Drawable scaleDrawable(final Drawable d, int toPxW, int toPxH) {
 		int width = d.getIntrinsicWidth();
 		int height = d.getIntrinsicHeight();
-		Bitmap oldbmp = ImageUtils.drawableToBitmap(d); // drawable ×ª»»³É bitmap
-		Matrix matrix = new Matrix(); // ´´½¨²Ù×÷Í¼Æ¬ÓÃµÄ Matrix ¶ÔÏó
-		float scaleWidth = ((float) toPxW / width); // ¼ÆËãËõ·Å±ÈÀı
+		Bitmap oldbmp = ImageUtils.drawableToBitmap(d); // drawable è½¬æ¢æˆ bitmap
+		Matrix matrix = new Matrix(); // åˆ›å»ºæ“ä½œå›¾ç‰‡ç”¨çš„ Matrix å¯¹è±¡
+		float scaleWidth = ((float) toPxW / width); // è®¡ç®—ç¼©æ”¾æ¯”ä¾‹
 		float scaleHeight = ((float) toPxH / height);
-		matrix.postScale(scaleWidth, scaleHeight); // ÉèÖÃËõ·Å±ÈÀı
+		matrix.postScale(scaleWidth, scaleHeight); // è®¾ç½®ç¼©æ”¾æ¯”ä¾‹
 		Bitmap newbmp = Bitmap.createBitmap(oldbmp, 0, 0, width, height,
-				matrix, true); // ½¨Á¢ĞÂµÄ bitmap £¬ÆäÄÚÈİÊÇ¶ÔÔ­ bitmap µÄËõ·ÅºóµÄÍ¼
-		return new BitmapDrawable(newbmp); // °Ñ bitmap ×ª»»³É drawable ²¢·µ»Ø
+				matrix, true); // å»ºç«‹æ–°çš„ bitmap ï¼Œå…¶å†…å®¹æ˜¯å¯¹åŸ bitmap çš„ç¼©æ”¾åçš„å›¾
+		return new BitmapDrawable(newbmp); // æŠŠ bitmap è½¬æ¢æˆ drawable å¹¶è¿”å›
 	}
 
 	public static Bitmap drawableToBitmap(final Drawable d) {
-		int width = d.getIntrinsicWidth(); // È¡ drawable µÄ³¤¿í
+		int width = d.getIntrinsicWidth(); // å– drawable çš„é•¿å®½
 		int height = d.getIntrinsicHeight();
 		Bitmap.Config config = d.getOpacity() != PixelFormat.OPAQUE ? Bitmap.Config.ARGB_8888
-				: Bitmap.Config.RGB_565; // È¡ drawable µÄÑÕÉ«¸ñÊ½
+				: Bitmap.Config.RGB_565; // å– drawable çš„é¢œè‰²æ ¼å¼
 		/**
-		 * ½¨Á¢¶ÔÓ¦bitmap
+		 * å»ºç«‹å¯¹åº”bitmap
 		 */
 		Bitmap bitmap = Bitmap.createBitmap(width, height, config);
-		Canvas canvas = new Canvas(bitmap); // ½¨Á¢¶ÔÓ¦ bitmap µÄ»­²¼
+		Canvas canvas = new Canvas(bitmap); // å»ºç«‹å¯¹åº” bitmap çš„ç”»å¸ƒ
 		d.setBounds(0, 0, width, height);
-		d.draw(canvas);// °Ñ drawable ÄÚÈİ»­µ½»­²¼ÖĞ
+		d.draw(canvas);// æŠŠ drawable å†…å®¹ç”»åˆ°ç”»å¸ƒä¸­
 		return bitmap;
 	}
 
