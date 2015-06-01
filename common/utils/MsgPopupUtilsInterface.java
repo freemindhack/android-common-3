@@ -7,6 +7,14 @@ public interface MsgPopupUtilsInterface {
 
 	public
 		void
+		showOkMsg (
+			String title,
+			String msg,
+			android.content.DialogInterface.OnClickListener handler);
+
+
+	public
+		void
 		showYesOrNoMsg (
 			String title,
 			String msg,
