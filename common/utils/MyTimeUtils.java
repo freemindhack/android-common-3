@@ -1,8 +1,18 @@
 package nocom.common.utils;
 
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+
+import android.annotation.SuppressLint;
+import android.text.format.Time;
+
+
 public class MyTimeUtils {
 
-	public static byte[] getUnique16(byte[] prefix, byte[] suffix) {
+	public static byte[] getUnique16 (byte[] prefix,
+		byte[] suffix) {
 		/* Date curDate = new Date(System.currentTimeMillis()); */
 		byte[] ret;
 		if ((null != prefix) && (null == suffix)) {
@@ -10,7 +20,8 @@ public class MyTimeUtils {
 		} else if ((null == prefix) && (null != suffix)) {
 			ret = new byte[16 + suffix.length];
 		} else if ((null != prefix) && (null != suffix)) {
-			ret = new byte[16 + prefix.length + suffix.length];
+			ret =
+				new byte[16 + prefix.length + suffix.length];
 		} else {
 			ret = new byte[16];
 		}
@@ -53,15 +64,52 @@ public class MyTimeUtils {
 		return ret;
 	}
 
-	public static long makeTimeout(long ms) {
+
+	public static long makeTimeout (long ms) {
 		long currentTimeMillis = System.currentTimeMillis();
 
 		return currentTimeMillis + ms;
 	}
 
-	public static boolean isTimeout(long timeoutWhen) {
+
+	public static boolean isTimeout (long timeoutWhen) {
 		long currentTimeMillis = System.currentTimeMillis();
 
 		return currentTimeMillis >= timeoutWhen;
+	}
+
+
+	@SuppressLint ("SimpleDateFormat")
+	public static Time nowTime () {
+		Date curDate = new Date(System.currentTimeMillis());
+
+		SimpleDateFormat formatter =
+			new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+		String timestampStr = formatter.format(curDate);
+
+		return new Time(timestampStr);
+	}
+
+
+	public static Date nowDate () {
+		return new Date(System.currentTimeMillis());
+	}
+
+
+	@SuppressLint ("SimpleDateFormat")
+	public static String timestampStr (Date datetime) {
+		try {
+			if (null == datetime) {
+				return null;
+			}
+
+			SimpleDateFormat formatter =
+				new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+			return formatter.format(datetime);
+		} catch (Exception e) {
+			return null;
+		}
 	}
 }
