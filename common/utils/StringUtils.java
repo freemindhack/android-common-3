@@ -144,4 +144,33 @@ public class StringUtils {
 			return null;
 		}
 	}
+
+
+	public static String toStringOrigin (byte[] data,
+		String encoding, int count) {
+		/* encoding: e.x.: UTF-8 */
+		try {
+			if (null == data || data.length <= 0
+				|| null == encoding || count <= 0) {
+				return null;
+			}
+
+			if (count > data.length) {
+				count = data.length;
+			}
+
+			byte _data[] = new byte[count];
+
+			for (int i = 0; i < count; ++i) {
+				_data[i] = data[i];
+			}
+
+			String ret =
+				EncodingUtils.getString(_data, encoding);
+
+			return ret;
+		} catch (Exception e) {
+			return null;
+		}
+	}
 }
