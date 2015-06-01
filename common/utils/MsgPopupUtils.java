@@ -64,4 +64,23 @@ public class MsgPopupUtils implements
 			;
 		}
 	}
+
+
+	@Override
+	public
+		void
+		showOkMsg (
+			String title,
+			String msg,
+			android.content.DialogInterface.OnClickListener handler) {
+		AlertDialog.Builder builder =
+			new Builder(this.savedContex);
+
+		builder.setTitle(title);
+		builder.setPositiveButton("好", handler);
+
+		builder.setIcon(android.R.drawable.ic_dialog_info);
+		builder.setMessage(msg);
+		builder.show();
+	}
 }
