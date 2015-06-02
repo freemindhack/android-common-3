@@ -79,6 +79,11 @@ public class MyTimeUtils {
 	}
 
 
+	public static long nowMs () {
+		return System.currentTimeMillis();
+	}
+
+
 	@SuppressLint ("SimpleDateFormat")
 	public static Time nowTime () {
 		Date curDate = new Date(System.currentTimeMillis());
@@ -110,6 +115,17 @@ public class MyTimeUtils {
 			return formatter.format(datetime);
 		} catch (Exception e) {
 			return null;
+		}
+	}
+
+
+	public static boolean isTimeout (long baseMs,
+		long nowMs, long timeoutMs) {
+		if ((nowMs <= baseMs)
+			|| ((nowMs - baseMs) >= timeoutMs)) {
+			return false;
+		} else {
+			return true;
 		}
 	}
 }
