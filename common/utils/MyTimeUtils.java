@@ -123,9 +123,9 @@ public class MyTimeUtils {
 		long nowMs, long timeoutMs) {
 		if ((nowMs <= baseMs)
 			|| ((nowMs - baseMs) >= timeoutMs)) {
-			return false;
-		} else {
 			return true;
+		} else {
+			return false;
 		}
 	}
 }
