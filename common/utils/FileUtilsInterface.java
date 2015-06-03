@@ -7,4 +7,12 @@ public interface FileUtilsInterface {
 
 
 	public String getAbsolutePath (String filename);
+
+
+	public int write (String file, byte[] buf,
+		int startIndex, int count);
+
+
+	public int read (String file, byte[] buf,
+		int startIndex, int maxCount);
 }
