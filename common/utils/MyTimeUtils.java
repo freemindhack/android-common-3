@@ -103,6 +103,17 @@ public class MyTimeUtils {
 
 
 	@SuppressLint ("SimpleDateFormat")
+	public static String nowTimestampStr () {
+		Date curDate = new Date(System.currentTimeMillis());
+
+		SimpleDateFormat formatter =
+			new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+		return formatter.format(curDate);
+	}
+
+
+	@SuppressLint ("SimpleDateFormat")
 	public static String timestampStr (Date datetime) {
 		try {
 			if (null == datetime) {
