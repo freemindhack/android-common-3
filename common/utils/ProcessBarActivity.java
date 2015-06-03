@@ -3,6 +3,7 @@ package nocom.common.utils;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -68,6 +69,14 @@ public abstract class ProcessBarActivity extends Activity
 	}
 
 
+	@Override
+	public void onDestroy () {
+		this.stopProcessBarRunnable();
+
+		super.onDestroy();
+	}
+
+
 	private void stopProcessBarRunnable () {
 		try {
 			this.processBarThread.signalTerminate();
@@ -112,6 +121,8 @@ public abstract class ProcessBarActivity extends Activity
 		@Override
 		public void run () {
 			try {
+				Log.println(Log.VERBOSE, "run", "begin");
+
 				if (!this.running) {
 					this.running = true;
 				}
@@ -122,9 +133,9 @@ public abstract class ProcessBarActivity extends Activity
 				}
 
 				while ((!this.terminate)
-					&& (0 == isTimeout(baseMs))) {
+					&& (0 != isTimeout(baseMs))) {
 					try {
-						Thread.sleep(10);
+						Thread.sleep(50);
 					} catch (Exception e) {
 						;
 					}
@@ -135,16 +146,18 @@ public abstract class ProcessBarActivity extends Activity
 					}
 				}
 
-				if (!this.terminate) {
-					onTimeout();
-				}
-
-				if (isProcessRoutineFail()) {
+				if (ProcessRoutineState.FAIL == getProcessRoutineState()) {
 					onProcessRoutineFail();
-				} else {
+				} else if (ProcessRoutineState.SUCC == getProcessRoutineState()) {
 					onProcessRoutineSucc();
+				} else {
+					if (!this.terminate) {
+						onTimeout();
+					}
 				}
 
+				Log.println(Log.VERBOSE,
+					"ProcessBarThread/run", "exit");
 				this.running = false;
 			} catch (Exception e) {
 				this.running = false;
