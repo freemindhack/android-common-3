@@ -17,7 +17,12 @@ public interface ProcessBarInterface {
 	public boolean isProcessRoutineDone ();
 
 
-	public boolean isProcessRoutineFail ();
+	public enum ProcessRoutineState {
+		NOT_GOT, SUCC, FAIL,
+	};
+
+
+	public ProcessRoutineState getProcessRoutineState ();
 
 
 	public String getMessage ();
