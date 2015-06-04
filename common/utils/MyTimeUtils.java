@@ -132,7 +132,7 @@ public class MyTimeUtils {
 
 	public static boolean isTimeout (long baseMs,
 		long nowMs, long timeoutMs) {
-		if ((nowMs <= baseMs)
+		if ((nowMs < baseMs)
 			|| ((nowMs - baseMs) >= timeoutMs)) {
 			return true;
 		} else {
