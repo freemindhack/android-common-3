@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class MyHash<T_KEY, T_VALUE> {
+public class MyHash <T_KEY, T_VALUE> {
 	public MyHash () {
 		try {
 			this.keys = new ArrayList<T_KEY>();
@@ -45,7 +45,6 @@ public class MyHash<T_KEY, T_VALUE> {
 
 			boolean found = false;
 			int n = this.keys.size();
-
 
 			for (int i = 0; i < n; ++i) {
 				if (this.keys.get(i).equals(key)) {
@@ -299,7 +298,8 @@ public class MyHash<T_KEY, T_VALUE> {
 	}
 
 
-	public boolean set (int which, T_KEY key, T_VALUE value) {
+	public boolean
+		set (int which, T_KEY key, T_VALUE value) {
 		try {
 			if (which < 0 || which >= this.values.size()) {
 				return false;
@@ -317,7 +317,8 @@ public class MyHash<T_KEY, T_VALUE> {
 	}
 
 
-	public boolean setNewValue (T_KEY key, T_VALUE newValue) {
+	public boolean
+		setNewValue (T_KEY key, T_VALUE newValue) {
 		try {
 			int which = this.whichOfKeys(key);
 
@@ -359,6 +360,7 @@ public class MyHash<T_KEY, T_VALUE> {
 			return false;
 		}
 	}
+
 
 	private List<T_KEY> keys;
 	private List<T_VALUE> values;

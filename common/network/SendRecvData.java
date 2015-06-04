@@ -1,6 +1,8 @@
 package nocom.common.network;
 
+
 import android.os.Handler;
+
 
 public class SendRecvData {
 	public byte[] data = null;
@@ -8,7 +10,9 @@ public class SendRecvData {
 	public OnReceived rcvedHandler = null;
 	Handler sentRcvedMsgHandler = null;
 
-	protected SendRecvData(String data, int whatData, OnReceived rcvedHandler) {
+
+	protected SendRecvData (String data, int whatData,
+		OnReceived rcvedHandler) {
 		if ((null != data) && (data.length() > 0)) {
 			this.data = data.getBytes();
 		} else {
@@ -18,10 +22,12 @@ public class SendRecvData {
 		this.rcvedHandler = rcvedHandler;
 	}
 
-	public SendRecvData() {
+
+	public SendRecvData () {
 	}
 
-	public SendRecvData(SendRecvData cp) {
+
+	public SendRecvData (SendRecvData cp) {
 		if ((null != cp) && (cp.data.length > 0)) {
 			this.data = cp.data;
 		} else {
@@ -37,7 +43,9 @@ public class SendRecvData {
 		}
 	}
 
-	protected SendRecvData(byte[] data, int whatData, OnReceived rcvedHandler) {
+
+	protected SendRecvData (byte[] data, int whatData,
+		OnReceived rcvedHandler) {
 		if ((null != data) && (data.length > 0)) {
 			this.data = data;
 		} else {
@@ -48,8 +56,9 @@ public class SendRecvData {
 		this.rcvedHandler = rcvedHandler;
 	}
 
-	protected SendRecvData(byte[] data, int whatData,
-			Handler sentRcvedMsgHandler) {
+
+	protected SendRecvData (byte[] data, int whatData,
+		Handler sentRcvedMsgHandler) {
 		if ((null != data) && (data.length > 0)) {
 			this.data = data;
 		} else {
@@ -60,8 +69,9 @@ public class SendRecvData {
 		this.sentRcvedMsgHandler = sentRcvedMsgHandler;
 	}
 
-	protected SendRecvData(String data, int whatData,
-			Handler sentRcvedMsgHandler) {
+
+	protected SendRecvData (String data, int whatData,
+		Handler sentRcvedMsgHandler) {
 		if ((null != data) && (data.length() > 0)) {
 			this.data = data.getBytes();
 		} else {
@@ -71,8 +81,10 @@ public class SendRecvData {
 		this.sentRcvedMsgHandler = sentRcvedMsgHandler;
 	}
 
-	protected SendRecvData(byte[] data, int whatData,
-			Handler sentRcvedMsgHandler, OnReceived rcvedCallback) {
+
+	protected SendRecvData (byte[] data, int whatData,
+		Handler sentRcvedMsgHandler,
+		OnReceived rcvedCallback) {
 		if ((null != data) && (data.length > 0)) {
 			this.data = data;
 		} else {

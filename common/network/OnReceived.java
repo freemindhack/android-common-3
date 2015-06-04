@@ -1,4 +1,6 @@
 package nocom.common.network;
 
-public abstract class OnReceived implements OnReceivedInterface {
+
+public abstract class OnReceived implements
+	OnReceivedInterface {
 }

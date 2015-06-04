@@ -1,15 +1,18 @@
 package nocom.common.datastructers;
 
+
 import java.util.ArrayList;
 import java.util.List;
+
 
 /*
  * XXX-NOTE: when access obj of this should add lock first if thread > 0
  */
-public class MyQueue<T> {
+public class MyQueue <T> {
 	protected List<T> datas = new ArrayList<T>();
 
-	public MyQueue(MyQueue<T> cp) {
+
+	public MyQueue (MyQueue<T> cp) {
 		if (null == cp) {
 			return;
 		}
@@ -20,14 +23,17 @@ public class MyQueue<T> {
 		}
 	}
 
-	public MyQueue() {
+
+	public MyQueue () {
 	}
 
-	public void enqueue(T data) {
+
+	public void enqueue (T data) {
 		datas.add(data);
 	}
 
-	public T dequeue() {
+
+	public T dequeue () {
 		if (datas.size() > 0) {
 			T ret = datas.remove(datas.size() - 1);
 			return ret;
@@ -36,8 +42,10 @@ public class MyQueue<T> {
 		}
 	}
 
-	public T get(int i) {
-		if ((datas.size() > 0) && (i > 0 && i < datas.size())) {
+
+	public T get (int i) {
+		if ((datas.size() > 0)
+			&& (i > 0 && i < datas.size())) {
 			T ret = datas.get(i);
 			return ret;
 		} else {
@@ -45,11 +53,13 @@ public class MyQueue<T> {
 		}
 	}
 
-	public int count() {
+
+	public int count () {
 		return datas.size();
 	}
 
-	public T getLast() {
+
+	public T getLast () {
 		if (datas.size() > 0) {
 			T ret = datas.get(datas.size() - 1);
 			return ret;
@@ -58,22 +68,27 @@ public class MyQueue<T> {
 		}
 	}
 
-	public MyQueue<T> dump() {
+
+	public MyQueue<T> dump () {
 		return new MyQueue<T>(this);
 	}
 
-	public MyQueue<T> dumpEmpty() {
+
+	public MyQueue<T> dumpEmpty () {
 		MyQueue<T> ret = new MyQueue<T>(this);
 		this.empty();
 
 		return ret;
 	}
 
-	private void empty() {
+
+	private void empty () {
 		this.datas.clear();
 	}
 
-	public T find(byte[] key, CompareMethod<byte[], T> cmp) {
+
+	public T
+		find (byte[] key, CompareMethod<byte[], T> cmp) {
 		boolean found = false;
 
 		int sz = this.datas.size();
@@ -93,7 +108,9 @@ public class MyQueue<T> {
 		}
 	}
 
-	public T removeFound(byte[] key, CompareMethod<byte[], T> cmp) {
+
+	public T removeFound (byte[] key,
+		CompareMethod<byte[], T> cmp) {
 		boolean found = false;
 
 		int sz = this.datas.size();
@@ -113,7 +130,8 @@ public class MyQueue<T> {
 		}
 	}
 
-	public void append(MyQueue<T> q) {
+
+	public void append (MyQueue<T> q) {
 		int cnt = q.count();
 
 		if ((null == q) || (cnt <= 0)) {
@@ -125,7 +143,8 @@ public class MyQueue<T> {
 		}
 	}
 
-	public void appendEmpty(MyQueue<T> q) {
+
+	public void appendEmpty (MyQueue<T> q) {
 		int cnt = q.count();
 
 		if ((null == q) || (cnt <= 0)) {
