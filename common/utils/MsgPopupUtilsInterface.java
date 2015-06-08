@@ -2,7 +2,13 @@ package nocom.common.utils;
 
 
 public interface MsgPopupUtilsInterface {
-	public void showOkMsg (String title, String msg);
+	public enum MessageLevel {
+		INFO, ATTENTION, WARNING, ERROR, FATAL,
+	};
+
+
+	public void showOkMsg (String title, String msg,
+		MessageLevel messageLevel);
 
 
 	public

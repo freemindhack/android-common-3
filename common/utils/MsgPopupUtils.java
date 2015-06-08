@@ -6,6 +6,7 @@ import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 
@@ -24,7 +25,8 @@ public class MsgPopupUtils implements
 
 
 	@Override
-	public void showOkMsg (String title, String msg) {
+	public void showOkMsg (String title, String msg,
+		MsgPopupUtils.MessageLevel messageLevel) {
 		AlertDialog.Builder builder =
 			new Builder(this.savedContex);
 
@@ -34,6 +36,21 @@ public class MsgPopupUtils implements
 
 		alertDialog.getWindow().setContentView(
 			R.layout.dialog_ok);
+
+		ImageView img =
+			((ImageView) alertDialog.getWindow()
+				.findViewById(R.id.imgViewDialogOkTitle));
+		if (MsgPopupUtils.MessageLevel.FATAL == messageLevel) {
+			img.setBackgroundResource(R.drawable.ic_fatal);
+		} else if (MsgPopupUtils.MessageLevel.ERROR == messageLevel) {
+			img.setBackgroundResource(R.drawable.ic_error);
+		} else if (MsgPopupUtils.MessageLevel.WARNING == messageLevel) {
+			img.setBackgroundResource(R.drawable.ic_warning);
+		} else if (MsgPopupUtils.MessageLevel.ATTENTION == messageLevel) {
+			img.setBackgroundResource(R.drawable.ic_attention);
+		} else {
+			img.setBackgroundResource(R.drawable.ic_info);
+		}
 
 		((TextView) alertDialog.getWindow().findViewById(
 			R.id.textViewDialogOkTitle)).setText(title);
