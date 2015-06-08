@@ -46,6 +46,9 @@ public abstract class SocketClient implements
 
 	private boolean _SOCKET_MUTEX = true;
 
+	public String lastErrorString = "";
+	public int lastErrno = SocketClient.ERRNO_NO_ERROR;
+
 
 	public SocketClient (Handler stateChangedHandler,
 		OnSocketStateChanged onSocketStateChanged) {
@@ -211,7 +214,10 @@ public abstract class SocketClient implements
 						LOCK();
 
 						socketClient = new Socket();
-						Log.e("socketRuntime", "NEW!!!!!!");
+
+						Log.v("SocketClient/socketRuntime",
+							"NEW!!!!!!");
+
 						try {
 							socketClient
 								.connect(
@@ -222,6 +228,12 @@ public abstract class SocketClient implements
 											.getPeerPort()),
 									connectArguments.connectTimeout);
 						} catch (SocketTimeoutException to) {
+							lastErrorString =
+								"connect: "
+									+ to.getMessage();
+							lastErrno =
+								SocketClient.ERRNO_CONNECT_TIMEOUT;
+
 							Log.println(
 								Log.ERROR,
 								"SocketClient/socketRuntime",
@@ -230,6 +242,12 @@ public abstract class SocketClient implements
 								SocketClient.SOCKET_STATE_CONNECT_TIMEOUT;
 							break;
 						} catch (IOException e) {
+							lastErrorString =
+								"connect: "
+									+ e.getMessage();
+							lastErrno =
+								SocketClient.ERRNO_CONNECT_ERROR;
+
 							Log.println(
 								Log.ERROR,
 								"SocketClient/socketRuntime",
@@ -879,15 +897,15 @@ public abstract class SocketClient implements
 	}; /* sendRuntime */
 
 
-	public boolean Connect (
-		ConnectArguments connectArguments) {
+	public int Connect (ConnectArguments connectArguments) {
 		try {
 
 			if (null == connectArguments) {
-				return false;
+				return SocketClient.ERRNO_INVALID_CONNECT_ARGUMENTS
+					* -1;
 			}
 
-			boolean ret = true;
+			int ret = SocketClient.ERRNO_NO_ERROR;
 
 			LOCK();
 
@@ -896,7 +914,8 @@ public abstract class SocketClient implements
 					|| this.socketClient.isConnected()) {
 					if (!connectArguments.reconnect) {
 						/* one has being running */
-						ret = false;
+						ret =
+							SocketClient.ERRNO_ALREADY * -1;
 					} else {
 						try {
 							UNLOCK();
@@ -909,10 +928,10 @@ public abstract class SocketClient implements
 				}
 			}
 
-			if (ret) {
+			if (SocketClient.ERRNO_NO_ERROR == ret) {
 				ret =
 					this.parseDumpValidProtocol(connectArguments.protocol);
-				if (!ret) {
+				if (SocketClient.ERRNO_NO_ERROR != ret) {
 					Log.println(Log.ERROR,
 						"SocketClient/ClientConnect",
 						"INvalid IP:PORT:"
@@ -920,19 +939,20 @@ public abstract class SocketClient implements
 				}
 			}
 
-			if (ret) {
+			if (SocketClient.ERRNO_NO_ERROR == ret) {
 				onSocketThread = new Thread(socketRuntime);
 				onSocketThread.start();
-				ret = true;
 			} else {
-				ret = false;
+				return ret;
 			}
 
 			UNLOCK();
 
 			return ret;
 		} catch (Exception e) {
-			return false;
+			lastErrorString =
+				"Exception: " + e.getMessage();
+			return SocketClient.ERRNO_ABORT;
 		}
 	} /* Connect */
 
@@ -1051,14 +1071,14 @@ public abstract class SocketClient implements
 	} /* Disconnect */
 
 
-	private boolean parseDumpValidProtocol (String prot) {
+	private int parseDumpValidProtocol (String prot) {
 		if (prot.length() <= 0) {
-			return false;
+			return SocketClient.ERRNO_INVALID_PROT_ARG * -1;
 		}
 
 		int start = prot.indexOf(":");
 		if ((start == -1) || (start + 1 >= prot.length())) {
-			return false;
+			return SocketClient.ERRNO_INVALID_PROT_ARG * -1;
 		}
 
 		String ip = prot.substring(0, start);
@@ -1068,12 +1088,12 @@ public abstract class SocketClient implements
 			this.connectArguments.setPeerIp(ip);
 			this.connectArguments.setPeerPort(Integer
 				.parseInt(port));
-			return true;
+			return SocketClient.ERRNO_NO_ERROR;
 		} else {
 			this.connectArguments.protocol = "";
-			return false;
+			return SocketClient.ERRNO_INVALID_PROT_ARG * -1;
 		}
-	}
+	} /* parseDumpValidProtocol */
 
 
 	private boolean checkIP (String str) {

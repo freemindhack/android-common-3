@@ -135,4 +135,15 @@ public interface SocketClientInterface {
 
 
 	public void finish ();
+
+
+	/* ERRNO */
+	public static final int ERRNO_NO_ERROR = 0;
+	public static final int ERRNO_INVALID_CONNECT_ARGUMENTS =
+		1;
+	public static final int ERRNO_ALREADY = 2;
+	public static final int ERRNO_INVALID_PROT_ARG = 3;
+	public static final int ERRNO_ABORT = 4;
+	public static final int ERRNO_CONNECT_TIMEOUT = 5;
+	public static final int ERRNO_CONNECT_ERROR = 6;
 }
