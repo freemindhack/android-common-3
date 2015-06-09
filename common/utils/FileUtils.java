@@ -150,6 +150,70 @@ public class FileUtils implements FileUtilsInterface {
 
 
 	@Override
+	public int append (String file, byte[] buf,
+		int startIndex, int count) {
+		try {
+			if ((null == buf) || (buf.length <= 0)
+				|| (startIndex < 0) || (count <= 0)
+				|| (startIndex > (buf.length - 1))
+				|| (startIndex + count > buf.length)) {
+				return errno.EINVAL * -1;
+			}
+
+			if (count > buf.length) {
+				count = buf.length;
+			}
+
+			FileOutputStream out = null;
+			int ret;
+			try {
+				out =
+					this.savedContext.openFileOutput(file,
+						Context.MODE_APPEND);
+
+				if (null == out) {
+					return errno.EXTRA_ENOPENFILEO * -1;
+				} else {
+					ret = 0;
+				}
+			} catch (Exception e) {
+				ret = errno.EXTRA_EEOPENFILEO * -1;
+			}
+
+			if (0 == ret) {
+				try {
+					out.write(buf, startIndex, count);
+					Log.println(Log.VERBOSE,
+						"FileUtils/write/write", "write ok");
+
+					ret = count;
+				} catch (IOException e) {
+					Log.println(Log.WARN,
+						"FileUtils/write/write",
+						"ERROR: write: " + e.getMessage());
+
+					ret = errno.EXTRA_EEWRITE * -1;
+				}
+			}
+
+			try {
+				out.close();
+			} catch (IOException e) {
+				Log.println(Log.WARN,
+					"FileOutputStream/write/close",
+					"ERROR: " + e.getMessage());
+			}
+
+			return ret;
+		} catch (Exception e) {
+			Log.println(Log.WARN, "FileUtils/write",
+				"ERROR: " + e.getMessage());
+			return errno.EXTRA_EEUNRESOLVED * -1;
+		}
+	}
+
+
+	@Override
 	public int read (String file, byte[] buf,
 		int startIndex, int maxCount) {
 		try {

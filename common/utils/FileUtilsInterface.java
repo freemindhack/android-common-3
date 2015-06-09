@@ -13,6 +13,10 @@ public interface FileUtilsInterface {
 		int startIndex, int count);
 
 
+	public int append (String file, byte[] buf,
+		int startIndex, int count);
+
+
 	public int read (String file, byte[] buf,
 		int startIndex, int maxCount);
 }
