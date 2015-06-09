@@ -34,12 +34,17 @@ public abstract class ProcessBarActivity extends Activity
 
 		setContentView(R.layout.activity_process_bar);
 
-		Runnable processRoutineRunnable =
-			this.processRoutine();
-		if (null != processRoutineRunnable) {
-			Thread processRuntine =
-				new Thread(processRoutineRunnable);
-			processRuntine.start();
+		try {
+			Runnable processRoutineRunnable =
+				this.processRoutine();
+			if (null != processRoutineRunnable) {
+				Thread processRuntine =
+					new Thread(processRoutineRunnable);
+				processRuntine.start();
+			}
+		} catch (Exception e) {
+			Log.e("ProcessBarActivity:onCreate", "ERROR: "
+				+ e.getMessage());
 		}
 
 		this.baseMs = MyTimeUtils.nowMs();
@@ -121,7 +126,10 @@ public abstract class ProcessBarActivity extends Activity
 		@Override
 		public void run () {
 			try {
-				Log.println(Log.VERBOSE, "run", "begin");
+				Log.println(
+					Log.VERBOSE,
+					"ProcessBarActivity:ProcessBarThread:run",
+					"begin");
 
 				if (!this.running) {
 					this.running = true;
