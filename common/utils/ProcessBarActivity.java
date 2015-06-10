@@ -1,8 +1,11 @@
 package nocom.common.utils;
 
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -16,10 +19,6 @@ import com.zaz.wifilock.R;
 
 public abstract class ProcessBarActivity extends Activity
 	implements ProcessBarInterface {
-	private long baseMs = 0;
-	private ProcessBarThread processBarThread = null;
-	TextView textViewProgressBarMsg = null;
-
 
 	@Override
 	public void onCreate (Bundle savedInstanceState) {
@@ -34,17 +33,13 @@ public abstract class ProcessBarActivity extends Activity
 
 		setContentView(R.layout.activity_process_bar);
 
+		Log.e(TAG, "onCreate");
+
 		try {
-			Runnable processRoutineRunnable =
-				this.processRoutine();
-			if (null != processRoutineRunnable) {
-				Thread processRuntine =
-					new Thread(processRoutineRunnable);
-				processRuntine.start();
-			}
+			this.startProcessRoutine();
 		} catch (Exception e) {
-			Log.e("ProcessBarActivity:onCreate", "ERROR: "
-				+ e.getMessage());
+			Log.e(TAG + ":onCreate:startProcessRoutine",
+				"ERROR: " + e.getMessage());
 		}
 
 		this.baseMs = MyTimeUtils.nowMs();
@@ -66,8 +61,6 @@ public abstract class ProcessBarActivity extends Activity
 
 				@Override
 				public void onClick (View v) {
-					stopProcessBarRunnable();
-
 					finish();
 				}
 			});
@@ -76,64 +69,100 @@ public abstract class ProcessBarActivity extends Activity
 
 	@Override
 	public void onDestroy () {
-		this.stopProcessBarRunnable();
+		Log.v(TAG, "onDestroy");
+
+		try {
+			this.stopProcessRoutine();
+		} catch (Exception e) {
+			Log.e(TAG + ":onDestroy:stopProcessRoutine",
+				"ERROR: " + e.getMessage());
+		}
+
+		try {
+			this.processBarThread.finish();
+		} catch (Exception e) {
+			Log.e(TAG + ":onDestroy",
+				"ERROR: " + e.getMessage());
+		}
 
 		super.onDestroy();
 	}
 
 
-	private void stopProcessBarRunnable () {
+	public void signalFinish () {
 		try {
-			this.processBarThread.signalTerminate();
+			Log.v(TAG, "signalFinish");
 
-			int nto = 50;
+			this.selfHandler
+				.sendEmptyMessage(ProcessBarActivity.WHAT_MSG_FINISH);
 
-			while (this.processBarThread.isRunning()
-				&& (--nto > 0)) {
-				try {
-					Thread.sleep(10);
-				} catch (Exception e) {
-					;
-				}
-			}
 		} catch (Exception e) {
 			;
 		}
 	}
 
 
-	private class ProcessBarThread extends Thread {
+	public class ProcessBarThread extends Thread {
 		private boolean terminate = true;
+		private boolean selfTerminate = false;
 		public boolean running = false;
 
 
 		public ProcessBarThread () {
 			this.terminate = false;
 			this.running = false;
+			this.selfTerminate = false;
 		}
 
 
-		public void signalTerminate () {
-			this.terminate = true;
-		}
+		public void finish () {
+			try {
+				Log.v(TAG + ":ProcessBarThread", "finish");
 
+				this.selfTerminate = true;
+				this.terminate = true;
 
-		public boolean isRunning () {
-			return this.running;
-		}
+				for (long retry = 0; retry < 500; ++retry) {
+					if (!this.running) {
+						Log.i(TAG
+							+ ":ProcessBarThread:finish",
+							"OK1");
+
+						ProcessBarActivity.this.finish();
+
+						Log.i(TAG
+							+ ":ProcessBarThread:finish",
+							"OK2");
+						return;
+					}
+
+					this.terminate = true;
+
+					for (int i = 0; i < 1000; ++i) {
+						this.terminate = true;
+					}
+				}
+			} catch (Exception e) {
+				Log.e(TAG + ":ProcessBarThread:finish",
+					"ERROR: " + e.getMessage());
+
+				ProcessBarActivity.this.finish();
+			}
+
+		} /* finish */
 
 
 		@Override
 		public void run () {
 			try {
+				if ((!this.running) && (!this.terminate)) {
+					this.running = true;
+				}
+
 				Log.println(
 					Log.VERBOSE,
 					"ProcessBarActivity:ProcessBarThread:run",
 					"begin");
-
-				if (!this.running) {
-					this.running = true;
-				}
 
 				String msg = getMessage();
 				if (null != msg) {
@@ -154,17 +183,17 @@ public abstract class ProcessBarActivity extends Activity
 					}
 				}
 
-				if (ProcessRoutineState.FAIL == getProcessRoutineState()) {
-					onProcessRoutineFail();
-				} else if (ProcessRoutineState.SUCC == getProcessRoutineState()) {
-					onProcessRoutineSucc();
-				} else {
-					if (!this.terminate) {
+				if (!this.selfTerminate) {
+					if (ProcessRoutineState.FAIL == getProcessRoutineState()) {
+						onProcessRoutineFail();
+					} else if (ProcessRoutineState.SUCC == getProcessRoutineState()) {
+						onProcessRoutineSucc();
+					} else {
 						onTimeout();
 					}
 				}
 
-				Log.println(Log.VERBOSE,
+				Log.println(Log.INFO,
 					"ProcessBarThread/run", "exit");
 				this.running = false;
 			} catch (Exception e) {
@@ -172,4 +201,35 @@ public abstract class ProcessBarActivity extends Activity
 			}
 		}
 	}
+
+
+	@SuppressLint ("HandlerLeak")
+	private class SelfHandler extends Handler {
+		@Override
+		public void handleMessage (Message msg) {
+			try {
+				if (null == msg) {
+					return;
+				}
+
+				if (ProcessBarActivity.WHAT_MSG_FINISH == msg.what) {
+					finish();
+				}
+			} catch (Exception e) {
+				;
+			}
+		}
+
+	};
+
+
+	/*** XXX normal fields ***/
+	private long baseMs = 0;
+	public ProcessBarThread processBarThread = null;
+	private TextView textViewProgressBarMsg = null;
+	private SelfHandler selfHandler = new SelfHandler();
+
+	/*** XXX static final fields ***/
+	private static final String TAG = "ProcessBarActivity";
+	private static final int WHAT_MSG_FINISH = 0xffffff00;
 }

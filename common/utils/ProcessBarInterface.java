@@ -31,5 +31,8 @@ public interface ProcessBarInterface {
 	public boolean isNeedFullScreen ();
 
 
-	public Runnable processRoutine ();
+	public void startProcessRoutine ();
+
+
+	public void stopProcessRoutine ();
 }
