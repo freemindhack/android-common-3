@@ -188,8 +188,20 @@ public abstract class ProcessBarActivity extends Activity
 						onProcessRoutineFail();
 					} else if (ProcessRoutineState.SUCC == getProcessRoutineState()) {
 						onProcessRoutineSucc();
-					} else {
+					} else if (0 == isTimeout(baseMs)) {
 						onTimeout();
+					} else {
+						/*** XXX not-got ***/
+						Log.v(
+							TAG + ":ProcessBarThread:run",
+							"not-got");
+
+						try {
+							ProcessBarActivity.this
+								.finish();
+						} catch (Exception e) {
+							;
+						}
 					}
 				}
 
