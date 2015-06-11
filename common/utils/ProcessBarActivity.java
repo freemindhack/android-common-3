@@ -181,7 +181,13 @@ public abstract class ProcessBarActivity extends Activity
 
 					this.terminate = true;
 
-					for (int i = 0; i < 1000; ++i) {
+					for (int i = 0; i < 200; ++i) {
+						try {
+							this.wait(50);
+						} catch (Exception e) {
+							;
+						}
+
 						this.terminate = true;
 					}
 				}
@@ -207,7 +213,7 @@ public abstract class ProcessBarActivity extends Activity
 				while ((!this.terminate)
 					&& (0 != isTimeout(baseMs))) {
 					try {
-						this.wait(50);
+						Thread.sleep(50);
 					} catch (Exception e) {
 						;
 					}
