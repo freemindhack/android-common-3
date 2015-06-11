@@ -22,6 +22,8 @@ public abstract class ProcessBarActivity extends Activity
 
 	@Override
 	public void onCreate (Bundle savedInstanceState) {
+		Log.v(TAG + ":ProcessBarActivity", "onCreate");
+
 		super.onCreate(savedInstanceState);
 
 		if (this.isNeedFullScreen()) {
@@ -32,8 +34,6 @@ public abstract class ProcessBarActivity extends Activity
 		}
 
 		setContentView(R.layout.activity_process_bar);
-
-		Log.e(TAG, "onCreate");
 
 		try {
 			this.startProcessRoutine();
@@ -49,10 +49,7 @@ public abstract class ProcessBarActivity extends Activity
 		this.textViewProgressBarMsg =
 			(TextView) findViewById(R.id.textViewProgressBarMsg);
 
-		String msg = this.getMessage();
-		if (null != msg) {
-			textViewProgressBarMsg.setText(msg);
-		}
+		textViewProgressBarMsg.setText("");
 
 		Button btnProgressBarCancel =
 			(Button) findViewById(R.id.btnProgressBarCancel);
@@ -86,6 +83,52 @@ public abstract class ProcessBarActivity extends Activity
 		}
 
 		super.onDestroy();
+	}
+
+
+	@SuppressLint ("HandlerLeak")
+	private Handler __setMessageHandler = new Handler() {
+		@Override
+		public void handleMessage (Message msg) {
+			if (null == textViewProgressBarMsg) {
+				return;
+			}
+
+			if (null == msg) {
+				return;
+			}
+
+			Bundle data = msg.getData();
+			if (null == data) {
+				return;
+			}
+
+			String message = data.getString("setMessage");
+			if (null == message) {
+				return;
+			}
+
+			textViewProgressBarMsg.setText(message);
+		}
+	};
+
+
+	@Override
+	public void setMessage (String message) {
+		try {
+			Log.v(TAG, "setMessage");
+
+			Message msg = new Message();
+			Bundle data = new Bundle();
+			data.putString("setMessage", message);
+
+			msg.what = 0;
+			msg.setData(data);
+
+			__setMessageHandler.sendMessage(msg);
+		} catch (Exception e) {
+			;
+		}
 	}
 
 
@@ -159,20 +202,12 @@ public abstract class ProcessBarActivity extends Activity
 					this.running = true;
 				}
 
-				Log.println(
-					Log.VERBOSE,
-					"ProcessBarActivity:ProcessBarThread:run",
-					"begin");
-
-				String msg = getMessage();
-				if (null != msg) {
-					textViewProgressBarMsg.setText(msg);
-				}
+				Log.v(TAG + ":ProcessBarThread", "run");
 
 				while ((!this.terminate)
 					&& (0 != isTimeout(baseMs))) {
 					try {
-						Thread.sleep(50);
+						this.wait(50);
 					} catch (Exception e) {
 						;
 					}

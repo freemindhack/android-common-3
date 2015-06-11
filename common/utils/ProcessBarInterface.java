@@ -25,7 +25,7 @@ public interface ProcessBarInterface {
 	public ProcessRoutineState getProcessRoutineState ();
 
 
-	public String getMessage ();
+	public void setMessage (String msg);
 
 
 	public boolean isNeedFullScreen ();
