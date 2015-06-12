@@ -108,6 +108,8 @@ public abstract class SocketClient implements
 	public boolean sendData (SendRecvData data,
 		boolean sendNow) {
 		try {
+			Log.v(TAG, "sendData");
+
 			if (sendNow) {
 				if (null == thisOutputStream) {
 					return false;
@@ -1162,4 +1164,8 @@ public abstract class SocketClient implements
 			;
 		}
 	}
+
+
+	/*** XXX private static final ***/
+	private static final String TAG = "SocketClient";
 }
