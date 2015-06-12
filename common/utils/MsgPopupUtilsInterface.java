@@ -1,6 +1,9 @@
 package nocom.common.utils;
 
 
+import android.widget.Button;
+
+
 public interface MsgPopupUtilsInterface {
 	public enum MessageLevel {
 		INFO, ATTENTION, WARNING, ERROR, FATAL,
@@ -11,12 +14,9 @@ public interface MsgPopupUtilsInterface {
 		MessageLevel messageLevel);
 
 
-	public
-		void
-		showOkMsg (
-			String title,
-			String msg,
-			android.content.DialogInterface.OnClickListener handler);
+	public void showOkMsg (String title, String msg,
+		Button.OnClickListener handler,
+		MsgPopupUtils.MessageLevel messageLevel);
 
 
 	public
