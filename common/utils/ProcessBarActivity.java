@@ -58,6 +58,8 @@ public abstract class ProcessBarActivity extends Activity
 
 				@Override
 				public void onClick (View v) {
+					onCancel();
+
 					finish();
 				}
 			});

@@ -11,6 +11,9 @@ public interface ProcessBarInterface {
 	public void onProcessRoutineSucc ();
 
 
+	public void onCancel ();
+
+
 	public long isTimeout (long baseMs);
 
 
