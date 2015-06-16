@@ -847,6 +847,9 @@ public abstract class SocketClient implements
 					}
 
 					if (null != stateChangedHandler) {
+						Log.w(TAG + ":sendRuntime:run",
+							"stateChangedHandler");
+
 						Bundle bundle = new Bundle();
 						Message msg = new Message();
 						msg.what =
@@ -871,6 +874,9 @@ public abstract class SocketClient implements
 				/* end of all of this func */
 				try {
 					UNLOCK();
+
+					Log.e(TAG + ":sendRuntime", "ERROR: "
+						+ e.getMessage());
 
 					if (null != onSocketStateChanged) {
 						onSocketStateChanged
