@@ -392,7 +392,7 @@ public abstract class SocketClient implements
 						}
 
 						/** prompt alive */
-						if (0 == (prompt % 200)) {
+						if (0 == (prompt % 1000)) {
 							Log.println(
 								Log.VERBOSE,
 								"SocketClient/receiveRuntime",
@@ -658,7 +658,7 @@ public abstract class SocketClient implements
 						}
 
 						/* prompt alive */
-						if (0 == (prompt % 50)) {
+						if (0 == (prompt % 1000)) {
 							Log.println(Log.VERBOSE,
 								"SocketClient/sendRuntime",
 								"alive");

@@ -246,10 +246,14 @@ public abstract class ProcessBarActivity extends Activity
 							;
 						}
 					}
+
+					Log.w(TAG + ":run",
+						"exit:selfTerminate");
+				} else {
+					Log.w(TAG + ":run",
+						"NOT exit:selfTerminate");
 				}
 
-				Log.println(Log.INFO,
-					"ProcessBarThread/run", "exit");
 				this.running = false;
 			} catch (Exception e) {
 				this.running = false;
