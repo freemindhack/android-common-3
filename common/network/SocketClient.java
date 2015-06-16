@@ -70,6 +70,8 @@ public abstract class SocketClient implements
 	@Override
 	public boolean isConnected () {
 		try {
+			Log.v(TAG, "isConnected");
+
 			boolean ret;
 
 			LOCK();
@@ -94,11 +96,9 @@ public abstract class SocketClient implements
 			}
 
 			UNLOCK();
-
 			return ret;
 		} catch (Exception e) {
 			UNLOCK();
-
 			return false;
 		}
 	} /* isConnected */
@@ -907,6 +907,7 @@ public abstract class SocketClient implements
 
 	public int Connect (ConnectArguments connectArguments) {
 		try {
+			Log.v(TAG, "Connect");
 
 			if (null == connectArguments) {
 				return SocketClient.ERRNO_INVALID_CONNECT_ARGUMENTS
@@ -951,6 +952,9 @@ public abstract class SocketClient implements
 				onSocketThread = new Thread(socketRuntime);
 				onSocketThread.start();
 			} else {
+				/* when not no error: DE-INIT old in case exists */
+				UNLOCK();
+				this.Disconnect();
 				return ret;
 			}
 
@@ -960,6 +964,9 @@ public abstract class SocketClient implements
 		} catch (Exception e) {
 			lastErrorString =
 				"Exception: " + e.getMessage();
+
+			UNLOCK();
+			this.Disconnect();
 			return SocketClient.ERRNO_ABORT;
 		}
 	} /* Connect */
