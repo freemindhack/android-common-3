@@ -81,6 +81,48 @@ public class VersionUtils implements VersionUtilsInterface {
 
 
 	@Override
+	public boolean isNew (String fourccString) {
+		try {
+			int versionCode = this.getVersionCode();
+
+			return versionCode < this
+				.string2fourcc(fourccString);
+		} catch (Exception e) {
+			Log.e(TAG + ":isNew",
+				"ERROR: " + e.getMessage());
+			return false;
+		}
+	}
+
+
+	@Override
+	public int string2fourcc (String fourccString) {
+		try {
+			if (null == fourccString) {
+				return -1;
+			}
+
+			String[] codeStrings =
+				fourccString.split("\\.");
+
+			int ret = 0;
+
+			for (int i = 0; i < 4; ++i) {
+				ret |=
+					((int) StringUtils
+						.toInteger(codeStrings[i])) << (24 - (8 * i));
+			}
+
+			return ret;
+		} catch (Exception e) {
+			Log.e(TAG + ":string2fourcc",
+				"ERROR: " + e.getMessage());
+			return -1;
+		}
+	}
+
+
+	@Override
 	public String fourcc2string (int fourccValue) {
 		try {
 			byte code;

@@ -205,4 +205,14 @@ public class StringUtils {
 			return null;
 		}
 	}
+
+
+	public static int toInteger (String byteCodeString) {
+		try {
+			return Integer.parseInt(byteCodeString, 10);
+
+		} catch (Exception e) {
+			return -1;
+		}
+	}
 }

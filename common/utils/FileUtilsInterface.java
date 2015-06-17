@@ -6,7 +6,18 @@ public interface FileUtilsInterface {
 		boolean prependContextPrefix);
 
 
+	public int rmFile (String filename,
+		boolean prependContextPrefix);
+
+
+	public int chmod (String filename,
+		boolean prependContextPrefix, String mode);
+
+
 	public String getAbsolutePath (String filename);
+
+
+	public String getContextPrefix ();
 
 
 	public int write (String file, byte[] buf,

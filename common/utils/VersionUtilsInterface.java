@@ -12,4 +12,10 @@ public interface VersionUtilsInterface {
 
 
 	public String fourcc2string (int fourccValue);
+
+
+	public int string2fourcc (String fourccString);
+
+
+	public boolean isNew (String fourccString);
 }

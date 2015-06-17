@@ -49,6 +49,95 @@ public class FileUtils implements FileUtilsInterface {
 
 
 	@Override
+	public int rmFile (String filename,
+		boolean prependContextPrefix) {
+		try {
+			if (null == filename) {
+				return errno.EINVAL * -1;
+			}
+
+			String path = "";
+			if (prependContextPrefix) {
+				path =
+					this.savedContext.getFilesDir() + "/"
+						+ filename;
+
+			} else {
+				path = filename;
+			}
+
+			File file = new File(path);
+
+			if (file.delete()) {
+				return errno.EAGAIN * -1;
+			} else {
+				return 0;
+			}
+		} catch (Exception e) {
+			return -1;
+		}
+	}
+
+
+	@Override
+	public int chmod (String filename,
+		boolean prependContextPrefix, String mode) {
+		try {
+			if (null == filename) {
+				return errno.EINVAL * -1;
+			}
+
+			String path = "";
+			if (prependContextPrefix) {
+				path =
+					this.savedContext.getFilesDir() + "/"
+						+ filename;
+
+			} else {
+				path = filename;
+			}
+
+			try {
+				Runtime runtime = Runtime.getRuntime();
+
+				String command =
+					"chmod " + mode + " " + path;
+
+				Log.v(TAG + ":chmod", "command: " + command);
+
+				Process proc = runtime.exec(command);
+
+				int ret = proc.waitFor();
+
+				Log.w(TAG + ":chmod", "retval: " + ret);
+
+				proc.destroy();
+
+				return 0;
+			} catch (IOException e) {
+				Log.e(TAG + ":chmod",
+					"ERROR: " + e.getMessage());
+
+				return -1;
+			}
+		} catch (Exception e) {
+			return -1;
+		}
+	}
+
+
+	@Override
+	public String getContextPrefix () {
+		try {
+			return this.savedContext.getFilesDir()
+				.getAbsolutePath();
+		} catch (Exception e) {
+			return "";
+		}
+	}
+
+
+	@Override
 	public String getAbsolutePath (String filename) {
 		try {
 			boolean exists;
@@ -272,4 +361,8 @@ public class FileUtils implements FileUtilsInterface {
 			return errno.EXTRA_EEUNRESOLVED * -1;
 		}
 	}
+
+
+	/*** XXX private static final ***/
+	private static final String TAG = "FileUtils";
 }
