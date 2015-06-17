@@ -89,6 +89,11 @@ public class StringUtils {
 	}
 
 
+	public static String toString (byte byteCode) {
+		return Integer.toString(0xff & (int) byteCode);
+	}
+
+
 	public static String
 		toHexString (byte[] data, int count) {
 		if ((null == data) || (data.length < 0)) {
@@ -106,7 +111,7 @@ public class StringUtils {
 			if (((B >> 4) & 0xf) > 9) {
 				ret +=
 					String
-						.valueOf((char) ('A' + (((B >> 4) & 0xf) - 0xA)));
+						.valueOf((char) ('A' + (((B >> 4) & 0xf) - 0xa)));
 			} else {
 				ret +=
 					String
@@ -116,12 +121,39 @@ public class StringUtils {
 			if ((B & 0xf) > 9) {
 				ret +=
 					String
-						.valueOf((char) ('A' + ((B & 0xf) - 0xA)));
+						.valueOf((char) ('A' + ((B & 0xf) - 0xa)));
 			} else {
 				ret +=
 					String
 						.valueOf((char) ('0' + (B & 0xf)));
 			}
+		}
+
+		return ret;
+	}
+
+
+	public static String toHexString (byte byteCode) {
+		String ret = new String("");
+
+		if (((byteCode >> 4) & 0xf) > 9) {
+			ret +=
+				String
+					.valueOf((char) ('A' + (((byteCode >> 4) & 0xf) - 0xa)));
+		} else {
+			ret +=
+				String
+					.valueOf((char) ('0' + ((byteCode >> 4) & 0xf)));
+		}
+
+		if ((byteCode & 0xf) > 9) {
+			ret +=
+				String
+					.valueOf((char) ('A' + ((byteCode & 0xf) - 0xa)));
+		} else {
+			ret +=
+				String
+					.valueOf((char) ('0' + (byteCode & 0xf)));
 		}
 
 		return ret;
