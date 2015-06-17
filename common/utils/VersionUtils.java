@@ -4,6 +4,7 @@ package nocom.common.utils;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.util.Log;
 
 
 public class VersionUtils implements VersionUtilsInterface {
@@ -16,7 +17,7 @@ public class VersionUtils implements VersionUtilsInterface {
 
 
 	@Override
-	public String getVersion () {
+	public String getVersionName () {
 		try {
 			if (null == this.savedContext) {
 				return "";
@@ -25,16 +26,87 @@ public class VersionUtils implements VersionUtilsInterface {
 			PackageManager pm =
 				this.savedContext.getPackageManager();
 
-			/* 参数一：当前应用程序的包名 参数二：可选的附加消息，这里我们用不到 ，可以定义为0 */
 			PackageInfo info =
 				pm.getPackageInfo(
 					this.savedContext.getPackageName(), 0);
 
-			/* 返回当前应用程序的版本号 */
 			return info.versionName;
 		} catch (Exception e) {
-			e.printStackTrace();
+			Log.e(TAG + ":VersionUtils",
+				"ERROR: " + e.getMessage());
 			return "";
 		}
 	}
+
+
+	@Override
+	public String getVersionString () {
+		try {
+			int versionCode = this.getVersionCode();
+
+			if (-1 == versionCode) {
+				return "";
+			}
+
+			return this.fourcc2string(versionCode);
+		} catch (Exception e) {
+			Log.e(TAG + ":getVersionString",
+				"ERROR: " + e.getMessage());
+			return "";
+		}
+	}
+
+
+	@Override
+	public int getVersionCode () {
+		try {
+			if (null == this.savedContext) {
+				return -1;
+			}
+
+			PackageManager pm =
+				this.savedContext.getPackageManager();
+
+			PackageInfo info =
+				pm.getPackageInfo(
+					this.savedContext.getPackageName(), 0);
+
+			return info.versionCode;
+		} catch (Exception e) {
+			Log.e(TAG + ":getVersionCode",
+				"ERROR: " + e.getMessage());
+			return -1;
+		}
+	}
+
+
+	@Override
+	public String fourcc2string (int fourccValue) {
+		try {
+			byte code;
+
+			String ret = new String("");
+
+			for (int i = 0; i < 3; ++i) {
+				code =
+					(byte) (0xff & (fourccValue >> (24 - (8 * i))));
+
+				ret += StringUtils.toString(code);
+				ret += ".";
+			}
+
+			code = (byte) (0xff & fourccValue);
+
+			ret += StringUtils.toString(code);
+
+			return ret;
+		} catch (Exception e) {
+			Log.e(TAG + ":fourcc2string",
+				"ERROR: " + e.getMessage());
+			return "";
+		}
+	}
+
+
+	private static String TAG = "VersionUtils";
 }
