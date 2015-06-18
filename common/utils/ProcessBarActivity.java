@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -14,6 +15,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 
+import com.zaz.wifilock.Configurations;
 import com.zaz.wifilock.R;
 
 
@@ -87,6 +89,22 @@ public abstract class ProcessBarActivity extends Activity
 		}
 
 		super.onDestroy();
+	}
+
+
+	@Override
+	public boolean onKeyDown (int keyCode, KeyEvent event) {
+		if (keyCode == KeyEvent.KEYCODE_BACK
+			&& (this.isNoCancel())) {
+			moveTaskToBack(true);
+
+			Configurations
+				.setLoginAction(Configurations.LoginAction.Hide);
+
+			return true;
+		}
+
+		return super.onKeyDown(keyCode, event);
 	}
 
 
