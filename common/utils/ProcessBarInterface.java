@@ -11,6 +11,9 @@ public interface ProcessBarInterface {
 	public void onProcessRoutineSucc ();
 
 
+	public boolean isNoCancel ();
+
+
 	public void onCancel ();
 
 

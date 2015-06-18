@@ -51,18 +51,20 @@ public abstract class ProcessBarActivity extends Activity
 
 		textViewProgressBarMsg.setText("");
 
-		Button btnProgressBarCancel =
-			(Button) findViewById(R.id.btnProgressBarCancel);
-		btnProgressBarCancel
-			.setOnClickListener(new Button.OnClickListener() {
+		if (!this.isNoCancel()) {
+			Button btnProgressBarCancel =
+				(Button) findViewById(R.id.btnProgressBarCancel);
+			btnProgressBarCancel
+				.setOnClickListener(new Button.OnClickListener() {
 
-				@Override
-				public void onClick (View v) {
-					onCancel();
+					@Override
+					public void onClick (View v) {
+						onCancel();
 
-					finish();
-				}
-			});
+						finish();
+					}
+				});
+		}
 	}
 
 
