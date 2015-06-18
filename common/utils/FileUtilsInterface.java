@@ -6,6 +6,12 @@ public interface FileUtilsInterface {
 		boolean prependContextPrefix);
 
 
+	public int copyFile (String from, String to);
+
+
+	public int appendFile (String origin, String append);
+
+
 	public int rmFile (String filename,
 		boolean prependContextPrefix);
 

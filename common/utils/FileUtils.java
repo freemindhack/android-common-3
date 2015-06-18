@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 
 import posix.generic.errno.errno;
@@ -44,6 +45,116 @@ public class FileUtils implements FileUtilsInterface {
 			return file.exists();
 		} catch (Exception e) {
 			return false;
+		}
+	}
+
+
+	@Override
+	public int copyFile (String from, String to) {
+		try {
+			int bytesum = 0;
+			int byteread = 0;
+
+			/* FIXME: check arguments and to (file) */
+
+			File fromFile = new File(from);
+			if (fromFile.exists()) {
+				if (fromFile.isDirectory()) {
+					return errno.EISDIR * -1;
+				}
+
+				InputStream in = new FileInputStream(from);
+
+				int wSize = in.available();
+
+				FileOutputStream out =
+					new FileOutputStream(to);
+
+				byte[] buffer = new byte[1024];
+				int i;
+
+				for (i = 0; i + 1024 < wSize; i += 1024) {
+					byteread = in.read(buffer, 0, 1024);
+					if (byteread != -1) {
+						bytesum += byteread;
+						out.write(buffer, 0, byteread);
+					}
+				}
+				if (i < wSize) {
+					i = wSize - i;
+					byteread = in.read(buffer, 0, i);
+					if (byteread != -1) {
+						bytesum += byteread;
+						out.write(buffer, 0, byteread);
+					}
+				}
+
+				in.close();
+				out.close();
+
+				return bytesum;
+			} else {
+				return 0;
+			}
+		} catch (Exception e) {
+			Log.e(TAG + ":copyFile",
+				"ERROR: " + e.getMessage());
+			return -1;
+		}
+	}
+
+
+	@Override
+	public int appendFile (String origin, String append) {
+		try {
+			int bytesum = 0;
+			int byteread = 0;
+
+			/* FIXME: check arguments and append (file) */
+
+			File appendFile = new File(origin);
+			if (appendFile.exists()) {
+				if (appendFile.isDirectory()) {
+					return errno.EISDIR * -1;
+				}
+
+				InputStream in =
+					new FileInputStream(appendFile);
+
+				int wSize = in.available();
+
+				FileOutputStream out =
+					this.savedContext.openFileOutput(
+						origin, Context.MODE_APPEND);
+
+				byte[] buffer = new byte[1024];
+				int i;
+				for (i = 0; i + 1024 < wSize; i += 1024) {
+					byteread = in.read(buffer, 0, 1024);
+					if (byteread != -1) {
+						bytesum += byteread;
+						out.write(buffer, 0, byteread);
+					}
+				}
+				if (i < wSize) {
+					i = wSize - i;
+					byteread = in.read(buffer, 0, i);
+					if (byteread != -1) {
+						bytesum += byteread;
+						out.write(buffer, 0, byteread);
+					}
+				}
+				in.close();
+				out.close();
+
+				return bytesum;
+			} else {
+				return 0;
+			}
+		} catch (Exception e) {
+			Log.e(TAG + ":appendFile",
+				"ERROR: " + e.getMessage());
+			return -1;
 		}
 	}
 
@@ -332,6 +443,10 @@ public class FileUtils implements FileUtilsInterface {
 			}
 
 			if (0 == ret) {
+				int fileSize = in.available();
+				if (fileSize < maxCount) {
+					maxCount = fileSize;
+				}
 				try {
 					ret =
 						in.read(buf, startIndex, maxCount);
