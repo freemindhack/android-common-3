@@ -50,25 +50,49 @@ public class FileUtils implements FileUtilsInterface {
 
 
 	@Override
-	public int copyFile (String from, String to) {
+	public int copyFile (String from, String to,
+		boolean prependContextPrefixF,
+		boolean prependContextPrefixT) {
 		try {
 			int bytesum = 0;
 			int byteread = 0;
 
 			/* FIXME: check arguments and to (file) */
 
-			File fromFile = new File(from);
+			String fromPath = "";
+			if (prependContextPrefixF) {
+				fromPath =
+					this.savedContext.getFilesDir() + "/"
+						+ from;
+
+			} else {
+				fromPath = from;
+			}
+
+			File fromFile = new File(fromPath);
+
 			if (fromFile.exists()) {
 				if (fromFile.isDirectory()) {
 					return errno.EISDIR * -1;
 				}
 
-				InputStream in = new FileInputStream(from);
+				InputStream in =
+					new FileInputStream(fromPath);
 
 				int wSize = in.available();
 
+				String toPath = "";
+				if (prependContextPrefixF) {
+					toPath =
+						this.savedContext.getFilesDir()
+							+ "/" + to;
+
+				} else {
+					toPath = to;
+				}
+
 				FileOutputStream out =
-					new FileOutputStream(to);
+					new FileOutputStream(toPath);
 
 				byte[] buffer = new byte[1024];
 				int i;
@@ -94,6 +118,8 @@ public class FileUtils implements FileUtilsInterface {
 
 				return bytesum;
 			} else {
+				Log.w(TAG + ":copyFile", fromPath
+					+ " not exists");
 				return 0;
 			}
 		} catch (Exception e) {
@@ -105,14 +131,25 @@ public class FileUtils implements FileUtilsInterface {
 
 
 	@Override
-	public int appendFile (String origin, String append) {
+	public int appendFile (String origin, String append,
+		boolean prependContextPrefixA) {
 		try {
 			int bytesum = 0;
 			int byteread = 0;
 
 			/* FIXME: check arguments and append (file) */
 
-			File appendFile = new File(origin);
+			String appendPath = "";
+			if (prependContextPrefixA) {
+				appendPath =
+					this.savedContext.getFilesDir() + "/"
+						+ append;
+
+			} else {
+				appendPath = append;
+			}
+
+			File appendFile = new File(appendPath);
 			if (appendFile.exists()) {
 				if (appendFile.isDirectory()) {
 					return errno.EISDIR * -1;
