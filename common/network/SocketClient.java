@@ -70,7 +70,7 @@ public abstract class SocketClient implements
 	@Override
 	public boolean isConnected () {
 		try {
-			Log.v(TAG, "isConnected");
+			/* Log.v(TAG, "isConnected"); */
 
 			boolean ret;
 
