@@ -6,6 +6,9 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 
+import android.util.Log;
+
+
 public class Md5sumUtils implements Md5sumUtilsInterface {
 
 	@Override
@@ -32,6 +35,9 @@ public class Md5sumUtils implements Md5sumUtilsInterface {
 					MessageDigest.getInstance("MD5")
 						.digest(data);
 			} catch (NoSuchAlgorithmException e) {
+				Log.e(TAG + ":Md5sumUtils",
+					"ERROR: " + e.getMessage());
+
 				throw new RuntimeException(
 					"Huh, MD5 should be supported?", e);
 			}
@@ -49,6 +55,9 @@ public class Md5sumUtils implements Md5sumUtilsInterface {
 				return ret;
 			}
 		} catch (Exception e) {
+			Log.e(TAG + ":Md5sumUtils",
+				"ERROR: " + e.getMessage());
+
 			return null;
 		}
 	}
@@ -74,5 +83,8 @@ public class Md5sumUtils implements Md5sumUtilsInterface {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+
+	private final String TAG = "Md5sumUtils";
 
 }
