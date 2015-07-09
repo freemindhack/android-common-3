@@ -16,7 +16,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 
-import com.zaz.wifilock.R;
+import com.za.wifilock.R;
 
 
 public class MsgPopupUtils implements

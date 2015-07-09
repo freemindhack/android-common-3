@@ -11,7 +11,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 
 
-import com.zaz.wifilock.R;
+import com.za.wifilock.R;
 
 
 public class NumberKeyboard extends LinearLayout implements
