@@ -217,9 +217,10 @@ public class FileUtils implements FileUtilsInterface {
 			File file = new File(path);
 
 			if (file.delete()) {
-				return errno.EAGAIN * -1;
-			} else {
+				/* true: success */
 				return 0;
+			} else {
+				return errno.EAGAIN * -1;
 			}
 		} catch (Exception e) {
 			return -1;
