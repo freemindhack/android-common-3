@@ -43,6 +43,16 @@ public class MyQueue <T> {
 	}
 
 
+	public T pop () {
+		if (datas.size() > 0) {
+			T ret = datas.remove(0);
+			return ret;
+		} else {
+			return null;
+		}
+	}
+
+
 	public T get (int i) {
 		if ((datas.size() > 0)
 			&& (i > 0 && i < datas.size())) {
@@ -82,7 +92,7 @@ public class MyQueue <T> {
 	}
 
 
-	private void empty () {
+	public void empty () {
 		this.datas.clear();
 	}
 
@@ -154,5 +164,26 @@ public class MyQueue <T> {
 		for (int i = 0; i < cnt; ++i) {
 			this.datas.add(q.datas.remove(0));
 		}
+	}
+
+
+	public boolean equs (MyQueue<T> another) {
+		if (null == another) {
+			return false;
+		}
+
+		if (another.count() != this.count()) {
+			return false;
+		}
+
+		int n = another.count();
+		for (int i = 0; i < n; ++i) {
+			if (!this.datas.get(i).equals(
+				another.datas.get(i))) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 }
