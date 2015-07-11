@@ -21,12 +21,18 @@
 package nocom.common.utils;
 
 
+import java.io.File;
+
+
+import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 
 
 public class ImageUtils {
@@ -65,5 +71,46 @@ public class ImageUtils {
 		d.draw(canvas);// 把 drawable 内容画到画布中
 		return bitmap;
 	}
+
+
+	public static Bitmap getBitmap (String localPath) {
+		if ((null == localPath)
+			|| (localPath.length() <= 0)) {
+			return null;
+		}
+
+		Bitmap bitmap = null;
+
+		try {
+			File file = new File(localPath);
+			if (file.exists()) {
+				bitmap =
+					BitmapFactory.decodeFile(localPath);
+			}
+		} catch (Exception e) {
+			Log.e(TAG + ":getBitmap",
+				"ERROR: " + e.getMessage());
+
+			return null;
+		}
+
+		return bitmap;
+	}
+
+
+	public static Drawable bmp2drawable (Context c,
+		Bitmap bmp) {
+		try {
+			return new BitmapDrawable(c.getResources(), bmp);
+		} catch (Exception e) {
+			Log.e(TAG + ":bmp2drawable",
+				"ERROR: " + e.getMessage());
+
+			return null;
+		}
+	}
+
+
+	private static final String TAG = "ImageUtils";
 
 }

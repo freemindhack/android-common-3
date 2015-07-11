@@ -139,4 +139,26 @@ public class MyTimeUtils {
 			return false;
 		}
 	}
+
+
+	/*
+	 * any of one => true: 
+	 * 1: 4: y and 100: n
+	 * 2: 400: y
+	 * (3200 and 172800)
+	 */
+	public static boolean isLeapyear (int year) {
+		if ((year % 100) == 0) {
+			/* n x 100 */
+			if ((year % 400) == 0) {
+				return true;
+			}
+		} else {
+			if ((year % 4) == 0) {
+				return true;
+			}
+		}
+
+		return false;
+	}
 }
