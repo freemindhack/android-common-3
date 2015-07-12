@@ -4,30 +4,30 @@ package nocom.pull2refresh.common;
 import java.util.HashSet;
 
 
-import nocom.pull2refresh.interfaces.ILoadingLayout;
+import nocom.pull2refresh.interfaces.LoadingLayoutInterface;
 import nocom.pull2refresh.views.LoadingLayout;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 
 
-public class LoadingLayoutProxy implements ILoadingLayout {
-
-	private final HashSet<LoadingLayout> mLoadingLayouts;
+public class LoadingLayoutProxy implements LoadingLayoutInterface {
+	private final HashSet <LoadingLayout> mLoadingLayouts;
 
 
 	public LoadingLayoutProxy () {
-		mLoadingLayouts = new HashSet<LoadingLayout>();
+		mLoadingLayouts = new HashSet <LoadingLayout>();
 	}
 
 
 	/**
-	 * This allows you to add extra LoadingLayout instances to this proxy. This
-	 * is only necessary if you keep your own instances, and want to have them
-	 * included in any
-	 * {@link PullToRefreshBase#createLoadingLayoutProxy(boolean, boolean)
+	 * This allows you to add extra LoadingLayout instances to this proxy.
+	 * This is only necessary if you keep your own instances, and want to have
+	 * them included in any
+	 * {@link Pull2RefreshBase#createLoadingLayoutProxy(boolean, boolean)
 	 * createLoadingLayoutProxy(...)} calls.
 	 * 
-	 * @param layout - LoadingLayout to have included.
+	 * @param layout
+	 *            - LoadingLayout to have included.
 	 */
 	public void addLayout (LoadingLayout layout) {
 		if (null != layout) {
@@ -53,8 +53,7 @@ public class LoadingLayoutProxy implements ILoadingLayout {
 
 
 	@Override
-	public void setRefreshingLabel (
-		CharSequence refreshingLabel) {
+	public void setRefreshingLabel (CharSequence refreshingLabel) {
 		for (LoadingLayout layout : mLoadingLayouts) {
 			layout.setRefreshingLabel(refreshingLabel);
 		}

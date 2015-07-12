@@ -11,8 +11,7 @@ public class SendRecvData {
 	Handler sentRcvedMsgHandler = null;
 
 
-	protected SendRecvData (String data, int whatData,
-		OnReceived rcvedHandler) {
+	protected SendRecvData (String data, int whatData, OnReceived rcvedHandler) {
 		if ((null != data) && (data.length() > 0)) {
 			this.data = data.getBytes();
 		} else {
@@ -33,25 +32,21 @@ public class SendRecvData {
 		} else {
 			this.data = new byte[0];
 		}
-
 		if (null != cp) {
 			this.whatData = cp.whatData;
 		}
-
 		if (null != rcvedHandler) {
 			this.rcvedHandler = cp.rcvedHandler;
 		}
 	}
 
 
-	protected SendRecvData (byte[] data, int whatData,
-		OnReceived rcvedHandler) {
+	protected SendRecvData (byte[] data, int whatData, OnReceived rcvedHandler) {
 		if ((null != data) && (data.length > 0)) {
 			this.data = data;
 		} else {
 			this.data = new byte[0];
 		}
-
 		this.whatData = whatData;
 		this.rcvedHandler = rcvedHandler;
 	}
@@ -64,7 +59,6 @@ public class SendRecvData {
 		} else {
 			this.data = new byte[0];
 		}
-
 		this.whatData = whatData;
 		this.sentRcvedMsgHandler = sentRcvedMsgHandler;
 	}
@@ -83,14 +77,12 @@ public class SendRecvData {
 
 
 	protected SendRecvData (byte[] data, int whatData,
-		Handler sentRcvedMsgHandler,
-		OnReceived rcvedCallback) {
+		Handler sentRcvedMsgHandler, OnReceived rcvedCallback) {
 		if ((null != data) && (data.length > 0)) {
 			this.data = data;
 		} else {
 			this.data = new byte[0];
 		}
-
 		this.whatData = whatData;
 		this.sentRcvedMsgHandler = sentRcvedMsgHandler;
 		this.rcvedHandler = rcvedCallback;

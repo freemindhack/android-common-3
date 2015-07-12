@@ -10,8 +10,7 @@ import android.view.View;
 import android.view.animation.Interpolator;
 
 
-public interface IPull2Refresh <T extends View> {
-
+public interface Pull2RefreshInterface <T extends View> {
 	/**
 	 * Demos the Pull-to-Refresh functionality to the user so that they are
 	 * aware it is there. This could be useful when the user first opens your
@@ -55,24 +54,26 @@ public interface IPull2Refresh <T extends View> {
 	 * @return Object which will proxy any calls you make on it, to all of the
 	 *         LoadingLayouts.
 	 */
-	public ILoadingLayout getLoadingLayoutProxy ();
+	public LoadingLayoutInterface getLoadingLayoutProxy ();
 
 
 	/**
 	 * Returns a proxy object which allows you to call methods on the
-	 * LoadingLayouts (the Views which show when Pulling/Refreshing). The actual
-	 * LoadingLayout(s) which will be affected, are chosen by the parameters you
-	 * give.
+	 * LoadingLayouts (the Views which show when Pulling/Refreshing). The
+	 * actual LoadingLayout(s) which will be affected, are chosen by the
+	 * parameters you give.
 	 * <p />
 	 * You should not keep the result of this method any longer than you need
 	 * it.
 	 * 
-	 * @param includeStart - Whether to include the Start/Header Views
-	 * @param includeEnd - Whether to include the End/Footer Views
+	 * @param includeStart
+	 *            - Whether to include the Start/Header Views
+	 * @param includeEnd
+	 *            - Whether to include the End/Footer Views
 	 * @return Object which will proxy any calls you make on it, to the
 	 *         LoadingLayouts included.
 	 */
-	public ILoadingLayout getLoadingLayoutProxy (
+	public LoadingLayoutInterface getLoadingLayoutProxy (
 		boolean includeStart, boolean includeEnd);
 
 
@@ -87,8 +88,8 @@ public interface IPull2Refresh <T extends View> {
 
 
 	/**
-	 * Get the Wrapped Refreshable View. Anything returned here has already been
-	 * added to the content view.
+	 * Get the Wrapped Refreshable View. Anything returned here has already
+	 * been added to the content view.
 	 * 
 	 * @return The View which is currently wrapped
 	 */
@@ -120,8 +121,8 @@ public interface IPull2Refresh <T extends View> {
 
 	/**
 	 * Gets whether Overscroll support is enabled. This is different to
-	 * Android's standard Overscroll support (the edge-glow) which is available
-	 * from GINGERBREAD onwards
+	 * Android's standard Overscroll support (the edge-glow) which is
+	 * available from GINGERBREAD onwards
 	 * 
 	 * @return true - if both Pull2Refresh-OverScroll and Android's inbuilt
 	 *         OverScroll are enabled
@@ -138,8 +139,8 @@ public interface IPull2Refresh <T extends View> {
 
 
 	/**
-	 * Returns whether the widget has enabled scrolling on the Refreshable View
-	 * while refreshing.
+	 * Returns whether the widget has enabled scrolling on the Refreshable
+	 * View while refreshing.
 	 * 
 	 * @return true if the widget has enabled scrolling while refreshing
 	 */
@@ -154,15 +155,15 @@ public interface IPull2Refresh <T extends View> {
 
 
 	/**
-	 * Set the Touch Events to be filtered or not. If set to true, then the View
-	 * will only use touch events where the difference in the Y-axis is greater
-	 * than the difference in the X-axis. This means that the View will not
-	 * interfere when it is used in a horizontal scrolling View (such as a
-	 * ViewPager), but will restrict which types of finger scrolls will trigger
-	 * the View.
+	 * Set the Touch Events to be filtered or not. If set to true, then the
+	 * View will only use touch events where the difference in the Y-axis is
+	 * greater than the difference in the X-axis. This means that the View
+	 * will not interfere when it is used in a horizontal scrolling View (such
+	 * as a ViewPager), but will restrict which types of finger scrolls will
+	 * trigger the View.
 	 * 
-	 * @param filterEvents - true if you want to filter Touch Events. Default is
-	 *            true.
+	 * @param filterEvents
+	 *            - true if you want to filter Touch Events. Default is true.
 	 */
 	public void setFilterTouchEvents (boolean filterEvents);
 
@@ -170,7 +171,8 @@ public interface IPull2Refresh <T extends View> {
 	/**
 	 * Set the mode of Pull-to-Refresh that this view will use.
 	 * 
-	 * @param mode - Mode to set the View to
+	 * @param mode
+	 *            - Mode to set the View to
 	 */
 	public void setMode (Mode mode);
 
@@ -178,40 +180,40 @@ public interface IPull2Refresh <T extends View> {
 	/**
 	 * Set OnPullEventListener for the Widget
 	 * 
-	 * @param listener - Listener to be used when the Widget has a pull event to
+	 * @param listener
+	 *            - Listener to be used when the Widget has a pull event to
 	 *            propogate.
 	 */
-	public void setOnPullEventListener (
-		OnPullEventListener<T> listener);
+	public void setOnPullEventListener (OnPullEventListener <T> listener);
 
 
 	/**
 	 * Set OnRefreshListener for the Widget
 	 * 
-	 * @param listener - Listener to be used when the Widget is set to Refresh
+	 * @param listener
+	 *            - Listener to be used when the Widget is set to Refresh
 	 */
-	public void setOnRefreshListener (
-		OnRefreshListener<T> listener);
+	public void setOnRefreshListener (OnRefreshListener <T> listener);
 
 
 	/**
 	 * Set OnRefreshListener for the Widget
 	 * 
-	 * @param listener - Listener to be used when the Widget is set to Refresh
+	 * @param listener
+	 *            - Listener to be used when the Widget is set to Refresh
 	 */
-	public void setOnRefreshListener (
-		OnRefreshListener2<T> listener);
+	public void setOnRefreshListener (OnRefreshListener2 <T> listener);
 
 
 	/**
 	 * Sets whether Overscroll support is enabled. This is different to
-	 * Android's standard Overscroll support (the edge-glow). This setting only
-	 * takes effect when running on device with Android v2.3 or greater.
+	 * Android's standard Overscroll support (the edge-glow). This setting
+	 * only takes effect when running on device with Android v2.3 or greater.
 	 * 
-	 * @param enabled - true if you want Overscroll enabled
+	 * @param enabled
+	 *            - true if you want Overscroll enabled
 	 */
-	public void setPull2RefreshOverScrollEnabled (
-		boolean enabled);
+	public void setPull2RefreshOverScrollEnabled (boolean enabled);
 
 
 	/**
@@ -225,8 +227,8 @@ public interface IPull2Refresh <T extends View> {
 	 * Sets the Widget to be in the refresh state. The UI will be updated to
 	 * show the 'Refreshing' view.
 	 * 
-	 * @param doScroll - true if you want to force a scroll to the Refreshing
-	 *            view.
+	 * @param doScroll
+	 *            - true if you want to force a scroll to the Refreshing view.
 	 */
 	public void setRefreshing (boolean doScroll);
 
@@ -235,18 +237,18 @@ public interface IPull2Refresh <T extends View> {
 	 * Sets the Animation Interpolator that is used for animated scrolling.
 	 * Defaults to a DecelerateInterpolator
 	 * 
-	 * @param interpolator - Interpolator to use
+	 * @param interpolator
+	 *            - Interpolator to use
 	 */
-	public void setScrollAnimationInterpolator (
-		Interpolator interpolator);
+	public void setScrollAnimationInterpolator (Interpolator interpolator);
 
 
 	/**
 	 * By default the Widget disables scrolling on the Refreshable View while
 	 * refreshing. This method can change this behaviour.
 	 * 
-	 * @param scrollingWhileRefreshingEnabled - true if you want to enable
-	 *            scrolling while refreshing
+	 * @param scrollingWhileRefreshingEnabled
+	 *            - true if you want to enable scrolling while refreshing
 	 */
 	public void setScrollingWhileRefreshingEnabled (
 		boolean scrollingWhileRefreshingEnabled);
@@ -258,7 +260,5 @@ public interface IPull2Refresh <T extends View> {
 	 * 
 	 * @param showView
 	 */
-	public void
-		setShowViewWhileRefreshing (boolean showView);
-
+	public void setShowViewWhileRefreshing (boolean showView);
 }

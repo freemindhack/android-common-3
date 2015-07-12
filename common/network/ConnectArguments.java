@@ -17,12 +17,10 @@ public class ConnectArguments {
 	}
 
 
-	public ConnectArguments (String protocol,
-		boolean reconnect) {
+	public ConnectArguments (String protocol, boolean reconnect) {
 		if (null != protocol) {
 			this.protocol = protocol;
 		}
-
 		this.reconnect = reconnect;
 	}
 

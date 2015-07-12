@@ -22,18 +22,12 @@ public class VersionUtils implements VersionUtilsInterface {
 			if (null == this.savedContext) {
 				return "";
 			}
-
-			PackageManager pm =
-				this.savedContext.getPackageManager();
-
-			PackageInfo info =
-				pm.getPackageInfo(
-					this.savedContext.getPackageName(), 0);
-
+			PackageManager pm = this.savedContext.getPackageManager();
+			PackageInfo info = pm.getPackageInfo(
+				this.savedContext.getPackageName(), 0);
 			return info.versionName;
 		} catch (Exception e) {
-			Log.e(TAG + ":VersionUtils",
-				"ERROR: " + e.getMessage());
+			Log.e(TAG + ":VersionUtils", "ERROR: " + e.getMessage());
 			return "";
 		}
 	}
@@ -43,15 +37,12 @@ public class VersionUtils implements VersionUtilsInterface {
 	public String getVersionString () {
 		try {
 			int versionCode = this.getVersionCode();
-
 			if (-1 == versionCode) {
 				return "";
 			}
-
 			return this.fourcc2string(versionCode);
 		} catch (Exception e) {
-			Log.e(TAG + ":getVersionString",
-				"ERROR: " + e.getMessage());
+			Log.e(TAG + ":getVersionString", "ERROR: " + e.getMessage());
 			return "";
 		}
 	}
@@ -63,18 +54,12 @@ public class VersionUtils implements VersionUtilsInterface {
 			if (null == this.savedContext) {
 				return -1;
 			}
-
-			PackageManager pm =
-				this.savedContext.getPackageManager();
-
-			PackageInfo info =
-				pm.getPackageInfo(
-					this.savedContext.getPackageName(), 0);
-
+			PackageManager pm = this.savedContext.getPackageManager();
+			PackageInfo info = pm.getPackageInfo(
+				this.savedContext.getPackageName(), 0);
 			return info.versionCode;
 		} catch (Exception e) {
-			Log.e(TAG + ":getVersionCode",
-				"ERROR: " + e.getMessage());
+			Log.e(TAG + ":getVersionCode", "ERROR: " + e.getMessage());
 			return -1;
 		}
 	}
@@ -84,12 +69,9 @@ public class VersionUtils implements VersionUtilsInterface {
 	public boolean isNew (String fourccString) {
 		try {
 			int versionCode = this.getVersionCode();
-
-			return versionCode < this
-				.string2fourcc(fourccString);
+			return versionCode < this.string2fourcc(fourccString);
 		} catch (Exception e) {
-			Log.e(TAG + ":isNew",
-				"ERROR: " + e.getMessage());
+			Log.e(TAG + ":isNew", "ERROR: " + e.getMessage());
 			return false;
 		}
 	}
@@ -101,22 +83,14 @@ public class VersionUtils implements VersionUtilsInterface {
 			if (null == fourccString) {
 				return -1;
 			}
-
-			String[] codeStrings =
-				fourccString.split("\\.");
-
+			String[] codeStrings = fourccString.split("\\.");
 			int ret = 0;
-
 			for (int i = 0; i < 4; ++i) {
-				ret |=
-					((int) StringUtils
-						.toInteger(codeStrings[i])) << (24 - (8 * i));
+				ret |= ((int) StringUtils.toInteger(codeStrings[i])) << (24 - (8 * i));
 			}
-
 			return ret;
 		} catch (Exception e) {
-			Log.e(TAG + ":string2fourcc",
-				"ERROR: " + e.getMessage());
+			Log.e(TAG + ":string2fourcc", "ERROR: " + e.getMessage());
 			return -1;
 		}
 	}
@@ -126,25 +100,17 @@ public class VersionUtils implements VersionUtilsInterface {
 	public String fourcc2string (int fourccValue) {
 		try {
 			byte code;
-
 			String ret = new String("");
-
 			for (int i = 0; i < 3; ++i) {
-				code =
-					(byte) (0xff & (fourccValue >> (24 - (8 * i))));
-
+				code = (byte) (0xff & (fourccValue >> (24 - (8 * i))));
 				ret += StringUtils.toString(code);
 				ret += ".";
 			}
-
 			code = (byte) (0xff & fourccValue);
-
 			ret += StringUtils.toString(code);
-
 			return ret;
 		} catch (Exception e) {
-			Log.e(TAG + ":fourcc2string",
-				"ERROR: " + e.getMessage());
+			Log.e(TAG + ":fourcc2string", "ERROR: " + e.getMessage());
 			return "";
 		}
 	}

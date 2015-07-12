@@ -21,10 +21,8 @@ public class ApkUtils implements ApkUtilsInterface {
 	@Override
 	public void startInstall (String absoluteApkPath) {
 		Intent intent = new Intent(Intent.ACTION_VIEW);
-		intent.setDataAndType(
-			Uri.fromFile(new File(absoluteApkPath)),
+		intent.setDataAndType(Uri.fromFile(new File(absoluteApkPath)),
 			"application/vnd.android.package-archive");
-
 		this.savedContext.startActivity(intent);
 	}
 }

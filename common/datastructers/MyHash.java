@@ -8,8 +8,8 @@ import java.util.List;
 public class MyHash <T_KEY, T_VALUE> {
 	public MyHash () {
 		try {
-			this.keys = new ArrayList<T_KEY>();
-			this.values = new ArrayList<T_VALUE>();
+			this.keys = new ArrayList <T_KEY>();
+			this.values = new ArrayList <T_VALUE>();
 			this.keys.clear();
 			this.values.clear();
 		} catch (Exception e) {
@@ -42,37 +42,29 @@ public class MyHash <T_KEY, T_VALUE> {
 			if ((null == key) || (null == value)) {
 				return false;
 			}
-
 			boolean found = false;
 			int n = this.keys.size();
-
 			for (int i = 0; i < n; ++i) {
 				if (this.keys.get(i).equals(key)) {
 					found = true;
 					break;
 				}
 			}
-
 			if (found) {
 				return false;
 			}
-
 			n = this.values.size();
-
 			for (int i = 0; i < n; ++i) {
 				if (this.values.get(i).equals(value)) {
 					found = true;
 					break;
 				}
 			}
-
 			if (found) {
 				return false;
 			}
-
 			this.keys.add(key);
 			this.values.add(value);
-
 			return true;
 		} catch (Exception e) {
 			return false;
@@ -85,7 +77,6 @@ public class MyHash <T_KEY, T_VALUE> {
 			if ((which >= 0) && (which < this.keys.size())) {
 				this.keys.remove(which);
 				this.values.remove(which);
-
 				return true;
 			} else {
 				return false;
@@ -101,13 +92,10 @@ public class MyHash <T_KEY, T_VALUE> {
 			if (null == key) {
 				return false;
 			}
-
 			int which = this.whichOfKeys(key);
-
 			if ((which >= 0) && (which < this.keys.size())) {
 				this.keys.remove(which);
 				this.values.remove(which);
-
 				return true;
 			} else {
 				return false;
@@ -123,14 +111,10 @@ public class MyHash <T_KEY, T_VALUE> {
 			if (null == value) {
 				return false;
 			}
-
 			int which = this.whichOfValues(value);
-
-			if ((which >= 0)
-				&& (which < this.values.size())) {
+			if ((which >= 0) && (which < this.values.size())) {
 				this.keys.remove(which);
 				this.values.remove(which);
-
 				return true;
 			} else {
 				return false;
@@ -146,14 +130,12 @@ public class MyHash <T_KEY, T_VALUE> {
 			boolean found = false;
 			int i;
 			int n = this.keys.size();
-
 			for (i = 0; i < n; ++i) {
 				if (this.keys.get(i).equals(key)) {
 					found = true;
 					break;
 				}
 			}
-
 			if (!found) {
 				return -1;
 			} else {
@@ -170,14 +152,12 @@ public class MyHash <T_KEY, T_VALUE> {
 			boolean found = false;
 			int i;
 			int n = this.values.size();
-
 			for (i = 0; i < n; ++i) {
 				if (this.values.get(i).equals(value)) {
 					found = true;
 					break;
 				}
 			}
-
 			if (!found) {
 				return -1;
 			} else {
@@ -227,7 +207,6 @@ public class MyHash <T_KEY, T_VALUE> {
 					break;
 				}
 			}
-
 			if (!found) {
 				return null;
 			} else {
@@ -250,7 +229,6 @@ public class MyHash <T_KEY, T_VALUE> {
 					break;
 				}
 			}
-
 			if (!found) {
 				return null;
 			} else {
@@ -264,8 +242,7 @@ public class MyHash <T_KEY, T_VALUE> {
 
 	public T_VALUE value (int which) {
 		try {
-			if ((which >= 0)
-				&& (which < this.values.size())) {
+			if ((which >= 0) && (which < this.values.size())) {
 				return this.values.get(which);
 			} else {
 				return null;
@@ -286,7 +263,6 @@ public class MyHash <T_KEY, T_VALUE> {
 					break;
 				}
 			}
-
 			if (found) {
 				return true;
 			} else {
@@ -298,13 +274,11 @@ public class MyHash <T_KEY, T_VALUE> {
 	}
 
 
-	public boolean
-		set (int which, T_KEY key, T_VALUE value) {
+	public boolean set (int which, T_KEY key, T_VALUE value) {
 		try {
 			if (which < 0 || which >= this.values.size()) {
 				return false;
 			}
-
 			boolean ret = this.remove(which);
 			if (ret) {
 				return this.insert(key, value);
@@ -317,22 +291,17 @@ public class MyHash <T_KEY, T_VALUE> {
 	}
 
 
-	public boolean
-		setNewValue (T_KEY key, T_VALUE newValue) {
+	public boolean setNewValue (T_KEY key, T_VALUE newValue) {
 		try {
 			int which = this.whichOfKeys(key);
-
 			if (which < 0) {
 				return false;
 			}
-
 			int whichValue = this.whichOfValues(newValue);
 			if (whichValue >= 0) {
 				return false;
 			}
-
 			this.values.set(which, newValue);
-
 			return true;
 		} catch (Exception e) {
 			return false;
@@ -343,18 +312,14 @@ public class MyHash <T_KEY, T_VALUE> {
 	public boolean setNewKey (T_KEY key, T_KEY newKey) {
 		try {
 			int which = this.whichOfKeys(key);
-
 			if (which < 0) {
 				return false;
 			}
-
 			int whichValue = this.whichOfKeys(newKey);
 			if (whichValue >= 0) {
 				return false;
 			}
-
 			this.keys.set(which, newKey);
-
 			return true;
 		} catch (Exception e) {
 			return false;
@@ -362,6 +327,6 @@ public class MyHash <T_KEY, T_VALUE> {
 	}
 
 
-	private List<T_KEY> keys;
-	private List<T_VALUE> values;
+	private List <T_KEY> keys;
+	private List <T_VALUE> values;
 }

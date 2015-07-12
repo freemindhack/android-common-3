@@ -14,16 +14,14 @@ import android.widget.LinearLayout;
 import com.za.wifilock.R;
 
 
-public class NumberKeyboard extends LinearLayout implements
-	OnClickListener {
+public class NumberKeyboard extends LinearLayout implements OnClickListener {
 	public NumberKeyboard (Context context) {
 		super(context);
 		init(context);
 	}
 
 
-	public NumberKeyboard (Context context,
-		AttributeSet attrs) {
+	public NumberKeyboard (Context context, AttributeSet attrs) {
 		super(context, attrs);
 		init(context);
 	}
@@ -60,44 +58,27 @@ public class NumberKeyboard extends LinearLayout implements
 		} else if (widget.getId() == R.id.numberkeyboard_delete) {
 			numberQueue.enqueue(8);
 		}
-
 		if (onKeyPressedListener != null) {
-			onKeyPressedListener
-				.onKeyPressed(this.numberQueue.dequeue());
+			onKeyPressedListener.onKeyPressed(this.numberQueue.dequeue());
 		}
 	}
 
 
 	private void init (Context context) {
-		LayoutInflater inflater =
-			(LayoutInflater) context
-				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		inflater.inflate(R.layout.linearlayout_numkeyboard,
-			this);
-
-		num1 =
-			(ImageButton) findViewById(R.id.numberkeyboard_1);
-		num2 =
-			(ImageButton) findViewById(R.id.numberkeyboard_2);
-		num3 =
-			(ImageButton) findViewById(R.id.numberkeyboard_3);
-		num4 =
-			(ImageButton) findViewById(R.id.numberkeyboard_4);
-		num5 =
-			(ImageButton) findViewById(R.id.numberkeyboard_5);
-		num6 =
-			(ImageButton) findViewById(R.id.numberkeyboard_6);
-		num7 =
-			(ImageButton) findViewById(R.id.numberkeyboard_7);
-		num8 =
-			(ImageButton) findViewById(R.id.numberkeyboard_8);
-		num9 =
-			(ImageButton) findViewById(R.id.numberkeyboard_9);
-		num0 =
-			(ImageButton) findViewById(R.id.numberkeyboard_0);
-		delete =
-			(ImageButton) findViewById(R.id.numberkeyboard_delete);
-
+		LayoutInflater inflater = (LayoutInflater) context
+			.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		inflater.inflate(R.layout.linearlayout_numkeyboard, this);
+		num1 = (ImageButton) findViewById(R.id.numberkeyboard_1);
+		num2 = (ImageButton) findViewById(R.id.numberkeyboard_2);
+		num3 = (ImageButton) findViewById(R.id.numberkeyboard_3);
+		num4 = (ImageButton) findViewById(R.id.numberkeyboard_4);
+		num5 = (ImageButton) findViewById(R.id.numberkeyboard_5);
+		num6 = (ImageButton) findViewById(R.id.numberkeyboard_6);
+		num7 = (ImageButton) findViewById(R.id.numberkeyboard_7);
+		num8 = (ImageButton) findViewById(R.id.numberkeyboard_8);
+		num9 = (ImageButton) findViewById(R.id.numberkeyboard_9);
+		num0 = (ImageButton) findViewById(R.id.numberkeyboard_0);
+		delete = (ImageButton) findViewById(R.id.numberkeyboard_delete);
 		num1.setOnClickListener(this);
 		num2.setOnClickListener(this);
 		num3.setOnClickListener(this);
@@ -112,10 +93,8 @@ public class NumberKeyboard extends LinearLayout implements
 	}
 
 
-	private ImageButton num1, num2, num3, num4, num5, num6,
-		num7, num8, num9, num0, delete;
-
+	private ImageButton num1, num2, num3, num4, num5, num6, num7, num8, num9,
+		num0, delete;
 	private OnKeyPressedListener onKeyPressedListener;
-	private MyQueue<Integer> numberQueue =
-		new MyQueue<Integer>();
+	private MyQueue <Integer> numberQueue = new MyQueue <Integer>();
 }

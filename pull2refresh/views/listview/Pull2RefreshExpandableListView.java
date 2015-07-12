@@ -1,18 +1,3 @@
-/*******************************************************************************
- * Copyright 2011, 2012 Chris Banes.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *******************************************************************************/
 package nocom.pull2refresh.views.listview;
 
 
@@ -29,72 +14,59 @@ import android.widget.ExpandableListView;
 
 
 public class Pull2RefreshExpandableListView extends
-	Pull2RefreshAdapterViewBase<ExpandableListView> {
-
+	Pull2RefreshAdapterViewBase <ExpandableListView> {
 	public Pull2RefreshExpandableListView (Context context) {
 		super(context);
 	}
 
 
-	public Pull2RefreshExpandableListView (Context context,
-		AttributeSet attrs) {
+	public Pull2RefreshExpandableListView (Context context, AttributeSet attrs) {
 		super(context, attrs);
 	}
 
 
-	public Pull2RefreshExpandableListView (Context context,
-		Mode mode) {
+	public Pull2RefreshExpandableListView (Context context, Mode mode) {
 		super(context, mode);
 	}
 
 
-	public Pull2RefreshExpandableListView (Context context,
-		Mode mode, AnimationStyle style) {
+	public Pull2RefreshExpandableListView (Context context, Mode mode,
+		AnimationStyle style) {
 		super(context, mode, style);
 	}
 
 
 	@Override
-	public final Orientation
-		getPull2RefreshScrollDirection () {
+	public final Orientation getPull2RefreshScrollDirection () {
 		return Orientation.VERTICAL;
 	}
 
 
 	@Override
-	protected ExpandableListView createRefreshableView (
-		Context context, AttributeSet attrs) {
+	protected ExpandableListView createRefreshableView (Context context,
+		AttributeSet attrs) {
 		final ExpandableListView lv;
 		if (VERSION.SDK_INT >= VERSION_CODES.GINGERBREAD) {
-			lv =
-				new InternalExpandableListViewSDK9(context,
-					attrs);
+			lv = new InternalExpandableListViewSDK9(context, attrs);
 		} else {
-			lv =
-				new InternalExpandableListView(context,
-					attrs);
+			lv = new InternalExpandableListView(context, attrs);
 		}
-
 		// Set it to this so it can be used in ListActivity/ListFragment
 		lv.setId(android.R.id.list);
 		return lv;
 	}
 
 
-	class InternalExpandableListView extends
-		ExpandableListView implements
+	class InternalExpandableListView extends ExpandableListView implements
 		EmptyViewMethodAccessor {
-
-		public InternalExpandableListView (Context context,
-			AttributeSet attrs) {
+		public InternalExpandableListView (Context context, AttributeSet attrs) {
 			super(context, attrs);
 		}
 
 
 		@Override
 		public void setEmptyView (View emptyView) {
-			Pull2RefreshExpandableListView.this
-				.setEmptyView(emptyView);
+			Pull2RefreshExpandableListView.this.setEmptyView(emptyView);
 		}
 
 
@@ -108,32 +80,23 @@ public class Pull2RefreshExpandableListView extends
 	@TargetApi (9)
 	final class InternalExpandableListViewSDK9 extends
 		InternalExpandableListView {
-
-		public InternalExpandableListViewSDK9 (
-			Context context, AttributeSet attrs) {
+		public InternalExpandableListViewSDK9 (Context context,
+			AttributeSet attrs) {
 			super(context, attrs);
 		}
 
 
 		@Override
-		protected boolean overScrollBy (int deltaX,
-			int deltaY, int scrollX, int scrollY,
-			int scrollRangeX, int scrollRangeY,
-			int maxOverScrollX, int maxOverScrollY,
-			boolean isTouchEvent) {
-
-			final boolean returnValue =
-				super.overScrollBy(deltaX, deltaY, scrollX,
-					scrollY, scrollRangeX, scrollRangeY,
-					maxOverScrollX, maxOverScrollY,
-					isTouchEvent);
-
+		protected boolean overScrollBy (int deltaX, int deltaY, int scrollX,
+			int scrollY, int scrollRangeX, int scrollRangeY,
+			int maxOverScrollX, int maxOverScrollY, boolean isTouchEvent) {
+			final boolean returnValue = super.overScrollBy(deltaX, deltaY,
+				scrollX, scrollY, scrollRangeX, scrollRangeY, maxOverScrollX,
+				maxOverScrollY, isTouchEvent);
 			// Does all of the hard work...
 			OverscrollHelper.overScrollBy(
-				Pull2RefreshExpandableListView.this,
-				deltaX, scrollX, deltaY, scrollY,
-				isTouchEvent);
-
+				Pull2RefreshExpandableListView.this, deltaX, scrollX, deltaY,
+				scrollY, isTouchEvent);
 			return returnValue;
 		}
 	}

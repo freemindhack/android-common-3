@@ -10,8 +10,7 @@ public interface MsgPopupUtilsInterface {
 	};
 
 
-	public void showOkMsg (String title, String msg,
-		MessageLevel messageLevel);
+	public void showOkMsg (String title, String msg, MessageLevel messageLevel);
 
 
 	public void showOkMsg (String title, String msg,
@@ -19,13 +18,7 @@ public interface MsgPopupUtilsInterface {
 		MsgPopupUtils.MessageLevel messageLevel);
 
 
-	public
-		void
-		showYesOrNoMsg (
-			String title,
-			String msg,
-			String yesTxt,
-			String noTxt,
-			android.content.DialogInterface.OnClickListener yes,
-			android.content.DialogInterface.OnClickListener no);
+	public void showYesOrNoMsg (String title, String msg, String yesTxt,
+		String noTxt, android.content.DialogInterface.OnClickListener yes,
+		android.content.DialogInterface.OnClickListener no);
 }

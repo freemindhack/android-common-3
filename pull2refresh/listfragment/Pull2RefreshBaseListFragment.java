@@ -1,18 +1,3 @@
-/*******************************************************************************
- * Copyright 2011, 2012 Chris Banes.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *******************************************************************************/
 package nocom.pull2refresh.listfragment;
 
 
@@ -26,58 +11,49 @@ import android.widget.AbsListView;
 import android.widget.ListView;
 
 
-abstract class Pull2RefreshBaseListFragment <T extends Pull2RefreshBase<? extends AbsListView>>
+abstract class Pull2RefreshBaseListFragment <T extends Pull2RefreshBase <? extends AbsListView>>
 	extends ListFragment {
-
-	private T mPullToRefreshListView;
+	private T mPull2RefreshListView;
 
 
 	@Override
-	public final View onCreateView (
-		LayoutInflater inflater, ViewGroup container,
-		Bundle savedInstanceState) {
-		View layout =
-			super.onCreateView(inflater, container,
-				savedInstanceState);
-
-		ListView lv =
-			(ListView) layout
-				.findViewById(android.R.id.list);
+	public final View onCreateView (LayoutInflater inflater,
+		ViewGroup container, Bundle savedInstanceState) {
+		View layout = super.onCreateView(inflater, container,
+			savedInstanceState);
+		ListView lv = (ListView) layout.findViewById(android.R.id.list);
 		ViewGroup parent = (ViewGroup) lv.getParent();
-
-		// Remove ListView and add PullToRefreshListView in its place
+		// Remove ListView and add Pull2RefreshListView in its place
 		int lvIndex = parent.indexOfChild(lv);
 		parent.removeViewAt(lvIndex);
-		mPullToRefreshListView =
-			onCreatePullToRefreshListView(inflater,
-				savedInstanceState);
-		parent.addView(mPullToRefreshListView, lvIndex,
-			lv.getLayoutParams());
-
+		mPull2RefreshListView = onCreatePull2RefreshListView(inflater,
+			savedInstanceState);
+		parent.addView(mPull2RefreshListView, lvIndex, lv.getLayoutParams());
 		return layout;
 	}
 
 
 	/**
-	 * @return The {@link PullToRefreshBase} attached to this ListFragment.
+	 * @return The {@link Pull2RefreshBase} attached to this ListFragment.
 	 */
-	public final T getPullToRefreshListView () {
-		return mPullToRefreshListView;
+	public final T getPull2RefreshListView () {
+		return mPull2RefreshListView;
 	}
 
 
 	/**
-	 * Returns the {@link PullToRefreshBase} which will replace the ListView
-	 * created from ListFragment. You should override this method if you wish to
-	 * customise the {@link PullToRefreshBase} from the default.
+	 * Returns the {@link Pull2RefreshBase} which will replace the ListView
+	 * created from ListFragment. You should override this method if you wish
+	 * to customise the {@link Pull2RefreshBase} from the default.
 	 * 
-	 * @param inflater - LayoutInflater which can be used to inflate from XML.
-	 * @param savedInstanceState - Bundle passed through from
+	 * @param inflater
+	 *            - LayoutInflater which can be used to inflate from XML.
+	 * @param savedInstanceState
+	 *            - Bundle passed through from
 	 *            {@link ListFragment#onCreateView(LayoutInflater, ViewGroup, Bundle)
 	 *            onCreateView(...)}
-	 * @return The {@link PullToRefreshBase} which will replace the ListView.
+	 * @return The {@link Pull2RefreshBase} which will replace the ListView.
 	 */
-	protected abstract T onCreatePullToRefreshListView (
+	protected abstract T onCreatePull2RefreshListView (
 		LayoutInflater inflater, Bundle savedInstanceState);
-
 }

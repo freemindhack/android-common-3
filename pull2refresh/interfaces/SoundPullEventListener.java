@@ -1,18 +1,3 @@
-/*******************************************************************************
- * Copyright 2011, 2012 Chris Banes.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *******************************************************************************/
 package nocom.pull2refresh.interfaces;
 
 
@@ -27,30 +12,28 @@ import android.media.MediaPlayer;
 import android.view.View;
 
 
-public class SoundPullEventListener <V extends View>
-	implements Pull2RefreshBase.OnPullEventListener<V> {
-
+public class SoundPullEventListener <V extends View> implements
+	Pull2RefreshBase.OnPullEventListener <V> {
 	private final Context mContext;
-	private final HashMap<State, Integer> mSoundMap;
-
+	private final HashMap <State, Integer> mSoundMap;
 	private MediaPlayer mCurrentMediaPlayer;
 
 
 	/**
 	 * Constructor
 	 * 
-	 * @param context - Context
+	 * @param context
+	 *            - Context
 	 */
 	public SoundPullEventListener (Context context) {
 		mContext = context;
-		mSoundMap = new HashMap<State, Integer>();
+		mSoundMap = new HashMap <State, Integer>();
 	}
 
 
 	@Override
-	public final void onPullEvent (
-		Pull2RefreshBase<V> refreshView, State event,
-		Mode direction) {
+	public final void onPullEvent (Pull2RefreshBase <V> refreshView,
+		State event, Mode direction) {
 		Integer soundResIdObj = mSoundMap.get(event);
 		if (null != soundResIdObj) {
 			playSound(soundResIdObj.intValue());
@@ -59,15 +42,17 @@ public class SoundPullEventListener <V extends View>
 
 
 	/**
-	 * Set the Sounds to be played when a Pull Event happens. You specify which
-	 * sound plays for which events by calling this method multiple times for
-	 * each event.
+	 * Set the Sounds to be played when a Pull Event happens. You specify
+	 * which sound plays for which events by calling this method multiple
+	 * times for each event.
 	 * <p/>
-	 * If you've already set a sound for a certain event, and add another sound
-	 * for that event, only the new sound will be played.
+	 * If you've already set a sound for a certain event, and add another
+	 * sound for that event, only the new sound will be played.
 	 * 
-	 * @param event - The event for which the sound will be played.
-	 * @param resId - Resource Id of the sound file to be played (e.g.
+	 * @param event
+	 *            - The event for which the sound will be played.
+	 * @param resId
+	 *            - Resource Id of the sound file to be played (e.g.
 	 *            <var>R.raw.pull_sound</var>)
 	 */
 	public void addSoundEvent (State event, int resId) {
@@ -97,12 +82,9 @@ public class SoundPullEventListener <V extends View>
 			mCurrentMediaPlayer.stop();
 			mCurrentMediaPlayer.release();
 		}
-
-		mCurrentMediaPlayer =
-			MediaPlayer.create(mContext, resId);
+		mCurrentMediaPlayer = MediaPlayer.create(mContext, resId);
 		if (null != mCurrentMediaPlayer) {
 			mCurrentMediaPlayer.start();
 		}
 	}
-
 }
