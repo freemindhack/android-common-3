@@ -568,13 +568,25 @@ public class Pull2RefreshListView extends
 				if (itemView.getScrollX() >= scrollWidth) {
 					itemView.scrollTo(scrollWidth
 						* (itemView.getScrollX() / scrollWidth), 0);
+
+					postDelayed(new Runnable() {
+
+						@Override
+						public void run () {
+							try {
+								itemView.scrollTo(0, 0);
+							} catch (Exception e) {
+								;
+							}
+						}
+
+					}, 2000);
 				} else if (itemView.getScrollX() <= -scrollWidth) {
 					itemView.scrollTo(
 						-scrollWidth
 							* (-1 * itemView.getScrollX() / scrollWidth), 0);
 				} else {
 					itemView.scrollTo(0, 0);
-
 				}
 
 				if (this.hasSavedLongClickable) {
