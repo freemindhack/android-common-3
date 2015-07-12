@@ -5,6 +5,7 @@ package nocom.pull2refresh.views.listview;
 import nocom.pull2refresh.common.LoadingLayoutProxy;
 import nocom.pull2refresh.common.OverscrollHelper;
 import nocom.pull2refresh.interfaces.EmptyViewMethodAccessor;
+import nocom.pull2refresh.listactivity.R;
 import nocom.pull2refresh.views.LoadingLayout;
 import nocom.pull2refresh.views.Pull2RefreshAdapterViewBase;
 import android.annotation.SuppressLint;
@@ -27,9 +28,6 @@ import android.widget.FrameLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Scroller;
-
-
-import com.za.wifilock.R;
 
 
 public class Pull2RefreshListView extends
@@ -557,6 +555,8 @@ public class Pull2RefreshListView extends
 		 * 根据手指滚动itemView的距离来判断是滚动到开始位置还是向左或者向右滚动
 		 */
 		private void scrollByDistanceX () {
+			boolean needRestore = false;
+
 			/* 如果向左滚动的距离大于屏幕的三分之一，就让其删除 */
 			if (itemView.getScrollX() >= 2 * (screenWidth / 3)) {
 				scrollLeft();
@@ -569,22 +569,13 @@ public class Pull2RefreshListView extends
 					itemView.scrollTo(scrollWidth
 						* (itemView.getScrollX() / scrollWidth), 0);
 
-					postDelayed(new Runnable() {
-
-						@Override
-						public void run () {
-							try {
-								itemView.scrollTo(0, 0);
-							} catch (Exception e) {
-								;
-							}
-						}
-
-					}, 2000);
+					needRestore = true;
 				} else if (itemView.getScrollX() <= -scrollWidth) {
 					itemView.scrollTo(
 						-scrollWidth
 							* (-1 * itemView.getScrollX() / scrollWidth), 0);
+
+					needRestore = true;
 				} else {
 					itemView.scrollTo(0, 0);
 				}
@@ -594,6 +585,22 @@ public class Pull2RefreshListView extends
 
 					this.hasSavedLongClickable = false;
 				}
+			}
+
+			if (needRestore) {
+
+				postDelayed(new Runnable() {
+
+					@Override
+					public void run () {
+						try {
+							itemView.scrollTo(0, 0);
+						} catch (Exception e) {
+							;
+						}
+					}
+
+				}, 2000);
 			}
 		}
 
