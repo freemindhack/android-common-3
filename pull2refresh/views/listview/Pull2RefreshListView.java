@@ -5,7 +5,6 @@ package nocom.pull2refresh.views.listview;
 import nocom.pull2refresh.common.LoadingLayoutProxy;
 import nocom.pull2refresh.common.OverscrollHelper;
 import nocom.pull2refresh.interfaces.EmptyViewMethodAccessor;
-import nocom.pull2refresh.listactivity.R;
 import nocom.pull2refresh.views.LoadingLayout;
 import nocom.pull2refresh.views.Pull2RefreshAdapterViewBase;
 import android.annotation.SuppressLint;
@@ -28,6 +27,9 @@ import android.widget.FrameLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Scroller;
+
+
+import com.za.wifilock.R;
 
 
 public class Pull2RefreshListView extends
