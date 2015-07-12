@@ -1,12 +1,18 @@
+
 package nocom.common.network;
 
 
 public class ConnectArguments {
 	public String protocol = new String("");
+
 	private String peerIp = new String("");
+
 	private int peerPort = 0x0;
+
 	public int connectTimeout = 5000;/* 5 s */
+
 	protected long recvTimeout = 1000;/* 10 s */
+
 	public boolean reconnect = false;
 
 

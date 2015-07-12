@@ -1,3 +1,4 @@
+
 package nocom.common.wifi;
 
 
@@ -17,8 +18,10 @@ import android.util.Log;
 
 public class MyWifiManager implements MyWifiManagerInterface {
 	private WifiManager wifiManager = null;
+
 	// private WifiInfo wifiInfo = null;
 	private List <ScanResult> reachableWifisList = null;
+
 	protected Context savedContext = null;
 
 
@@ -755,7 +758,9 @@ public class MyWifiManager implements MyWifiManagerInterface {
 
 
 	private boolean savedWifiState = false;
+
 	private String savedStaticNetowrk = "";
+
 	private WifiConfiguration savedWifiConfiguration = null;
 
 

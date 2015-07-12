@@ -1,3 +1,4 @@
+
 package nocom.pull2refresh.common;
 
 
@@ -12,6 +13,7 @@ import android.view.View;
 @TargetApi (9)
 public final class OverscrollHelper {
 	static final String LOG_TAG = "OverscrollHelper";
+
 	static final float DEFAULT_OVERSCROLL_SCALE = 1f;
 
 

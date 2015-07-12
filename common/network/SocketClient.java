@@ -1,3 +1,4 @@
+
 package nocom.common.network;
 
 
@@ -21,21 +22,37 @@ import android.util.Log;
 
 public abstract class SocketClient implements SocketClientInterface {
 	private Socket socketClient = null;
+
 	private Thread onSocketThread = null;
+
 	private Thread onReceiveThread = null;
+
 	private Thread onSendThread = null;
+
 	private InputStream thisInputStream = null;
+
 	private OutputStream thisOutputStream = null;
+
 	private int socketClientConnectState = SocketClient.SOCKET_STATE_IDLE;
+
 	private ConnectArguments connectArguments = new ConnectArguments("");
+
 	private MyQueue <SendRecvData> newSendBuffers = new MyQueue <SendRecvData>();
+
 	private MyQueue <SendRecvData> waitAckBuffers = new MyQueue <SendRecvData>();
+
 	private boolean thisIsSendRunning = false;
+
 	private boolean thisIsRecvRunning = false;
+
 	private Handler stateChangedHandler = null;
+
 	private OnSocketStateChanged onSocketStateChanged = null;
+
 	private boolean _SOCKET_MUTEX = true;
+
 	public String lastErrorString = "";
+
 	public int lastErrno = SocketClient.ERRNO_NO_ERROR;
 
 
@@ -289,6 +306,7 @@ public abstract class SocketClient implements SocketClientInterface {
 			}
 		}
 	}; /* end of socketRuntime */
+
 	Runnable receiveRuntime = new Runnable() {
 		public void run () {
 			try { /* all of this func */
@@ -476,6 +494,7 @@ public abstract class SocketClient implements SocketClientInterface {
 			}
 		}
 	}; /* receiveRuntime */
+
 	Runnable sendRuntime = new Runnable() {
 		public void run () {
 			try { /* all of this func */

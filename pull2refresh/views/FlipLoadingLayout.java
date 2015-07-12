@@ -1,4 +1,8 @@
+
 package nocom.pull2refresh.views;
+
+
+import com.za.wifilock.R;
 
 
 import nocom.pull2refresh.views.Pull2RefreshBase.Mode;
@@ -15,12 +19,10 @@ import android.view.animation.RotateAnimation;
 import android.widget.ImageView.ScaleType;
 
 
-import com.za.wifilock.R;
-
-
 @SuppressLint ("ViewConstructor")
 public class FlipLoadingLayout extends LoadingLayout {
 	static final int FLIP_ANIMATION_DURATION = 150;
+
 	private final Animation mRotateAnimation, mResetRotateAnimation;
 
 

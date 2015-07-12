@@ -1,3 +1,4 @@
+
 package nocom.pull2refresh.interfaces;
 
 
@@ -15,7 +16,9 @@ import android.view.View;
 public class SoundPullEventListener <V extends View> implements
 	Pull2RefreshBase.OnPullEventListener <V> {
 	private final Context mContext;
+
 	private final HashMap <State, Integer> mSoundMap;
+
 	private MediaPlayer mCurrentMediaPlayer;
 
 

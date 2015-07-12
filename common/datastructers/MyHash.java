@@ -1,3 +1,4 @@
+
 package nocom.common.datastructers;
 
 
@@ -328,5 +329,6 @@ public class MyHash <T_KEY, T_VALUE> {
 
 
 	private List <T_KEY> keys;
+
 	private List <T_VALUE> values;
 }

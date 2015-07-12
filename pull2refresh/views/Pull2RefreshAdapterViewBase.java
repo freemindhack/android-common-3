@@ -1,4 +1,8 @@
+
 package nocom.pull2refresh.views;
+
+
+import com.za.wifilock.R;
 
 
 import nocom.pull2refresh.interfaces.EmptyViewMethodAccessor;
@@ -20,9 +24,6 @@ import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 
 
-import com.za.wifilock.R;
-
-
 public abstract class Pull2RefreshAdapterViewBase <T extends AbsListView>
 	extends Pull2RefreshBase <T> implements OnScrollListener {
 	private static FrameLayout.LayoutParams convertEmptyViewLayoutParams (
@@ -41,12 +42,19 @@ public abstract class Pull2RefreshAdapterViewBase <T extends AbsListView>
 
 
 	private boolean mLastItemVisible;
+
 	private OnScrollListener mOnScrollListener;
+
 	private OnLastItemVisibleListener mOnLastItemVisibleListener;
+
 	private View mEmptyView;
+
 	private IndicatorLayout mIndicatorIvTop;
+
 	private IndicatorLayout mIndicatorIvBottom;
+
 	private boolean mShowIndicator;
+
 	private boolean mScrollEmptyView = true;
 
 

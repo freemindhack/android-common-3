@@ -1,3 +1,4 @@
+
 package nocom.common.network;
 
 
@@ -6,8 +7,11 @@ import android.os.Handler;
 
 public class SendRecvData {
 	public byte[] data = null;
+
 	public int whatData = -1;
+
 	public OnReceived rcvedHandler = null;
+
 	Handler sentRcvedMsgHandler = null;
 
 

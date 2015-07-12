@@ -1,4 +1,8 @@
+
 package nocom.pull2refresh.views;
+
+
+import com.za.wifilock.R;
 
 
 import nocom.pull2refresh.common.LoadingLayoutProxy;
@@ -7,6 +11,7 @@ import nocom.pull2refresh.common.Utils;
 import nocom.pull2refresh.common.ViewCompat;
 import nocom.pull2refresh.interfaces.LoadingLayoutInterface;
 import nocom.pull2refresh.interfaces.Pull2RefreshInterface;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
@@ -27,52 +32,83 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
 
-import com.za.wifilock.R;
-
-
 public abstract class Pull2RefreshBase <T extends View> extends LinearLayout
 	implements Pull2RefreshInterface <T> {
 	// ===========================================================
 	// Constants
 	// ===========================================================
 	public static final boolean DEBUG = true;
+
 	static final boolean USE_HW_LAYERS = false;
+
 	static final String LOG_TAG = "Pull2Refresh";
+
 	static final float FRICTION = 2.0f;
+
 	public static final int SMOOTH_SCROLL_DURATION_MS = 200;
+
 	public static final int SMOOTH_SCROLL_LONG_DURATION_MS = 325;
+
 	static final int DEMO_SCROLL_INTERVAL = 225;
+
 	static final String STATE_STATE = "ptr_state";
+
 	static final String STATE_MODE = "ptr_mode";
+
 	static final String STATE_CURRENT_MODE = "ptr_current_mode";
+
 	static final String STATE_SCROLLING_REFRESHING_ENABLED = "ptr_disable_scrolling";
+
 	static final String STATE_SHOW_REFRESHING_VIEW = "ptr_show_refreshing_view";
+
 	static final String STATE_SUPER = "ptr_super";
+
 	// ===========================================================
 	// Fields
 	// ===========================================================
 	private int mTouchSlop;
+
 	private float mLastMotionX, mLastMotionY;
+
 	private float mInitialMotionX, mInitialMotionY;
+
 	private boolean mIsBeingDragged = false;
+
 	private State mState = State.RESET;
+
 	private Mode mMode = Mode.getDefault();
+
 	private Mode mCurrentMode;
+
 	protected T mRefreshableView;
+
 	private FrameLayout mRefreshableViewWrapper;
+
 	private boolean mShowViewWhileRefreshing = true;
+
 	private boolean mScrollingWhileRefreshingEnabled = false;
+
 	private boolean mFilterTouchEvents = true;
+
 	private boolean mOverScrollEnabled = true;
+
 	private boolean mLayoutVisibilityChangesEnabled = true;
+
 	private Interpolator mScrollAnimationInterpolator;
+
 	private AnimationStyle mLoadingAnimationStyle = AnimationStyle
 		.getDefault();
+
 	private LoadingLayout mHeaderLayout;
+
 	private LoadingLayout mFooterLayout;
+
 	private OnRefreshListener <T> mOnRefreshListener;
+
 	private OnRefreshListener2 <T> mOnRefreshListener2;
+
 	private OnPullEventListener <T> mOnPullEventListener;
+
 	private SmoothScrollRunnable mCurrentSmoothScrollRunnable;
 
 
@@ -88,6 +124,7 @@ public abstract class Pull2RefreshBase <T extends View> extends LinearLayout
 	public Pull2RefreshBase (Context context, AttributeSet attrs) {
 		super(context, attrs);
 		init(context, attrs);
+
 	}
 
 
@@ -301,6 +338,7 @@ public abstract class Pull2RefreshBase <T extends View> extends LinearLayout
 	}
 
 
+	@SuppressLint ("Recycle")
 	@Override
 	public final boolean onTouchEvent (MotionEvent event) {
 		if (!isPull2RefreshEnabled()) {
@@ -983,6 +1021,7 @@ public abstract class Pull2RefreshBase <T extends View> extends LinearLayout
 	 * @param value
 	 *            - New Scroll value
 	 */
+	@SuppressLint ("InlinedApi")
 	public final void setHeaderScroll (int value) {
 		if (DEBUG) {
 			Log.d(LOG_TAG, "setHeaderScroll: " + value);
@@ -1424,6 +1463,7 @@ public abstract class Pull2RefreshBase <T extends View> extends LinearLayout
 		 * @deprecated Use {@link #PULL_FROM_START} from now on.
 		 */
 		public static Mode PULL_DOWN_TO_REFRESH = Mode.PULL_FROM_START;
+
 		/**
 		 * @deprecated Use {@link #PULL_FROM_END} from now on.
 		 */
@@ -1652,12 +1692,19 @@ public abstract class Pull2RefreshBase <T extends View> extends LinearLayout
 
 	final class SmoothScrollRunnable implements Runnable {
 		private final Interpolator mInterpolator;
+
 		private final int mScrollToY;
+
 		private final int mScrollFromY;
+
 		private final long mDuration;
+
 		private OnSmoothScrollFinishedListener mListener;
+
 		private boolean mContinueRunning = true;
+
 		private long mStartTime = -1;
+
 		private int mCurrentY = -1;
 
 
@@ -1714,4 +1761,6 @@ public abstract class Pull2RefreshBase <T extends View> extends LinearLayout
 	static interface OnSmoothScrollFinishedListener {
 		void onSmoothScrollFinished ();
 	}
+
+	/* private final String TAG = "Pull2RefreshBase"; */
 }

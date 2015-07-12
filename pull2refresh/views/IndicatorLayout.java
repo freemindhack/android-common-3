@@ -1,4 +1,8 @@
+
 package nocom.pull2refresh.views;
+
+
+import com.za.wifilock.R;
 
 
 import android.annotation.SuppressLint;
@@ -17,14 +21,14 @@ import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 
 
-import com.za.wifilock.R;
-
-
 @SuppressLint ("ViewConstructor")
 public class IndicatorLayout extends FrameLayout implements AnimationListener {
 	static final int DEFAULT_ROTATION_ANIMATION_DURATION = 150;
+
 	private Animation mInAnim, mOutAnim;
+
 	private ImageView mArrowImageView;
+
 	private final Animation mRotateAnimation, mResetRotateAnimation;
 
 

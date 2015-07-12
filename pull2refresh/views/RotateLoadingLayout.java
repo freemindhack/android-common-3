@@ -1,4 +1,8 @@
+
 package nocom.pull2refresh.views;
+
+
+import com.za.wifilock.R;
 
 
 import nocom.pull2refresh.views.Pull2RefreshBase.Mode;
@@ -12,14 +16,15 @@ import android.view.animation.RotateAnimation;
 import android.widget.ImageView.ScaleType;
 
 
-import com.za.wifilock.R;
-
-
 public class RotateLoadingLayout extends LoadingLayout {
 	static final int ROTATION_ANIMATION_DURATION = 1200;
+
 	private final Animation mRotateAnimation;
+
 	private final Matrix mHeaderImageMatrix;
+
 	private float mRotationPivotX, mRotationPivotY;
+
 	private final boolean mRotateDrawableWhilePulling;
 
 

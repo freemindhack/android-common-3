@@ -1,3 +1,4 @@
+
 package nocom.common.utils;
 
 
@@ -95,6 +96,8 @@ public class NumberKeyboard extends LinearLayout implements OnClickListener {
 
 	private ImageButton num1, num2, num3, num4, num5, num6, num7, num8, num9,
 		num0, delete;
+
 	private OnKeyPressedListener onKeyPressedListener;
+
 	private MyQueue <Integer> numberQueue = new MyQueue <Integer>();
 }

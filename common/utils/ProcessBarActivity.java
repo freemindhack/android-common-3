@@ -1,3 +1,4 @@
+
 package nocom.common.utils;
 
 
@@ -137,7 +138,9 @@ public abstract class ProcessBarActivity extends Activity implements
 
 	public class ProcessBarThread extends Thread {
 		private boolean terminate = true;
+
 		private boolean selfTerminate = false;
+
 		public boolean running = false;
 
 
@@ -244,10 +247,15 @@ public abstract class ProcessBarActivity extends Activity implements
 
 	/*** XXX normal fields ***/
 	private long baseMs = 0;
+
 	public ProcessBarThread processBarThread = null;
+
 	private TextView textViewProgressBarMsg = null;
+
 	private SelfHandler selfHandler = new SelfHandler();
+
 	/*** XXX static final fields ***/
 	private static final String TAG = "ProcessBarActivity";
+
 	private static final int WHAT_MSG_FINISH = 0xffffff00;
 }

@@ -1,3 +1,4 @@
+
 package nocom.common.utils;
 
 
@@ -113,6 +114,7 @@ public class MsgPopupUtils implements MsgPopupUtilsInterface {
 
 
 	private static List <AlertDialog> dismissDialogs = new ArrayList <AlertDialog>();
+
 	private static Handler dismissDialogHandler = new Handler() {
 		@Override
 		public void handleMessage (Message msg) {

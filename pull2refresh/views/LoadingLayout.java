@@ -1,4 +1,8 @@
+
 package nocom.pull2refresh.views;
+
+
+import com.za.wifilock.R;
 
 
 import nocom.pull2refresh.common.Utils;
@@ -27,24 +31,33 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 
-import com.za.wifilock.R;
-
-
 @SuppressLint ("ViewConstructor")
 public abstract class LoadingLayout extends FrameLayout implements
 	LoadingLayoutInterface {
 	static final String LOG_TAG = "Pull2Refresh-LoadingLayout";
+
 	static final Interpolator ANIMATION_INTERPOLATOR = new LinearInterpolator();
+
 	private FrameLayout mInnerLayout;
+
 	protected final ImageView mHeaderImage;
+
 	protected final ProgressBar mHeaderProgress;
+
 	private boolean mUseIntrinsicAnimation;
+
 	private final TextView mHeaderText;
+
 	private final TextView mSubHeaderText;
+
 	protected final Mode mMode;
+
 	protected final Orientation mScrollDirection;
+
 	private CharSequence mPullLabel;
+
 	private CharSequence mRefreshingLabel;
+
 	private CharSequence mReleaseLabel;
 
 
