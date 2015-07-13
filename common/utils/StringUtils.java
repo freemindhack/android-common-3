@@ -142,6 +142,19 @@ public class StringUtils {
 	}
 
 
+	public static byte[] toData (String s, String charset) {
+		/* char set: e.x.: UTF-8 */
+		try {
+			if (null == s || null == charset) {
+				return null;
+			}
+			return EncodingUtils.getBytes(s, charset);
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+
 	public static String toStringOrigin (byte[] data, String encoding,
 		int count) {
 		/* encoding: e.x.: UTF-8 */

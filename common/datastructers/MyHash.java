@@ -38,11 +38,12 @@ public class MyHash <T_KEY, T_VALUE> {
 	}
 
 
-	public boolean insert (T_KEY key, T_VALUE value) {
+	public boolean insert (T_KEY key, T_VALUE value, boolean val2key) {
 		try {
 			if ((null == key) || (null == value)) {
 				return false;
 			}
+
 			boolean found = false;
 			int n = this.keys.size();
 			for (int i = 0; i < n; ++i) {
@@ -54,15 +55,18 @@ public class MyHash <T_KEY, T_VALUE> {
 			if (found) {
 				return false;
 			}
-			n = this.values.size();
-			for (int i = 0; i < n; ++i) {
-				if (this.values.get(i).equals(value)) {
-					found = true;
-					break;
+
+			if (val2key) {
+				n = this.values.size();
+				for (int i = 0; i < n; ++i) {
+					if (this.values.get(i).equals(value)) {
+						found = true;
+						break;
+					}
 				}
-			}
-			if (found) {
-				return false;
+				if (found) {
+					return false;
+				}
 			}
 			this.keys.add(key);
 			this.values.add(value);
@@ -275,14 +279,14 @@ public class MyHash <T_KEY, T_VALUE> {
 	}
 
 
-	public boolean set (int which, T_KEY key, T_VALUE value) {
+	public boolean set (int which, T_KEY key, T_VALUE value, boolean val2key) {
 		try {
 			if (which < 0 || which >= this.values.size()) {
 				return false;
 			}
 			boolean ret = this.remove(which);
 			if (ret) {
-				return this.insert(key, value);
+				return this.insert(key, value, val2key);
 			} else {
 				return false;
 			}
