@@ -2,7 +2,7 @@
 package nocom.common.sqlite;
 
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 
 
 import nocom.common.datastructers.MyHash;
@@ -137,7 +137,7 @@ public abstract class MySQLiteHelper extends SQLiteOpenHelper implements
 
 
 	/* select row(s) */
-	public LinkedList <MyHash <String, String>> select (String table,
+	public ArrayList <MyHash <String, String>> select (String table,
 		String[] columns, String condition, String[] conditionArgs,
 		String groupBy, String having, String orderBy) {
 		try {
@@ -154,11 +154,11 @@ public abstract class MySQLiteHelper extends SQLiteOpenHelper implements
 				return null;
 			}
 
-			LinkedList <MyHash <String, String>> retval = null;
+			ArrayList <MyHash <String, String>> retval = null;
 			boolean ret = cursor.moveToFirst();
 			if (ret) {
 				int n = columns.length;
-				retval = new LinkedList <MyHash <String, String>>();
+				retval = new ArrayList <MyHash <String, String>>();
 				retval.clear();
 
 				do {
