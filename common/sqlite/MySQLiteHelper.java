@@ -16,8 +16,8 @@ import android.util.Log;
 
 public abstract class MySQLiteHelper extends SQLiteOpenHelper implements
 	MySQLiteSQLs {
-	public MySQLiteHelper (Context context, String dbName) {
-		super(context, dbName, null, MySQLiteHelper.DATABASE_VERSION);
+	public MySQLiteHelper (Context context, String dbName, int dbVersion) {
+		super(context, dbName, null, dbVersion);
 	}
 
 
@@ -242,5 +242,5 @@ public abstract class MySQLiteHelper extends SQLiteOpenHelper implements
 	private static final String TAG = "MySQLiteHelper";
 
 	/* Database Version */
-	private static final int DATABASE_VERSION = 1;
+	/* private static final int DATABASE_VERSION = 1; */
 }
