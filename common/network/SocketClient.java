@@ -45,21 +45,22 @@ public abstract class SocketClient implements SocketClientInterface {
 
 	private boolean thisIsRecvRunning = false;
 
-	private Handler stateChangedHandler = null;
-
-	private OnSocketStateChanged onSocketStateChanged = null;
-
 	private boolean _SOCKET_MUTEX = true;
 
 	public String lastErrorString = "";
 
 	public int lastErrno = SocketClient.ERRNO_NO_ERROR;
 
+	/* saved and for ... and restartMyself */
+	private Handler savedStateChangedHandler;
+
+	private OnSocketStateChanged savedOnSocketStateChanged;
+
 
 	public SocketClient (Handler stateChangedHandler,
 		OnSocketStateChanged onSocketStateChanged) {
-		this.stateChangedHandler = stateChangedHandler;
-		this.onSocketStateChanged = onSocketStateChanged;
+		this.savedStateChangedHandler = stateChangedHandler;
+		this.savedOnSocketStateChanged = onSocketStateChanged;
 	}
 
 
@@ -71,6 +72,35 @@ public abstract class SocketClient implements SocketClientInterface {
 			;
 		}
 	} /* end of finish */
+
+
+	public int restartMyself () {
+		try {
+			Log.v(TAG, "restartMyself");
+
+			try {
+				this.Disconnect();
+			} catch (Exception e) {
+				Log.e(TAG + ":restartMyself:Disconnect",
+					"ERROR: " + e.getMessage());
+			}
+
+			int ret;
+
+			try {
+				ret = this.Connect(this.savedConnectArguments);
+			} catch (Exception e) {
+				Log.e(TAG + ":restartMyself:Connect",
+					"ERROR: " + e.getMessage());
+				ret = -999;
+			}
+
+			return ret;
+		} catch (Exception e) {
+			Log.e(TAG + ":restartMyself", "ERROR: " + e.getMessage());
+			return -999;
+		}
+	} /* restartMyself */
 
 
 	@Override
@@ -259,11 +289,11 @@ public abstract class SocketClient implements SocketClientInterface {
 						UNLOCK();
 						break;/* once */
 					} /* while true */
-					if (null != onSocketStateChanged) {
-						onSocketStateChanged
+					if (null != savedOnSocketStateChanged) {
+						savedOnSocketStateChanged
 							.onSocketStateChanged(socketClientConnectState);
 					}
-					if (null != stateChangedHandler) {
+					if (null != savedStateChangedHandler) {
 						Log.println(Log.VERBOSE,
 							"SocketClient/socketRuntime", "FEEDBACK　STATE");
 						Bundle bundle = new Bundle();
@@ -274,7 +304,7 @@ public abstract class SocketClient implements SocketClientInterface {
 							socketClientConnectState);
 						msg.setData(bundle);
 						try {
-							stateChangedHandler.sendMessage(msg);
+							savedStateChangedHandler.sendMessage(msg);
 						} catch (Exception e) {
 							;
 						}
@@ -286,11 +316,11 @@ public abstract class SocketClient implements SocketClientInterface {
 			} catch (Exception e) {
 				try {
 					UNLOCK();
-					if (null != onSocketStateChanged) {
-						onSocketStateChanged
+					if (null != savedOnSocketStateChanged) {
+						savedOnSocketStateChanged
 							.onSocketStateChanged(SocketClient.SOCKET_STATE_CONNECT_ABORT);
 					}
-					if (null != stateChangedHandler) {
+					if (null != savedStateChangedHandler) {
 						Bundle bundle = new Bundle();
 						Message msg = new Message();
 						msg.what = SocketClient.connectStateKey;
@@ -298,7 +328,7 @@ public abstract class SocketClient implements SocketClientInterface {
 						bundle.putInt(SocketClient.connectStateKeyStr,
 							SocketClient.SOCKET_STATE_CONNECT_ABORT);
 						msg.setData(bundle);
-						stateChangedHandler.sendMessage(msg);
+						savedStateChangedHandler.sendMessage(msg);
 					}
 				} catch (Exception ee) {
 					;
@@ -448,11 +478,11 @@ public abstract class SocketClient implements SocketClientInterface {
 							socketClientConnectState = SocketClient.SOCKET_STATE_RECV_ABORT;
 						}
 					} /* while */
-					if (null != onSocketStateChanged) {
-						onSocketStateChanged
+					if (null != savedOnSocketStateChanged) {
+						savedOnSocketStateChanged
 							.onSocketStateChanged(socketClientConnectState);
 					}
-					if (null != stateChangedHandler) {
+					if (null != savedStateChangedHandler) {
 						Bundle bundle = new Bundle();
 						Message msg = new Message();
 						msg.what = SocketClient.connectStateKey;
@@ -460,7 +490,7 @@ public abstract class SocketClient implements SocketClientInterface {
 						bundle.putInt(SocketClient.connectStateKeyStr,
 							socketClientConnectState);
 						msg.setData(bundle);
-						stateChangedHandler.sendMessage(msg);
+						savedStateChangedHandler.sendMessage(msg);
 					}
 				} /* synchronized */
 				if (unlock) {
@@ -474,11 +504,11 @@ public abstract class SocketClient implements SocketClientInterface {
 				/* end of all of this func */
 				try {
 					UNLOCK();
-					if (null != onSocketStateChanged) {
-						onSocketStateChanged
+					if (null != savedOnSocketStateChanged) {
+						savedOnSocketStateChanged
 							.onSocketStateChanged(SOCKET_STATE_RECV_ABORT);
 					}
-					if (null != stateChangedHandler) {
+					if (null != savedStateChangedHandler) {
 						Bundle bundle = new Bundle();
 						Message msg = new Message();
 						msg.what = SocketClient.connectStateKey;
@@ -486,7 +516,7 @@ public abstract class SocketClient implements SocketClientInterface {
 						bundle.putInt(SocketClient.connectStateKeyStr,
 							SocketClient.SOCKET_STATE_RECV_ABORT);
 						msg.setData(bundle);
-						stateChangedHandler.sendMessage(msg);
+						savedStateChangedHandler.sendMessage(msg);
 					}
 				} catch (Exception ee) {
 					;
@@ -645,11 +675,11 @@ public abstract class SocketClient implements SocketClientInterface {
 							e.printStackTrace();
 						}
 					} /* while */
-					if (null != onSocketStateChanged) {
-						onSocketStateChanged
+					if (null != savedOnSocketStateChanged) {
+						savedOnSocketStateChanged
 							.onSocketStateChanged(socketClientConnectState);
 					}
-					if (null != stateChangedHandler) {
+					if (null != savedStateChangedHandler) {
 						Log.w(TAG + ":sendRuntime:run", "stateChangedHandler");
 						Bundle bundle = new Bundle();
 						Message msg = new Message();
@@ -658,7 +688,7 @@ public abstract class SocketClient implements SocketClientInterface {
 						bundle.putInt(SocketClient.connectStateKeyStr,
 							socketClientConnectState);
 						msg.setData(bundle);
-						stateChangedHandler.sendMessage(msg);
+						savedStateChangedHandler.sendMessage(msg);
 					}
 				} /* synchronized */
 				if (unlock) {
@@ -671,11 +701,11 @@ public abstract class SocketClient implements SocketClientInterface {
 				try {
 					UNLOCK();
 					Log.e(TAG + ":sendRuntime", "ERROR: " + e.getMessage());
-					if (null != onSocketStateChanged) {
-						onSocketStateChanged
+					if (null != savedOnSocketStateChanged) {
+						savedOnSocketStateChanged
 							.onSocketStateChanged(SOCKET_STATE_SEND_ABORT);
 					}
-					if (null != stateChangedHandler) {
+					if (null != savedStateChangedHandler) {
 						Bundle bundle = new Bundle();
 						Message msg = new Message();
 						msg.what = SocketClient.connectStateKey;
@@ -683,7 +713,7 @@ public abstract class SocketClient implements SocketClientInterface {
 						bundle.putInt(SocketClient.connectStateKeyStr,
 							SocketClient.SOCKET_STATE_SEND_ABORT);
 						msg.setData(bundle);
-						stateChangedHandler.sendMessage(msg);
+						savedStateChangedHandler.sendMessage(msg);
 					}
 				} catch (Exception ee) {
 					;
@@ -692,6 +722,8 @@ public abstract class SocketClient implements SocketClientInterface {
 		}
 	}; /* sendRuntime */
 
+	private ConnectArguments savedConnectArguments;
+
 
 	public int Connect (ConnectArguments connectArguments) {
 		try {
@@ -699,6 +731,9 @@ public abstract class SocketClient implements SocketClientInterface {
 			if (null == connectArguments) {
 				return SocketClient.ERRNO_INVALID_CONNECT_ARGUMENTS * -1;
 			}
+
+			this.savedConnectArguments = connectArguments;
+
 			int ret = SocketClient.ERRNO_NO_ERROR;
 			LOCK();
 			if (null != this.socketClient) {
@@ -894,7 +929,7 @@ public abstract class SocketClient implements SocketClientInterface {
 	public boolean setStateChangedHandler (Handler stateChangedHandler) {
 		try {
 			LOCK();
-			this.stateChangedHandler = stateChangedHandler;
+			this.savedStateChangedHandler = stateChangedHandler;
 			UNLOCK();
 			return false;
 		} catch (Exception e) {
@@ -908,7 +943,7 @@ public abstract class SocketClient implements SocketClientInterface {
 	public void clearStateChangedHandler () {
 		try {
 			LOCK();
-			this.stateChangedHandler = null;
+			this.savedStateChangedHandler = null;
 			UNLOCK();
 		} catch (Exception e) {
 			;
@@ -917,5 +952,5 @@ public abstract class SocketClient implements SocketClientInterface {
 
 
 	/*** XXX private static final ***/
-	private static final String TAG = "SocketClient";
+	private static final String TAG = SocketClient.class.getSimpleName();
 }
