@@ -1,0 +1,6 @@
+1 Original files and format and modified package path:
+5fb9c14f09b02c1f9dcf5bb78bec90eb BluetoothLeClass.java
+d5744be5c0c76df4a8bd5512478ad1fd Utils.java
+
+
+2 Removed Utils and changed BluetoothLeClass (=> read/write ok)

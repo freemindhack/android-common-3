@@ -11,7 +11,6 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -26,12 +25,15 @@ public abstract class ProcessBarActivity extends Activity implements
 	public void onCreate (Bundle savedInstanceState) {
 		Log.v(TAG + ":ProcessBarActivity", "onCreate");
 		super.onCreate(savedInstanceState);
-		if (this.isNeedFullScreen()) {
-			requestWindowFeature(Window.FEATURE_NO_TITLE);
-			getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-				WindowManager.LayoutParams.FLAG_FULLSCREEN);
-		}
+
+		/* if (this.isNeedFullScreen()) { */
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		UIUtils.fullScreen(getWindow());
+
+		/* } */
+
 		setContentView(R.layout.activity_process_bar);
+
 		try {
 			this.startProcessRoutine();
 		} catch (Exception e) {
@@ -54,6 +56,14 @@ public abstract class ProcessBarActivity extends Activity implements
 					}
 				});
 		}
+	}
+
+
+	@Override
+	public void onResume () {
+		UIUtils.dotNavigation(getWindow());
+
+		super.onResume();
 	}
 
 
