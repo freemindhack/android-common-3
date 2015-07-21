@@ -4,8 +4,12 @@ package nocom.common.utils;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.os.Build;
+import android.view.KeyCharacterMap;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.Window;
 import android.view.WindowManager;
 
@@ -59,6 +63,23 @@ public class UIUtils {
 	public static void dotNavigation (Window w) {
 		w.getDecorView().setSystemUiVisibility(
 			View.SYSTEM_UI_FLAG_LOW_PROFILE);
+	}
+
+
+	@SuppressLint ("NewApi")
+	public static boolean checkDeviceHasNavigationBar (Context c) {
+
+		/* 通过判断设备是否有返回键、菜单键(不是虚拟键,是手机屏幕外的按键)来确定是否有 navigation bar */
+		boolean hasMenuKey = ViewConfiguration.get(c).hasPermanentMenuKey();
+
+		boolean hasBackKey = KeyCharacterMap
+			.deviceHasKey(KeyEvent.KEYCODE_BACK);
+
+		if (!hasMenuKey && !hasBackKey) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 
