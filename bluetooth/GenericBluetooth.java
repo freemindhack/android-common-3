@@ -54,7 +54,7 @@ public class GenericBluetooth {
 		this.context = context;
 
 		if (-1 == this.le) {
-			if (this.leCheck()) {
+			if (GenericBluetooth.leCheck(this.context)) {
 				this.le = 1;
 			} else {
 				this.le = 0;
@@ -68,7 +68,7 @@ public class GenericBluetooth {
 				.getSystemService(Context.BLUETOOTH_SERVICE);
 			this.bluetoothAdapter = bluetoothManager.getAdapter();
 		} else {
-			Log.v(TAG + ":GenericBluetooth", "NOT support ble");
+			Log.w(TAG + ":GenericBluetooth", "NOT support ble");
 			this.bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		}
 
@@ -86,15 +86,20 @@ public class GenericBluetooth {
 	}
 
 
-	public boolean leCheck () {
-		/*
-		 * Use this check to determine whether BLE is supported on the device.
-		 * Then you can selectively disable BLE-related features.
-		 */
-		if (this.context.getPackageManager().hasSystemFeature(
-			PackageManager.FEATURE_BLUETOOTH_LE)) {
-			return true;
-		} else {
+	public static boolean leCheck (Context c) {
+		try {
+			/*
+			 * Use this check to determine whether BLE is supported on the device.
+			 * Then you can selectively disable BLE-related features.
+			 */
+			if (c.getPackageManager().hasSystemFeature(
+				PackageManager.FEATURE_BLUETOOTH_LE)) {
+				return true;
+			} else {
+				return false;
+			}
+		} catch (Exception e) {
+			Log.w(TAG + ":leCheck", "ERROR: " + e.getMessage());
 			return false;
 		}
 	} /* leCheck */
