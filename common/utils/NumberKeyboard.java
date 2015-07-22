@@ -2,6 +2,9 @@
 package nocom.common.utils;
 
 
+import com.za.smartlock.R;
+
+
 import nocom.common.datastructers.MyQueue;
 import android.content.Context;
 import android.util.AttributeSet;
@@ -10,9 +13,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-
-
-import com.za.wifilock.R;
 
 
 public class NumberKeyboard extends LinearLayout implements OnClickListener {

@@ -2,7 +2,7 @@
 package nocom.pull2refresh.views;
 
 
-import com.za.wifilock.R;
+import com.za.smartlock.R;
 
 
 import nocom.pull2refresh.interfaces.EmptyViewMethodAccessor;
