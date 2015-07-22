@@ -29,7 +29,7 @@ import android.widget.ListView;
 import android.widget.Scroller;
 
 
-import com.za.smartlock.manufacturer.R;
+import com.za.smartlock.customer.R;
 
 
 public class Pull2RefreshListView extends

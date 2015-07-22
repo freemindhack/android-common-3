@@ -29,7 +29,7 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
 
-import com.za.smartlock.manufacturer.R;
+import com.za.smartlock.customer.R;
 
 
 public abstract class Pull2RefreshBase <T extends View> extends LinearLayout

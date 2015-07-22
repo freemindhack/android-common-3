@@ -16,7 +16,7 @@ import android.widget.TextView;
 
 
 import com.za.smartlock.Configurations;
-import com.za.smartlock.manufacturer.R;
+import com.za.smartlock.customer.R;
 
 
 public abstract class ProcessBarActivity extends Activity implements

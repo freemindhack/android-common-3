@@ -18,7 +18,7 @@ import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 
 
-import com.za.smartlock.manufacturer.R;
+import com.za.smartlock.customer.R;
 
 
 @SuppressLint ("ViewConstructor")

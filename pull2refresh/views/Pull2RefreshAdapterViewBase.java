@@ -21,7 +21,7 @@ import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 
 
-import com.za.smartlock.manufacturer.R;
+import com.za.smartlock.customer.R;
 
 
 public abstract class Pull2RefreshAdapterViewBase <T extends AbsListView>

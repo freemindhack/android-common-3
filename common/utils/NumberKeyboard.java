@@ -12,7 +12,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 
 
-import com.za.smartlock.manufacturer.R;
+import com.za.smartlock.customer.R;
 
 
 public class NumberKeyboard extends LinearLayout implements OnClickListener {

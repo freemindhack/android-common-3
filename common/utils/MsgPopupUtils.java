@@ -17,7 +17,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 
-import com.za.smartlock.manufacturer.R;
+import com.za.smartlock.customer.R;
 
 
 public class MsgPopupUtils implements MsgPopupUtilsInterface {

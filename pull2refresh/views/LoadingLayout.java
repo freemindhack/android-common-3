@@ -28,7 +28,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 
-import com.za.smartlock.manufacturer.R;
+import com.za.smartlock.customer.R;
 
 
 @SuppressLint ("ViewConstructor")
