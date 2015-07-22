@@ -15,8 +15,8 @@ import android.widget.Button;
 import android.widget.TextView;
 
 
+import com.za.smartlock.Configurations;
 import com.za.smartlock.manufacturer.R;
-import com.za.wifilock.Configurations;
 
 
 public abstract class ProcessBarActivity extends Activity implements
