@@ -2,9 +2,6 @@
 package nocom.pull2refresh.views;
 
 
-import com.za.smartlock.R;
-
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Matrix;
@@ -19,6 +16,9 @@ import android.view.animation.RotateAnimation;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
+
+
+import com.za.smartlock.manufacturer.R;
 
 
 @SuppressLint ("ViewConstructor")

@@ -2,9 +2,6 @@
 package nocom.pull2refresh.views;
 
 
-import com.za.smartlock.R;
-
-
 import nocom.pull2refresh.common.LoadingLayoutProxy;
 import nocom.pull2refresh.common.OverscrollHelper;
 import nocom.pull2refresh.common.Utils;
@@ -30,6 +27,9 @@ import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+
+
+import com.za.smartlock.manufacturer.R;
 
 
 public abstract class Pull2RefreshBase <T extends View> extends LinearLayout

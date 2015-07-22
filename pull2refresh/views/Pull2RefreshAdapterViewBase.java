@@ -2,9 +2,6 @@
 package nocom.pull2refresh.views;
 
 
-import com.za.smartlock.R;
-
-
 import nocom.pull2refresh.interfaces.EmptyViewMethodAccessor;
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -22,6 +19,9 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
+
+
+import com.za.smartlock.manufacturer.R;
 
 
 public abstract class Pull2RefreshAdapterViewBase <T extends AbsListView>

@@ -15,7 +15,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 
-import com.za.smartlock.R;
+import com.za.smartlock.manufacturer.R;
 import com.za.wifilock.Configurations;
 
 

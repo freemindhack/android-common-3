@@ -2,9 +2,6 @@
 package nocom.pull2refresh.views;
 
 
-import com.za.smartlock.R;
-
-
 import nocom.pull2refresh.views.Pull2RefreshBase.Mode;
 import nocom.pull2refresh.views.Pull2RefreshBase.Orientation;
 import android.content.Context;
@@ -14,6 +11,9 @@ import android.graphics.drawable.Drawable;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageView.ScaleType;
+
+
+import com.za.smartlock.manufacturer.R;
 
 
 public class RotateLoadingLayout extends LoadingLayout {

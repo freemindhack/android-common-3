@@ -2,9 +2,6 @@
 package nocom.pull2refresh.views;
 
 
-import com.za.smartlock.R;
-
-
 import nocom.pull2refresh.common.Utils;
 import nocom.pull2refresh.common.ViewCompat;
 import nocom.pull2refresh.interfaces.LoadingLayoutInterface;
@@ -29,6 +26,9 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+
+import com.za.smartlock.manufacturer.R;
 
 
 @SuppressLint ("ViewConstructor")
