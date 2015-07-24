@@ -406,5 +406,5 @@ public class FileUtils implements FileUtilsInterface {
 
 
 	/*** XXX private static final ***/
-	private static final String TAG = "FileUtils";
+	private static final String TAG = FileUtils.class.getSimpleName();
 }

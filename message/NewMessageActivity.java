@@ -10,6 +10,8 @@ import java.util.Date;
 import java.util.List;
 
 
+import nocom.common.utils.MyResult;
+import nocom.common.utils.NiceFileUtils;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -21,6 +23,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
@@ -51,6 +54,8 @@ public class NewMessageActivity extends Activity {
 	protected void onCreate (Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_new_message);
+
+		this.context = this.getApplicationContext();
 
 		this.init();
 	}
@@ -86,15 +91,29 @@ public class NewMessageActivity extends Activity {
 			public void onClick (View v) {
 				List <String> list = new ArrayList <String>();
 				for (int i = 0; i < Bimp.drr.size(); i++) {
-					String Str = Bimp.drr.get(i).substring(
+					String s = Bimp.drr.get(i).substring(
 						Bimp.drr.get(i).lastIndexOf("/") + 1,
 						Bimp.drr.get(i).lastIndexOf("."));
-					list.add(FileUtils.SDPATH + Str + ".JPEG");
+
+					/* list.add(FileUtils.SDPATH + Str + ".JPEG"); */
+					list.add(new File(
+						Environment
+							.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+						albumNameCompressed)
+						+ s + ".jpg");
 				}
+
 				// 高清的压缩图片全部就在 list 路径里面了
-				// 高清的压缩过的 bmp 对象 都在 Bimp.bmp里面
+				// 高清的压缩过的 BMP 对象 都在 Bimp.bmp里面
+				/* TODO: send to server */
+
 				// 完成上传服务器后 .........
-				FileUtils.deleteDir();
+				/* FileUtils.deleteDir(); */
+				NiceFileUtils.rm(
+					new File(
+						Environment
+							.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+						albumNameCompressed), true, false);
 			}
 		});
 	}
@@ -199,6 +218,13 @@ public class NewMessageActivity extends Activity {
 				case 1:
 					adapter.notifyDataSetChanged();
 					break;
+
+				case 999: {
+					Toast.makeText(context,
+						"Oops .." + lastError.code + " " + lastError.msg,
+						Toast.LENGTH_SHORT).show();
+				}
+					break;
 				}
 				super.handleMessage(msg);
 			}
@@ -220,10 +246,29 @@ public class NewMessageActivity extends Activity {
 								System.out.println(path);
 								Bitmap bm = Bimp.revitionImageSize(path);
 								Bimp.bmp.add(bm);
+
 								String newStr = path.substring(
 									path.lastIndexOf("/") + 1,
-									path.lastIndexOf("."));
-								FileUtils.saveBitmap(bm, "" + newStr);
+									path.lastIndexOf("."))
+									+ ".jpg";
+
+								MyResult <File> ret = NiceFileUtils.saveCompressedBitmap(
+									bm,
+									NiceFileUtils
+										.getAlbumStorageDir(albumNameCompressed).cc,
+									newStr, 90, true, true);
+
+								if (null == ret || 0 != ret.code) {
+									lastError.code = ret.code;
+									lastError.msg = ret.msg;
+									Message message = new Message();
+									message.what = 999;
+									handler.sendMessage(message);
+								} else {
+									NiceFileUtils.addToGallery(context,
+										ret.cc);
+								}
+
 								Bimp.max += 1;
 								Message message = new Message();
 								message.what = 1;
@@ -323,27 +368,28 @@ public class NewMessageActivity extends Activity {
 				"yyyy-MM-dd.HH.mm.ss");
 			String ts = formatter.format(nowDate);
 
-			nocom.common.utils.FileUtils fu = new nocom.common.utils.FileUtils(
-				getApplicationContext());
-
-			File dir = fu.getAlbumStorageDir(NewMessageActivity.albumName);
-			if (null == dir) {
-				dir = fu.getAlbumStorageDir("."
-					+ NewMessageActivity.albumName);
+			MyResult <File> dir = NiceFileUtils.makeAlbumStorageDir(
+				NewMessageActivity.albumName, true);
+			if (null == dir || dir.code != 0) {
+				Toast.makeText(context,
+					"Opps.. " + dir != null ? dir.msg : "",
+					Toast.LENGTH_SHORT).show();
 			}
+
 			String name = String
 				.format("Photo.%s.%03d.jpg", ts, nowMs % 1000);
 
 			Intent openCameraIntent = new Intent(
 				MediaStore.ACTION_IMAGE_CAPTURE);
-			File file = new File(dir, name);
+			File file = new File(dir.cc, name);
+			lastFile = file;
 			path = file.getPath();
 			Uri imageUri = Uri.fromFile(file);
 			openCameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
 			startActivityForResult(openCameraIntent, TAKE_PICTURE);
 		} catch (Exception e) {
-			Toast.makeText(getApplicationContext(),
-				"Opps.. " + e.getMessage(), Toast.LENGTH_SHORT).show();
+			Toast.makeText(context, "Opps.. " + e.getMessage(),
+				Toast.LENGTH_SHORT).show();
 		}
 	}
 
@@ -354,6 +400,8 @@ public class NewMessageActivity extends Activity {
 		case TAKE_PICTURE:
 			if (Bimp.drr.size() < 9 && resultCode == -1) {
 				Bimp.drr.add(path);
+
+				NiceFileUtils.addToGallery(context, lastFile);
 			}
 			break;
 		}
@@ -362,10 +410,18 @@ public class NewMessageActivity extends Activity {
 
 	public static String albumName = "Attachment";
 
+	public static String albumNameCompressed = "Attachment.compressed";
+
 	private GridView noScrollgridview;
 
 	private GridAdapter adapter;
 
 	private TextView textViewANMDone;
+
+	private MyResult <String> lastError = new MyResult <String>(0, "", "");
+
+	private File lastFile;
+
+	private Context context;
 
 }

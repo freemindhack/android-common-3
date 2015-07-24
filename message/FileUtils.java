@@ -11,16 +11,16 @@ import android.util.Log;
 
 public class FileUtils {
 	
-	public static String SDPATH = Environment.getExternalStorageDirectory()
+	protected static String _SDPATH = Environment.getExternalStorageDirectory()
 			+ "/formats/";
 
-	public static void saveBitmap(Bitmap bm, String picName) {
+	protected static void _saveBitmap(Bitmap bm, String picName) {
 		Log.e("", "保存图片");
 		try {
-			if (!isFileExist("")) {
-				File tempf = createSDDir("");
+			if (!_isFileExist("")) {
+				File tempf = _createSDDir("");
 			}
-			File f = new File(SDPATH, picName + ".JPEG"); 
+			File f = new File(_SDPATH, picName + ".JPEG"); 
 			if (f.exists()) {
 				f.delete();
 			}
@@ -36,8 +36,8 @@ public class FileUtils {
 		}
 	}
 
-	public static File createSDDir(String dirName) throws IOException {
-		File dir = new File(SDPATH + dirName);
+	protected static File _createSDDir(String dirName) throws IOException {
+		File dir = new File(_SDPATH + dirName);
 		if (Environment.getExternalStorageState().equals(
 				Environment.MEDIA_MOUNTED)) {
 
@@ -47,22 +47,22 @@ public class FileUtils {
 		return dir;
 	}
 
-	public static boolean isFileExist(String fileName) {
-		File file = new File(SDPATH + fileName);
+	protected static boolean _isFileExist(String fileName) {
+		File file = new File(_SDPATH + fileName);
 		file.isFile();
 		return file.exists();
 	}
 	
-	public static void delFile(String fileName){
-		File file = new File(SDPATH + fileName);
+	protected static void delFile(String fileName){
+		File file = new File(_SDPATH + fileName);
 		if(file.isFile()){
 			file.delete();
         }
 		file.exists();
 	}
 
-	public static void deleteDir() {
-		File dir = new File(SDPATH);
+	protected static void _deleteDir() {
+		File dir = new File(_SDPATH);
 		if (dir == null || !dir.exists() || !dir.isDirectory())
 			return;
 		
@@ -70,12 +70,12 @@ public class FileUtils {
 			if (file.isFile())
 				file.delete(); // 删除所有文件
 			else if (file.isDirectory())
-				deleteDir(); // 递规的方式删除文件夹
+				_deleteDir(); // 递规的方式删除文件夹
 		}
 		dir.delete();// 删除目录本身
 	}
 
-	public static boolean fileIsExists(String path) {
+	protected static boolean _fileIsExists(String path) {
 		try {
 			File f = new File(path);
 			if (!f.exists()) {
