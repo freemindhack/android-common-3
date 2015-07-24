@@ -12,6 +12,7 @@ import java.util.List;
 
 import nocom.common.utils.MyResult;
 import nocom.common.utils.NiceFileUtils;
+import nocom.common.utils.UIUtils;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -27,7 +28,9 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -50,10 +53,14 @@ import com.za.smartlock.manufacturer.R;
 
 
 public class NewMessageActivity extends Activity {
-
+	@Override
 	protected void onCreate (Bundle savedInstanceState) {
+		Log.v(TAG, "onCreate");
+
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_new_message);
+
+		UIUtils.hideInputMethod(getWindow());
 
 		this.context = this.getApplicationContext();
 
@@ -61,25 +68,60 @@ public class NewMessageActivity extends Activity {
 	}
 
 
+	@Override
+	protected void onDestroy () {
+		Log.v(TAG, "onDestroy");
+
+		super.onDestroy();
+	}
+
+
+	@Override
+	protected void onResume () {
+		Log.v(TAG, "onResume");
+
+		if (null != this.adapter) {
+			this.adapter.update();
+		}
+		super.onResume();
+	}
+
+
+	@Override
+	public boolean onKeyDown (int keyCode, KeyEvent event) {
+		Log.v(TAG + ":onKeyDown", "keyCode: " + keyCode);
+		if (keyCode == KeyEvent.KEYCODE_BACK) {
+			this.deinit();
+		}
+
+		return super.onKeyDown(keyCode, event);
+	}
+
+
 	private void init () {
+		Log.v(TAG, "init");
+
 		this.noScrollgridview = (GridView) findViewById(R.id.noScrollGridViewANM);
 		this.noScrollgridview
 			.setSelector(new ColorDrawable(Color.TRANSPARENT));
 		this.adapter = new GridAdapter(this);
+		// MyBMP.bmps.clear();
+		// MyBMP.bmpAddres.clear();
 		this.adapter.update();
 		this.noScrollgridview.setAdapter(adapter);
+
 		this.noScrollgridview
 			.setOnItemClickListener(new OnItemClickListener() {
 
 				public void onItemClick (AdapterView <?> arg0, View arg1,
-					int arg2, long arg3) {
-					if (arg2 == Bimp.bmp.size()) {
+					int pos, long arg3) {
+					if (pos == MyBMP.bmps.size()) {
 						new PopupWindows(NewMessageActivity.this,
 							NewMessageActivity.this.noScrollgridview);
 					} else {
 						Intent intent = new Intent(NewMessageActivity.this,
 							PhotoActivity.class);
-						intent.putExtra("ID", arg2);
+						intent.putExtra("ID", pos);
 						startActivity(intent);
 					}
 				}
@@ -90,12 +132,11 @@ public class NewMessageActivity extends Activity {
 
 			public void onClick (View v) {
 				List <String> list = new ArrayList <String>();
-				for (int i = 0; i < Bimp.drr.size(); i++) {
-					String s = Bimp.drr.get(i).substring(
-						Bimp.drr.get(i).lastIndexOf("/") + 1,
-						Bimp.drr.get(i).lastIndexOf("."));
+				for (int i = 0; i < MyBMP.bmpAddres.size(); i++) {
+					String s = MyBMP.bmpAddres.get(i).substring(
+						MyBMP.bmpAddres.get(i).lastIndexOf("/") + 1,
+						MyBMP.bmpAddres.get(i).lastIndexOf("."));
 
-					/* list.add(FileUtils.SDPATH + Str + ".JPEG"); */
 					list.add(new File(
 						Environment
 							.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
@@ -119,8 +160,34 @@ public class NewMessageActivity extends Activity {
 	}
 
 
+	private void deinit () {
+		try {
+			Log.w(TAG, "deinit");
+
+			MyResult <String> ret = NiceFileUtils
+				.rm(new File(
+					Environment
+						.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+					albumNameCompressed), true, false);
+
+			if (null != ret && ret.code != 0) {
+				Log.w(TAG + ":deinit", "ERROR: " + ret.code + " " + ret.msg);
+			}
+
+			if (null != MyBMP.bmpAddres) {
+				MyBMP.bmps.clear();
+				MyBMP.bmpAddres.clear();
+				MyBMP.max = 0;
+			}
+			this.adapter.update();
+		} catch (Exception e) {
+			Log.e(TAG + ":deinit", "ERROR: " + e.getMessage());
+		}
+	}
+
+
 	@SuppressLint ("HandlerLeak")
-	public class GridAdapter extends BaseAdapter {
+	private class GridAdapter extends BaseAdapter {
 		private LayoutInflater inflater; // 视图容器
 
 		private int selectedPosition = -1;// 选中的位置
@@ -149,7 +216,7 @@ public class NewMessageActivity extends Activity {
 
 
 		public int getCount () {
-			return (Bimp.bmp.size() + 1);
+			return (MyBMP.bmps.size() + 1);
 		}
 
 
@@ -193,14 +260,14 @@ public class NewMessageActivity extends Activity {
 				holder = (ViewHolder) convertView.getTag();
 			}
 
-			if (position == Bimp.bmp.size()) {
+			if (position == MyBMP.bmps.size()) {
 				holder.image.setImageBitmap(BitmapFactory.decodeResource(
 					getResources(), R.drawable.icon_addpic_unfocused));
 				if (position == 9) {
 					holder.image.setVisibility(View.GONE);
 				}
 			} else {
-				holder.image.setImageBitmap(Bimp.bmp.get(position));
+				holder.image.setImageBitmap(MyBMP.bmps.get(position));
 			}
 
 			return convertView;
@@ -235,17 +302,17 @@ public class NewMessageActivity extends Activity {
 			new Thread(new Runnable() {
 				public void run () {
 					while (true) {
-						if (Bimp.max == Bimp.drr.size()) {
+						if (MyBMP.max == MyBMP.bmpAddres.size()) {
 							Message message = new Message();
 							message.what = 1;
 							handler.sendMessage(message);
 							break;
 						} else {
 							try {
-								String path = Bimp.drr.get(Bimp.max);
+								String path = MyBMP.bmpAddres.get(MyBMP.max);
 								System.out.println(path);
-								Bitmap bm = Bimp.revitionImageSize(path);
-								Bimp.bmp.add(bm);
+								Bitmap bm = MyBMP.revitionImageSize(path);
+								MyBMP.bmps.add(bm);
 
 								String newStr = path.substring(
 									path.lastIndexOf("/") + 1,
@@ -269,13 +336,13 @@ public class NewMessageActivity extends Activity {
 										ret.cc);
 								}
 
-								Bimp.max += 1;
+								MyBMP.max += 1;
 								Message message = new Message();
 								message.what = 1;
 								handler.sendMessage(message);
 							} catch (IOException e) {
-
-								e.printStackTrace();
+								Log.e(TAG + ":loading",
+									"ERROR: " + e.getMessage());
 							}
 						}
 					}
@@ -296,15 +363,10 @@ public class NewMessageActivity extends Activity {
 	}
 
 
-	protected void onRestart () {
-		adapter.update();
-		super.onRestart();
-	}
-
-
 	public class PopupWindows extends PopupWindow {
 
 		public PopupWindows (Context mContext, View parent) {
+			Log.v(TAG, "PopupWindows");
 
 			View view = View.inflate(mContext, R.layout.item_popupwindows,
 				null);
@@ -326,7 +388,7 @@ public class NewMessageActivity extends Activity {
 
 			Button bt1 = (Button) view
 				.findViewById(R.id.item_popupwindows_camera);
-			Button bt2 = (Button) view
+			Button btnSelectPhoto = (Button) view
 				.findViewById(R.id.item_popupwindows_Photo);
 			Button bt3 = (Button) view
 				.findViewById(R.id.item_popupwindows_cancel);
@@ -336,20 +398,22 @@ public class NewMessageActivity extends Activity {
 					dismiss();
 				}
 			});
-			bt2.setOnClickListener(new OnClickListener() {
+
+			btnSelectPhoto.setOnClickListener(new OnClickListener() {
 				public void onClick (View v) {
+					Log.v(TAG + ":PopupWindows:btnSelectPhoto", "onClick");
 					Intent intent = new Intent(NewMessageActivity.this,
 						PictureAddActivity.class);
 					startActivity(intent);
 					dismiss();
 				}
 			});
+
 			bt3.setOnClickListener(new OnClickListener() {
 				public void onClick (View v) {
 					dismiss();
 				}
 			});
-
 		}
 	}
 
@@ -398,8 +462,8 @@ public class NewMessageActivity extends Activity {
 		Intent data) {
 		switch (requestCode) {
 		case TAKE_PICTURE:
-			if (Bimp.drr.size() < 9 && resultCode == -1) {
-				Bimp.drr.add(path);
+			if (MyBMP.bmpAddres.size() < 9 && resultCode == -1) {
+				MyBMP.bmpAddres.add(path);
 
 				NiceFileUtils.addToGallery(context, lastFile);
 			}
@@ -411,6 +475,9 @@ public class NewMessageActivity extends Activity {
 	public static String albumName = "Attachment";
 
 	public static String albumNameCompressed = "Attachment.compressed";
+
+	private static final String TAG = NewMessageActivity.class
+		.getSimpleName();
 
 	private GridView noScrollgridview;
 

@@ -43,6 +43,7 @@ public class ImageBucketAdapter extends BaseAdapter {
 	};
 
 	public ImageBucketAdapter(Activity act, List<ImageBucket> list) {
+		Log.v(TAG, "ImageBucketAdapter");
 		this.act = act;
 		dataList = list;
 		cache = new BitmapCache();

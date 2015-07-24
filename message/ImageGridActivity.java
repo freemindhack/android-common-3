@@ -82,15 +82,15 @@ public class ImageGridActivity extends Activity {
 					list.add(it.next());
 				}
 
-				if (Bimp.act_bool) {
-					Intent intent = new Intent(ImageGridActivity.this,
-						NewMessageActivity.class);
-					startActivity(intent);
-					Bimp.act_bool = false;
+				if (MyBMP.act_bool) {
+					// Intent intent = new Intent(ImageGridActivity.this,
+					// NewMessageActivity.class);
+					// startActivity(intent);
+					MyBMP.act_bool = false;
 				}
 				for (int i = 0; i < list.size(); i++) {
-					if (Bimp.drr.size() < 9) {
-						Bimp.drr.add(list.get(i));
+					if (MyBMP.bmpAddres.size() < 9) {
+						MyBMP.bmpAddres.add(list.get(i));
 					}
 				}
 				finish();

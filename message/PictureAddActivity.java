@@ -9,13 +9,12 @@ import java.util.List;
 import com.za.smartlock.manufacturer.R;
 
 
-
-
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -26,39 +25,39 @@ public class PictureAddActivity extends Activity {
 
 	@Override
 	protected void onCreate (Bundle savedInstanceState) {
+		Log.v(TAG, "onCreate");
+
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_add_picture);
 
-		helper = AlbumHelper.getHelper();
-		helper.init(getApplicationContext());
+		this.helper = AlbumHelper.getHelper();
+		this.helper.init(getApplicationContext());
 
-		initData();
-		initView();
+		this.initData();
+		this.initView();
 	}
 
 
-	/**
-	 * 初始化数据
-	 */
 	private void initData () {
-		// /**
-		// * 这里，我们假设已经从网络或者本地解析好了数据，所以直接在这里模拟了10个实体类，直接装进列表中
-		// */
+		Log.v(TAG, "initData");
+		/* 这里 我们假设已经从网络或者本地解析好了数据
+		 * 所以直接在这里模拟了10个实体类，直接装进列表中
+		 */
 		// dataList = new ArrayList<Entity>();
 		// for(int i=-0;i<10;i++){
 		// Entity entity = new Entity(R.drawable.picture, false);
 		// dataList.add(entity);
 		// }
-		dataList = helper.getImagesBucketList(false);
-		bimap = BitmapFactory.decodeResource(getResources(),
-			R.drawable.icon_addpic_unfocused);
+		this.dataList = this.helper.getImagesBucketList(false);
+		// PictureAddActivity.bitmap =
+		// BitmapFactory.decodeResource(getResources(),
+		// R.drawable.icon_addpic_unfocused);
 	}
 
 
-	/**
-	 * 初始化view视图
-	 */
 	private void initView () {
+		Log.v(TAG, "initView");
+
 		gridView = (GridView) findViewById(R.id.gridViewAAP);
 		adapter = new ImageBucketAdapter(PictureAddActivity.this, dataList);
 		gridView.setAdapter(adapter);
@@ -95,7 +94,10 @@ public class PictureAddActivity extends Activity {
 
 	public static final String EXTRA_IMAGE_LIST = "imagelist";
 
-	public static Bitmap bimap;
+	private static final String TAG = PictureAddActivity.class
+		.getSimpleName();
+
+	// public static Bitmap bitmap;
 
 	private List <ImageBucket> dataList;
 

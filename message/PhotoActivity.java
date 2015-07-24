@@ -56,13 +56,13 @@ public class PhotoActivity extends Activity {
 		photo_relativeLayout = (RelativeLayout) findViewById(R.id.photo_relativeLayout);
 		photo_relativeLayout.setBackgroundColor(0x70000000);
 
-		for (int i = 0; i < Bimp.bmp.size(); i++) {
-			bmp.add(Bimp.bmp.get(i));
+		for (int i = 0; i < MyBMP.bmps.size(); i++) {
+			bmp.add(MyBMP.bmps.get(i));
 		}
-		for (int i = 0; i < Bimp.drr.size(); i++) {
-			drr.add(Bimp.drr.get(i));
+		for (int i = 0; i < MyBMP.bmpAddres.size(); i++) {
+			drr.add(MyBMP.bmpAddres.get(i));
 		}
-		max = Bimp.max;
+		max = MyBMP.max;
 
 		Button photo_bt_exit = (Button) findViewById(R.id.photo_bt_exit);
 		photo_bt_exit.setOnClickListener(new View.OnClickListener() {
@@ -75,9 +75,9 @@ public class PhotoActivity extends Activity {
 		photo_bt_del.setOnClickListener(new View.OnClickListener() {
 			public void onClick (View v) {
 				if (listViews.size() == 1) {
-					Bimp.bmp.clear();
-					Bimp.drr.clear();
-					Bimp.max = 0;
+					MyBMP.bmps.clear();
+					MyBMP.bmpAddres.clear();
+					MyBMP.max = 0;
 					MyResult <String> ret = NiceFileUtils.rm(
 						NiceFileUtils
 							.getAlbumStorageDir(NewMessageActivity.albumNameCompressed).cc,
@@ -110,9 +110,9 @@ public class PhotoActivity extends Activity {
 
 			public void onClick (View v) {
 
-				Bimp.bmp = bmp;
-				Bimp.drr = drr;
-				Bimp.max = max;
+				MyBMP.bmps = bmp;
+				MyBMP.bmpAddres = drr;
+				MyBMP.max = max;
 				for (int i = 0; i < del.size(); i++) {
 					FileUtils.delFile(del.get(i) + ".JPEG");
 				}
