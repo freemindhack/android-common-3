@@ -16,10 +16,7 @@ import android.view.WindowManager;
 
 public class UIUtils {
 	/*
-	 * between:
-	 * super.onCreate(savedInstanceState);
-	 * and
-	 * setContentView(...);
+	 * between: super.onCreate(savedInstanceState); and setContentView(...);
 	 */
 	public static void fullScreen (Window w) {
 		w.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,

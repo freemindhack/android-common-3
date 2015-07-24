@@ -89,8 +89,8 @@ public class GenericBluetooth {
 	public static boolean leCheck (Context c) {
 		try {
 			/*
-			 * Use this check to determine whether BLE is supported on the device.
-			 * Then you can selectively disable BLE-related features.
+			 * Use this check to determine whether BLE is supported on the
+			 * device. Then you can selectively disable BLE-related features.
 			 */
 			if (c.getPackageManager().hasSystemFeature(
 				PackageManager.FEATURE_BLUETOOTH_LE)) {
@@ -438,7 +438,10 @@ public class GenericBluetooth {
 								List <BluetoothGattCharacteristic> gattCharacteristics = s
 									.getCharacteristics();
 
-								/* Log.v(TAG, "size: " + gattCharacteristics.size()); */
+								/*
+								 * Log.v(TAG, "size: " +
+								 * gattCharacteristics.size());
+								 */
 
 								for (BluetoothGattCharacteristic gattCharacteristic : gattCharacteristics) {
 
@@ -1072,8 +1075,7 @@ public class GenericBluetooth {
 			}
 
 			/*
-			 * 创建一个蓝牙服务器
-			 * 参数 服务器名称 UUID
+			 * 创建一个蓝牙服务器 参数 服务器名称 UUID
 			 */
 			try {
 				GenericBluetooth.this.serverSocket = GenericBluetooth.this.bluetoothAdapter

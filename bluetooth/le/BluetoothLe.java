@@ -133,9 +133,8 @@ public class BluetoothLe {
 
 
 	/*
-	 * Implements callback methods for GATT events that the app cares about.
-	 * For example,
-	 * connection change and services discovered.
+	 * Implements callback methods for GATT events that the app cares about. For
+	 * example, connection change and services discovered.
 	 */
 	private final BluetoothGattCallback gattcb = new BluetoothGattCallback() {
 		@Override

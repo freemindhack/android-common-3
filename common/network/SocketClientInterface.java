@@ -7,8 +7,7 @@ import android.os.Handler;
 
 public interface SocketClientInterface {
 	/*
-	 * ============================
-	 * main interface
+	 * ============================ main interface
 	 */
 	public boolean sendData (SendRecvData data, boolean sendNow);
 
@@ -17,20 +16,16 @@ public interface SocketClientInterface {
 
 
 	/*
-	 * ============================
-	 * configurations
+	 * ============================ configurations
 	 */
 	/*
-	 * sendRoutineTimeslice
-	 * -- description:
-	 * - msec (millisecond)
+	 * sendRoutineTimeslice -- description: - msec (millisecond)
 	 */
 	public final long sendRoutineTimeslice = 200;
 
 
 	/*
-	 * ============================
-	 * pure virtual
+	 * ============================ pure virtual
 	 */
 	public void backendOnReceived (byte[] data, int count, int whatData);
 
@@ -44,12 +39,9 @@ public interface SocketClientInterface {
 	/*
 	 * getHeartbeat
 	 * 
-	 * -- description:
-	 * - the min time interval of call getHeartbeat
-	 *   in the send routine
-	 *   is "sendRoutineTimeslice"
-	 * - and call getHeartbeat only when current send
-	 *   buffers null
+	 * -- description: - the min time interval of call getHeartbeat in the send
+	 * routine is "sendRoutineTimeslice" - and call getHeartbeat only when
+	 * current send buffers null
 	 */
 	public int getHeartbeat (byte[] outHeartbeat, int maxOutSize);
 

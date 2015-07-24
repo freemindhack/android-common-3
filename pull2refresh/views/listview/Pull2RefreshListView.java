@@ -698,18 +698,18 @@ public class Pull2RefreshListView extends
 
 		private int anchorView = -1;
 
-		/* 屏幕宽度  */
+		/* 屏幕宽度 */
 		protected int screenWidth;
 
-		/* 滑动类  */
+		/* 滑动类 */
 		protected Scroller scroller;
 
 		private static final int SNAP_VELOCITY = 600;
 
-		/* 速度追踪对象  */
+		/* 速度追踪对象 */
 		public VelocityTracker velocityTracker;
 
-		/* 用户滑动的最小距离  */
+		/* 用户滑动的最小距离 */
 		private int touchSlop;
 	}
 
