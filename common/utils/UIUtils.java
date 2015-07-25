@@ -2,16 +2,20 @@
 package nocom.common.utils;
 
 
+import posix.generic.errno.errno;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
+import android.util.DisplayMetrics;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.ViewGroup.LayoutParams;
 
 
 public class UIUtils {
@@ -82,5 +86,34 @@ public class UIUtils {
 
 	public static void hideInputMethod (Window w) {
 		w.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+	}
+
+
+	public static MyResult <Integer> getScreenHeightPx (Activity activity) {
+		try {
+			DisplayMetrics metric = new DisplayMetrics();
+			((Activity) activity).getWindowManager().getDefaultDisplay()
+				.getMetrics(metric);
+
+			return new MyResult <Integer>(0, null, metric.heightPixels);
+		} catch (Exception e) {
+			return new MyResult <Integer>(errno.EXTRA_EEUNRESOLVED * -1,
+				e.getMessage(), null);
+		}
+	}
+
+
+	public static MyResult <Integer> setHeightPx (Activity activity,
+		View view, int heightPx) {
+		try {
+			LayoutParams lp = view.getLayoutParams();
+			lp.height = heightPx;
+			view.setLayoutParams(lp);
+
+			return new MyResult <Integer>(0, null, Integer.valueOf(heightPx));
+		} catch (Exception e) {
+			return new MyResult <Integer>(errno.EXTRA_EEUNRESOLVED * -1,
+				e.getMessage(), null);
+		}
 	}
 }

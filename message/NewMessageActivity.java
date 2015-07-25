@@ -23,6 +23,7 @@ import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -40,7 +41,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
-import android.widget.Button;
+import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -58,6 +59,8 @@ public class NewMessageActivity extends Activity {
 		Log.v(TAG, "onCreate");
 
 		super.onCreate(savedInstanceState);
+		UIUtils.transparentStatus(getWindow());
+		UIUtils.transparentNavigation(getWindow());
 		setContentView(R.layout.activity_new_message);
 
 		UIUtils.hideInputMethod(getWindow());
@@ -83,6 +86,11 @@ public class NewMessageActivity extends Activity {
 		if (null != this.adapter) {
 			this.adapter.update();
 		}
+
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
+			UIUtils.dotNavigation(getWindow());
+		}
+
 		super.onResume();
 	}
 
@@ -100,6 +108,35 @@ public class NewMessageActivity extends Activity {
 
 	private void init () {
 		Log.v(TAG, "init");
+
+		TextView tvNMADummyStatusbar = (TextView) findViewById(R.id.tvNMADummyStatusbar);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+			tvNMADummyStatusbar.setVisibility(View.VISIBLE);
+		} else {
+			tvNMADummyStatusbar.setVisibility(View.GONE);
+		}
+
+		TextView tvANMDummyNavigation = (TextView) findViewById(R.id.tvANMDummyNavigation);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT
+			&& UIUtils.checkDeviceHasNavigationBar(this)) {
+			tvANMDummyNavigation.setVisibility(View.VISIBLE);
+		} else {
+			tvANMDummyNavigation.setVisibility(View.GONE);
+		}
+
+		this.editTextANMText = (EditText) findViewById(R.id.editTextANMText);
+		MyResult <Integer> maxHeight = UIUtils
+			.getScreenHeightPx(NewMessageActivity.this);
+		if (null != maxHeight) {
+			if (0 == maxHeight.code) {
+				this.editTextANMText.setMaxHeight(maxHeight.cc.intValue()
+					- getResources().getDimensionPixelSize(
+						R.dimen.message_margin_bottom));
+			} else {
+				Log.e(TAG + ":init:getScreenHeight", "ERROR: "
+					+ maxHeight.msg);
+			}
+		}
 
 		this.noScrollgridview = (GridView) findViewById(R.id.noScrollGridViewANM);
 		this.noScrollgridview
@@ -302,7 +339,13 @@ public class NewMessageActivity extends Activity {
 			new Thread(new Runnable() {
 				public void run () {
 					while (true) {
-						if (MyBMP.max == MyBMP.bmpAddres.size()) {
+						if (MyBMP.max >= MyBMP.bmpAddres.size()) {
+							Log.i(TAG + ":loading:run", "max: " + MyBMP.max
+								+ " " + "sz: " + MyBMP.bmpAddres.size());
+							if (MyBMP.max > MyBMP.bmpAddres.size()) {
+								MyBMP.max = MyBMP.bmpAddres.size();
+							}
+
 							Message message = new Message();
 							message.what = 1;
 							handler.sendMessage(message);
@@ -368,13 +411,13 @@ public class NewMessageActivity extends Activity {
 		public PopupWindows (Context mContext, View parent) {
 			Log.v(TAG, "PopupWindows");
 
-			View view = View.inflate(mContext, R.layout.item_popupwindows,
+			View view = View.inflate(mContext, R.layout.menu_new_picture,
 				null);
 			view.startAnimation(AnimationUtils.loadAnimation(mContext,
 				R.anim.fade_ins));
-			LinearLayout ll_popup = (LinearLayout) view
-				.findViewById(R.id.ll_popup);
-			ll_popup.startAnimation(AnimationUtils.loadAnimation(mContext,
+			LinearLayout llMNPpopup = (LinearLayout) view
+				.findViewById(R.id.llMNPpopup);
+			llMNPpopup.startAnimation(AnimationUtils.loadAnimation(mContext,
 				R.anim.push_bottom_in_2));
 
 			setWidth(LayoutParams.FILL_PARENT);
@@ -383,23 +426,34 @@ public class NewMessageActivity extends Activity {
 			setFocusable(true);
 			setOutsideTouchable(true);
 			setContentView(view);
+			TextView tvIPWDummyNavigation = (TextView) view
+				.findViewById(R.id.tvIPWDummyNavigation);
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT
+				&& UIUtils
+					.checkDeviceHasNavigationBar(NewMessageActivity.this)) {
+				tvIPWDummyNavigation.setVisibility(View.VISIBLE);
+			} else {
+				tvIPWDummyNavigation.setVisibility(View.GONE);
+			}
+
 			showAtLocation(parent, Gravity.BOTTOM, 0, 0);
+
 			update();
 
-			Button bt1 = (Button) view
-				.findViewById(R.id.item_popupwindows_camera);
-			Button btnSelectPhoto = (Button) view
-				.findViewById(R.id.item_popupwindows_Photo);
-			Button bt3 = (Button) view
-				.findViewById(R.id.item_popupwindows_cancel);
-			bt1.setOnClickListener(new OnClickListener() {
+			LinearLayout llMNPCamera = (LinearLayout) view
+				.findViewById(R.id.llMNPCamera);
+			LinearLayout llMNPFromAlbum = (LinearLayout) view
+				.findViewById(R.id.llMNPFromAlbum);
+			LinearLayout llMNPCancel = (LinearLayout) view
+				.findViewById(R.id.llMNPCancel);
+			llMNPCamera.setOnClickListener(new OnClickListener() {
 				public void onClick (View v) {
 					takePhoto();
 					dismiss();
 				}
 			});
 
-			btnSelectPhoto.setOnClickListener(new OnClickListener() {
+			llMNPFromAlbum.setOnClickListener(new OnClickListener() {
 				public void onClick (View v) {
 					Log.v(TAG + ":PopupWindows:btnSelectPhoto", "onClick");
 					Intent intent = new Intent(NewMessageActivity.this,
@@ -409,7 +463,7 @@ public class NewMessageActivity extends Activity {
 				}
 			});
 
-			bt3.setOnClickListener(new OnClickListener() {
+			llMNPCancel.setOnClickListener(new OnClickListener() {
 				public void onClick (View v) {
 					dismiss();
 				}
@@ -482,6 +536,8 @@ public class NewMessageActivity extends Activity {
 	private GridView noScrollgridview;
 
 	private GridAdapter adapter;
+
+	private EditText editTextANMText;
 
 	private TextView textViewANMDone;
 

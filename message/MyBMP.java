@@ -15,6 +15,7 @@ import android.graphics.BitmapFactory;
 
 
 public class MyBMP {
+	/* FIXME: sometimes max NOT correct */
 	public static int max = 0;
 
 	public static boolean act_bool = true;

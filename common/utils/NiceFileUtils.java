@@ -3,6 +3,7 @@ package nocom.common.utils;
 
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -14,6 +15,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Environment;
+import android.util.Log;
 
 
 public class NiceFileUtils {
@@ -118,24 +120,26 @@ public class NiceFileUtils {
 					"Is a directory", null);
 			}
 
-			for (File file : file2delete.listFiles()) {
-				if (file.isFile()) {
-					file.delete();
-				} else if (file.isDirectory()) {
-					MyResult <String> last = NiceFileUtils.rm(file,
-						recursion, force);
-					if (null == last || 0 != last.code) {
-						if (!force) {
-							return last;
-						} else {
-							return new MyResult <String>(0, null,
-								file2delete.getAbsolutePath());
+			if (file2delete.isDirectory()) {
+				for (File file : file2delete.listFiles()) {
+					if (file.isFile()) {
+						file.delete();
+					} else if (file.isDirectory()) {
+						MyResult <String> last = NiceFileUtils.rm(file,
+							recursion, force);
+						if (null == last || 0 != last.code) {
+							if (!force) {
+								return last;
+							} else {
+								return new MyResult <String>(0, null,
+									file2delete.getAbsolutePath());
+							}
 						}
 					}
 				}
 			}
 
-			file2delete.delete();/* the folder itself */
+			file2delete.delete();/* the file/folder itself */
 
 			return new MyResult <String>(0, null,
 				file2delete.getAbsolutePath());
@@ -226,6 +230,15 @@ public class NiceFileUtils {
 				return new MyResult <File>(0, null, dir);
 			}
 
+			MyResult <String> parent = NiceFileUtils.dir(path);
+			if (0 == parent.code && !path.equals(parent.cc) && __parents) {
+				MyResult <File> ret = NiceFileUtils.mkdir(parent.cc,
+					__parents);
+				if (0 != ret.code) {
+					return ret;
+				}
+			}
+
 			boolean ret = dir.mkdir();
 
 			if (ret) {
@@ -302,6 +315,156 @@ public class NiceFileUtils {
 	}
 
 
-	@SuppressWarnings ("unused")
+	public static MyResult <Boolean> isExists (String path) {
+		try {
+			if (null == path) {
+				return new MyResult <Boolean>(0, null, false);
+			}
+
+			File file = new File(path);
+			if (file.exists()) {
+				return new MyResult <Boolean>(0, null, true);
+			} else {
+				return new MyResult <Boolean>(0, null, false);
+			}
+		} catch (Exception e) {
+			return new MyResult <Boolean>(errno.EXTRA_EEUNRESOLVED * -1,
+				e.getMessage(), null);
+		}
+	}
+
+
+	public static MyResult <String> getAppDirStr (Context c) {
+		try {
+			String ret = c.getFilesDir().getAbsolutePath();
+
+			return new MyResult <String>(0, null, ret);
+		} catch (Exception e) {
+			return new MyResult <String>(errno.EXTRA_EEUNRESOLVED * -1,
+				e.getMessage(), null);
+		}
+	}
+
+
+	public static MyResult <String> dir (String path) {
+		try {
+			if (null == path || path.length() <= 0 || path.endsWith("/")) {
+				return new MyResult <String>(0, null, path);
+			}
+
+			int _ret = path.lastIndexOf("/");
+			if (_ret > 0) {
+				String ret = path.substring(0, _ret + 1);
+				return new MyResult <String>(0, null, ret);
+			} else {
+				return new MyResult <String>(0, null, path);
+			}
+		} catch (Exception e) {
+			return new MyResult <String>(errno.EXTRA_EEUNRESOLVED * -1,
+				e.getMessage(), null);
+		}
+	}
+
+
+	public static MyResult <Integer> read (Context c, String file,
+		byte[] buf, int startIndex, int maxCount) {
+		try {
+			if ((null == buf) || (buf.length <= 0) || (startIndex < 0)
+				|| (maxCount <= 0) || (startIndex > (buf.length - 1))
+				|| (startIndex + maxCount > buf.length)) {
+				return new MyResult <Integer>(errno.EINVAL * -1,
+					"Invalid argument", null);
+			}
+
+			if (maxCount > buf.length) {
+				maxCount = buf.length;
+			}
+
+			FileInputStream in = null;
+			int ret;
+			try {
+				in = c.openFileInput(file);
+				if (null == in) {
+					ret = errno.EXTRA_ENOPENFILEI * -1;
+				} else {
+					ret = 0;
+				}
+			} catch (Exception e) {
+				ret = errno.EXTRA_EEOPENFILEI * -1;
+			}
+
+			if (0 == ret) {
+				int fileSize = in.available();
+				if (fileSize < maxCount) {
+					maxCount = fileSize;
+				}
+				try {
+					ret = in.read(buf, startIndex, maxCount);
+					Log.println(Log.VERBOSE, "FileUtils/read/read", "read ok");
+				} catch (IOException e) {
+					Log.println(Log.WARN, "FileUtils/read/read",
+						"ERROR: read: " + e.getMessage());
+					ret = errno.EXTRA_EEREAD * -1;
+				}
+			}
+			try {
+				in.close();
+			} catch (IOException e) {
+				Log.println(Log.WARN, "FileOutputStream/read/close",
+					"ERROR: " + e.getMessage());
+			}
+
+			return new MyResult <Integer>(errno.EINVAL * -1, "done", ret);
+		} catch (Exception e) {
+			Log.w(TAG + ":read", "ERROR: " + e.getMessage());
+			return new MyResult <Integer>(errno.EXTRA_EEUNRESOLVED * -1,
+				e.getMessage(), null);
+		}
+	}
+
+
+	public static MyResult <String> mv (String from, String to,
+		boolean __parents) {
+		try {
+			MyResult <String> ret = NiceFileUtils.cp(from, to, true,
+				__parents);
+			if (0 != ret.code) {
+				return ret;
+			}
+
+			return NiceFileUtils.rm(from, true, false);
+		} catch (Exception e) {
+			Log.w(TAG + ":mv", "ERROR: " + e.getMessage());
+			return new MyResult <String>(errno.EXTRA_EEUNRESOLVED * -1,
+				e.getMessage(), null);
+		}
+	}
+
+
+	private static MyResult <String> cp (String from, String to,
+		boolean recursion, boolean __parents) {
+		MyResult <FILE> fw = NiceFileUtils.isWhat(from);
+
+		return null;
+	}
+
+
+	private static MyResult <FILE> isWhat (String from) {
+		try {
+		} catch (Exception e) {
+			Log.w(TAG + ":mv", "ERROR: " + e.getMessage());
+			return new MyResult <FILE>(errno.EXTRA_EEUNRESOLVED * -1,
+				e.getMessage(), null);
+
+		}
+	}
+
+
+	public static enum FILE {
+		dir, regular,
+	};
+
+
 	private static final String TAG = NiceFileUtils.class.getSimpleName();
+
 }
