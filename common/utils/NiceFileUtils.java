@@ -2,11 +2,15 @@
 package nocom.common.utils;
 
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 
 import posix.generic.errno.errno;
@@ -19,7 +23,6 @@ import android.util.Log;
 
 
 public class NiceFileUtils {
-
 	public static MyResult <File> saveCompressedBitmap (Bitmap bmp,
 		String dirPath, String name, int quality, boolean overwrite,
 		boolean __parents) {
@@ -161,51 +164,6 @@ public class NiceFileUtils {
 	}
 
 
-	// protected static File _createSDDir (String dirName) throws IOException
-	// {
-	// File dir = new File(_SDPATH + dirName);
-	// if (Environment.getExternalStorageState().equals(
-	// Environment.MEDIA_MOUNTED)) {
-	//
-	// System.out.println("createSDDir:" + dir.getAbsolutePath());
-	// System.out.println("createSDDir:" + dir.mkdir());
-	// }
-	// return dir;
-	// }
-	//
-	//
-	// protected static boolean _isFileExist (String fileName) {
-	// File file = new File(_SDPATH + fileName);
-	// file.isFile();
-	// return file.exists();
-	// }
-	//
-	//
-	// protected static void delFile (String fileName) {
-	// File file = new File(_SDPATH + fileName);
-	// if (file.isFile()) {
-	// file.delete();
-	// }
-	// file.exists();
-	// }
-	//
-	//
-
-	//
-	//
-	// protected static boolean _fileIsExists (String path) {
-	// try {
-	// File f = new File(path);
-	// if (!f.exists()) {
-	// return false;
-	// }
-	// } catch (Exception e) {
-	//
-	// return false;
-	// }
-	// return true;
-	// }
-
 	public static int isDirExists (String path) {
 		try {
 			File f = new File(path);
@@ -230,16 +188,14 @@ public class NiceFileUtils {
 				return new MyResult <File>(0, null, dir);
 			}
 
-			MyResult <String> parent = NiceFileUtils.dir(path);
-			if (0 == parent.code && !path.equals(parent.cc) && __parents) {
-				MyResult <File> ret = NiceFileUtils.mkdir(parent.cc,
-					__parents);
-				if (0 != ret.code) {
-					return ret;
-				}
+			boolean ret;
+			if (__parents) {
+				Log.v(TAG + ":mkdir", "mkdirs: " + dir.getAbsolutePath());
+				ret = dir.mkdirs();
+			} else {
+				Log.v(TAG + ":mkdir", "mkdir: " + dir.getAbsolutePath());
+				ret = dir.mkdir();
 			}
-
-			boolean ret = dir.mkdir();
 
 			if (ret) {
 				return new MyResult <File>(0, null, dir);
@@ -262,7 +218,12 @@ public class NiceFileUtils {
 				return new MyResult <File>(0, null, dir);
 			}
 
-			boolean ret = dir.mkdir();
+			boolean ret;
+			if (__parents) {
+				ret = dir.mkdirs();
+			} else {
+				ret = dir.mkdir();
+			}
 
 			if (ret) {
 				return new MyResult <File>(0, null, dir);
@@ -352,9 +313,10 @@ public class NiceFileUtils {
 				return new MyResult <String>(0, null, path);
 			}
 
-			int _ret = path.lastIndexOf("/");
-			if (_ret > 0) {
-				String ret = path.substring(0, _ret + 1);
+			File f = new File(path);
+
+			if (f.isFile() || (!f.exists() && !path.endsWith("/"))) {
+				String ret = f.getParent();
 				return new MyResult <String>(0, null, ret);
 			} else {
 				return new MyResult <String>(0, null, path);
@@ -366,9 +328,35 @@ public class NiceFileUtils {
 	}
 
 
-	public static MyResult <Integer> read (Context c, String file,
-		byte[] buf, int startIndex, int maxCount) {
+	public static MyResult <String> parent (String path) {
 		try {
+			if (null == path || path.length() <= 0) {
+				return new MyResult <String>(errno.EINVAL * -1,
+					"Invalid argument", null);
+			}
+
+			File f = new File(path);
+
+			if (path.equals("/")) {
+				return new MyResult <String>(0, null, path);
+			} else if (f.isFile() || path.contains("/")) {
+				return new MyResult <String>(0, null, f.getParent());
+			} else {
+				return new MyResult <String>(errno.EINVAL * -1,
+					"Invalid argument " + path, null);
+			}
+		} catch (Exception e) {
+			return new MyResult <String>(errno.EXTRA_EEUNRESOLVED * -1,
+				e.getMessage(), null);
+		}
+	}
+
+
+	public static MyResult <Integer> read (String filePath, byte[] buf,
+		int startIndex, int maxCount) {
+		try {
+			Log.v(TAG + ":read", "file: " + filePath);
+
 			if ((null == buf) || (buf.length <= 0) || (startIndex < 0)
 				|| (maxCount <= 0) || (startIndex > (buf.length - 1))
 				|| (startIndex + maxCount > buf.length)) {
@@ -381,15 +369,15 @@ public class NiceFileUtils {
 			}
 
 			FileInputStream in = null;
-			int ret;
+			int ret = 0;
+			String msg = null;
 			try {
-				in = c.openFileInput(file);
-				if (null == in) {
-					ret = errno.EXTRA_ENOPENFILEI * -1;
-				} else {
-					ret = 0;
-				}
+				File file = new File(filePath);
+
+				in = new FileInputStream(file);
 			} catch (Exception e) {
+				msg = e.getMessage();
+				Log.e(TAG + ":read", "E: " + msg);
 				ret = errno.EXTRA_EEOPENFILEI * -1;
 			}
 
@@ -400,21 +388,26 @@ public class NiceFileUtils {
 				}
 				try {
 					ret = in.read(buf, startIndex, maxCount);
-					Log.println(Log.VERBOSE, "FileUtils/read/read", "read ok");
+					Log.v(TAG + ":read", "ok");
 				} catch (IOException e) {
-					Log.println(Log.WARN, "FileUtils/read/read",
-						"ERROR: read: " + e.getMessage());
+					msg = e.getMessage();
+					Log.w(TAG + ":read", "ERROR: " + msg);
 					ret = errno.EXTRA_EEREAD * -1;
 				}
 			}
-			try {
-				in.close();
-			} catch (IOException e) {
-				Log.println(Log.WARN, "FileOutputStream/read/close",
-					"ERROR: " + e.getMessage());
+			if (null != in) {
+				try {
+					in.close();
+				} catch (Exception e) {
+					Log.w(TAG + ":read", "ERROR: " + e.getMessage());
+				}
 			}
 
-			return new MyResult <Integer>(errno.EINVAL * -1, "done", ret);
+			if (ret < 0) {
+				return new MyResult <Integer>(ret, msg, null);
+			} else {
+				return new MyResult <Integer>(0, msg, ret);
+			}
 		} catch (Exception e) {
 			Log.w(TAG + ":read", "ERROR: " + e.getMessage());
 			return new MyResult <Integer>(errno.EXTRA_EEUNRESOLVED * -1,
@@ -423,11 +416,11 @@ public class NiceFileUtils {
 	}
 
 
-	public static MyResult <String> mv (String from, String to,
-		boolean __parents) {
+	public static MyResult <String> mv (String from, String to) {
 		try {
-			MyResult <String> ret = NiceFileUtils.cp(from, to, true,
-				__parents);
+			Log.v(TAG + ":mv", "from: " + from + " to: " + to);
+
+			MyResult <String> ret = NiceFileUtils.cp(from, to, true);
 			if (0 != ret.code) {
 				return ret;
 			}
@@ -441,27 +434,260 @@ public class NiceFileUtils {
 	}
 
 
-	private static MyResult <String> cp (String from, String to,
-		boolean recursion, boolean __parents) {
-		MyResult <FILE> fw = NiceFileUtils.isWhat(from);
-
-		return null;
-	}
-
-
-	private static MyResult <FILE> isWhat (String from) {
+	public static MyResult <String> cp (String from, String to,
+		boolean recursion) {
 		try {
-		} catch (Exception e) {
-			Log.w(TAG + ":mv", "ERROR: " + e.getMessage());
-			return new MyResult <FILE>(errno.EXTRA_EEUNRESOLVED * -1,
-				e.getMessage(), null);
 
+			MyResult <FILE> fwfrom = NiceFileUtils.isWhat(from);
+
+			if (0 != fwfrom.code) {
+				return new MyResult <String>(fwfrom.code, fwfrom.msg, null);
+			}
+
+			MyResult <Boolean> e = NiceFileUtils.isExists(from);
+			if (0 != e.code) {
+				return new MyResult <String>(e.code, e.msg, null);
+			}
+
+			if (!e.cc) {
+				return new MyResult <String>(errno.ENOENT * -1,
+					"No such file or directory " + from, null);
+			}
+
+			MyResult <FILE> fwto = NiceFileUtils.isWhat(to);
+
+			if (0 != fwto.code) {
+				return new MyResult <String>(fwto.code, fwto.msg, null);
+			}
+
+			e = NiceFileUtils.isExists(to);
+			if (0 != e.code) {
+				return new MyResult <String>(e.code, e.msg, null);
+			}
+			boolean isFromDir;
+			if (FILE.directory == fwfrom.cc.file()) {
+				isFromDir = true;
+
+				if (!recursion) {
+					return new MyResult <String>(errno.EISDIR * -1,
+						"Is a directory " + from, null);
+				} else if ((FILE.directory != (FILE.directory & fwto.cc
+					.file()))) {
+					return new MyResult <String>(errno.ENOTDIR * -1,
+						"Not a directory " + to, null);
+				}
+			} else {
+				isFromDir = false;
+
+				if (!e.cc && FILE.directory == fwto.cc.file()) {
+					return new MyResult <String>(errno.ENOTDIR * -1,
+						"Not a directory " + to, null);
+				}
+			}
+
+			if (from.equals(to)) {
+				return new MyResult <String>(0, "do nothing", null);
+			}
+
+			if (!e.cc) {
+				MyResult <String> parent = NiceFileUtils.parent(to);
+				if (0 != parent.code) {
+					return new MyResult <String>(parent.code, parent.msg,
+						null);
+				}
+
+				e = NiceFileUtils.isExists(parent.cc);
+				if (0 != e.code) {
+					return new MyResult <String>(e.code, e.msg, null);
+				}
+
+				if (!e.cc) {
+					return new MyResult <String>(errno.ENOENT * -1,
+						"No such file or directory " + parent, null);
+				}
+			}
+
+			return NiceFileUtils.__cp(from, isFromDir, to);
+		} catch (Exception e) {
+			Log.w(TAG + ":cp", "ERROR: " + e.getMessage());
+			return new MyResult <String>(errno.EXTRA_EEUNRESOLVED * -1,
+				e.getMessage(), null);
 		}
 	}
 
 
-	public static enum FILE {
-		dir, regular,
+	private static MyResult <String> __cp (String fromPath,
+		boolean isFromDir, String toPath) {
+		try {
+			if (!isFromDir) {
+				InputStream in = null;
+				OutputStream out = null;
+
+				BufferedInputStream bin = null;
+				BufferedOutputStream bout = null;
+
+				try {
+					File from = new File(fromPath);
+					File to = new File(toPath);
+					in = new FileInputStream(from);
+					out = new FileOutputStream(to);
+					bin = new BufferedInputStream(in);
+					bout = new BufferedOutputStream(out);
+
+					byte[] b = new byte[4096];
+					int len = bin.read(b, 0, 4096);
+					while (len != -1) {
+						bout.write(b, 0, len);
+						len = bin.read(b);
+					}
+				} catch (FileNotFoundException e) {
+					return new MyResult <String>(errno.ENOENT * -1,
+						e.getMessage(), null);
+				} catch (IOException e) {
+					return new MyResult <String>(errno.ENOENT * -1,
+						e.getMessage(), null);
+				} finally {
+					try {
+						if (bin != null) {
+							bin.close();
+						}
+						if (bout != null) {
+							bout.close();
+						}
+					} catch (IOException e) {
+						return new MyResult <String>(errno.ENOENT * -1,
+							e.getMessage(), null);
+					}
+				}
+
+				return new MyResult <String>(0, null, toPath);
+			} else {
+				File from = new File(fromPath);
+				File to = new File(toPath);
+
+				String childsFrom[] = from.list();
+
+				/* empty folder */
+				if (childsFrom == null || childsFrom.length <= 0) {
+					if (to.mkdirs()) {
+						return new MyResult <String>(0, null, toPath);
+					} else {
+						return new MyResult <String>(errno.EPERM * -1,
+							"mkdirs " + toPath, null);
+					}
+				}
+
+				/*
+				 * not empty
+				 * no matter what parent DIR first, not check permission here
+				 * may TODO
+				 */
+				if (from.isDirectory() && !to.mkdirs()) {
+					return new MyResult <String>(errno.EPERM * -1, "mkdirs "
+						+ toPath, null);
+				}
+
+				int i = 0;
+				while (i++ < childsFrom.length) {
+					String child_name = childsFrom[i - 1];
+
+					/* sub files or directories */
+					String child_path_s = from.getPath() + File.separator
+						+ child_name;
+					String child_path_d = to.getPath() + File.separator
+						+ child_name;
+
+					File path_s = new File(child_path_s);
+					/* File path_d = new File(child_path_d); */
+
+					if (!path_s.exists()) { /* extra check */
+						return new MyResult <String>(errno.ENOENT * -1,
+							"No such file or directory " + child_path_d, null);
+					}
+
+					/* current child is folder, just copy it */
+					if (path_s.isDirectory()) {
+						MyResult <String> ret = NiceFileUtils.__cp(
+							child_path_s, true, child_path_d);
+
+						if (0 != ret.code) {
+							return ret;
+						} else {
+							continue;
+						}
+					}
+
+					/*
+					 * current child is file, just copy it to child's parent,
+					 * just as
+					 * path_d
+					 */
+					if (path_s.isFile()) {
+						MyResult <String> ret = NiceFileUtils.__cp(
+							child_path_s, false, child_path_d);
+
+						if (0 != ret.code) {
+							return ret;
+						} else {
+							continue;
+						}
+					}
+				}
+
+				return new MyResult <String>(0, null, toPath);
+			}
+		} catch (Exception e) {
+			return new MyResult <String>(errno.EXTRA_EEUNRESOLVED * -1,
+				e.getMessage(), null);
+		}
+	}
+
+
+	public static MyResult <FILE> isWhat (String w) {
+		try {
+			if (null == w || w.length() <= 0) {
+				return new MyResult <FILE>(errno.EINVAL * -1,
+					"Invalid argument", null);
+			}
+
+			File f = new File(w);
+			/*
+			 * if a regular exists but provided as .../
+			 * => also a regular: TODO: test
+			 */
+			if (f.isDirectory()) {
+				return new MyResult <FILE>(0, null, new FILE(FILE.directory));
+			} else if (f.exists()) {
+				return new MyResult <FILE>(0, null, new FILE(FILE.regular));
+			} else {
+				return new MyResult <FILE>(0, null, new FILE(FILE.dirOrReg));
+			}
+		} catch (Exception e) {
+			Log.w(TAG + ":mv", "ERROR: " + e.getMessage());
+			return new MyResult <FILE>(errno.EXTRA_EEUNRESOLVED * -1,
+				e.getMessage(), null);
+		}
+	}
+
+
+	public static class FILE {
+		public FILE (int w) {
+			this.w = w;
+		}
+
+
+		public int file () {
+			return this.w;
+		}
+
+
+		public static int directory = 0x1;
+
+		public static int regular = 0x1 << 1;
+
+		public static int dirOrReg = FILE.directory | FILE.regular;
+
+		private int w;
 	};
 
 
