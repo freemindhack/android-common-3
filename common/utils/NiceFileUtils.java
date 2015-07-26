@@ -416,11 +416,13 @@ public class NiceFileUtils {
 	}
 
 
-	public static MyResult <String> mv (String from, String to) {
+	public static MyResult <String> mv (String from, String to,
+		boolean overwrite) {
 		try {
 			Log.v(TAG + ":mv", "from: " + from + " to: " + to);
 
-			MyResult <String> ret = NiceFileUtils.cp(from, to, true);
+			MyResult <String> ret = NiceFileUtils.cp(from, to, true,
+				overwrite);
 			if (0 != ret.code) {
 				return ret;
 			}
@@ -435,7 +437,7 @@ public class NiceFileUtils {
 
 
 	public static MyResult <String> cp (String from, String to,
-		boolean recursion) {
+		boolean recursion, boolean overwrite) {
 		try {
 
 			MyResult <FILE> fwfrom = NiceFileUtils.isWhat(from);
@@ -505,9 +507,12 @@ public class NiceFileUtils {
 					return new MyResult <String>(errno.ENOENT * -1,
 						"No such file or directory " + parent, null);
 				}
+				// } else if (!overwrite) {
+				// return new MyResult <String>(errno.EPERM * -1,
+				// "Operation not permitted: overwrite", null);
 			}
 
-			return NiceFileUtils.__cp(from, isFromDir, to);
+			return NiceFileUtils.__cp(from, isFromDir, to, overwrite);
 		} catch (Exception e) {
 			Log.w(TAG + ":cp", "ERROR: " + e.getMessage());
 			return new MyResult <String>(errno.EXTRA_EEUNRESOLVED * -1,
@@ -517,7 +522,7 @@ public class NiceFileUtils {
 
 
 	private static MyResult <String> __cp (String fromPath,
-		boolean isFromDir, String toPath) {
+		boolean isFromDir, String toPath, boolean overwrite) {
 		try {
 			if (!isFromDir) {
 				InputStream in = null;
@@ -529,6 +534,10 @@ public class NiceFileUtils {
 				try {
 					File from = new File(fromPath);
 					File to = new File(toPath);
+					if (to.exists() && !overwrite) {
+						return new MyResult <String>(errno.EPERM * -1,
+							"Operation not permitted: overwrite", null);
+					}
 					in = new FileInputStream(from);
 					out = new FileOutputStream(to);
 					bin = new BufferedInputStream(in);
@@ -564,6 +573,10 @@ public class NiceFileUtils {
 			} else {
 				File from = new File(fromPath);
 				File to = new File(toPath);
+				if (to.exists() && !overwrite) {
+					return new MyResult <String>(errno.EPERM * -1,
+						"Operation not permitted: overwrite", null);
+				}
 
 				String childsFrom[] = from.list();
 
@@ -608,7 +621,7 @@ public class NiceFileUtils {
 					/* current child is folder, just copy it */
 					if (path_s.isDirectory()) {
 						MyResult <String> ret = NiceFileUtils.__cp(
-							child_path_s, true, child_path_d);
+							child_path_s, true, child_path_d, overwrite);
 
 						if (0 != ret.code) {
 							return ret;
@@ -624,7 +637,7 @@ public class NiceFileUtils {
 					 */
 					if (path_s.isFile()) {
 						MyResult <String> ret = NiceFileUtils.__cp(
-							child_path_s, false, child_path_d);
+							child_path_s, false, child_path_d, overwrite);
 
 						if (0 != ret.code) {
 							return ret;
