@@ -16,7 +16,7 @@ import posix.generic.errno.errno;
 import android.util.Log;
 
 
-public class HttpDownload <EXTRA_TYPE> extends Thread {
+public class HttpDownload <EXTRA_TYPE> {
 
 	/*
 	 * timeout: if -1(or < 0): NOT timeout
@@ -47,23 +47,28 @@ public class HttpDownload <EXTRA_TYPE> extends Thread {
 
 
 	public interface DownloadListener <T> {
+		/* none block */
 		public void onDownloadStarted (
 			HttpDownload.DownloadContent <T> downloadContent);
 
 
+		/* block */
 		public boolean overwrite (
 			HttpDownload.DownloadContent <T> downloadContent);
 
 
+		/* none block */
 		public void onDownloadFailed (
 			HttpDownload.DownloadContent <T> downloadContent,
 			MyResult <Integer> retval);
 
 
+		/* none block */
 		public void onDownloadFinished (
 			HttpDownload.DownloadContent <T> downloadContent);
 
 
+		/* none block */
 		public void onDownloadStopped (
 			HttpDownload.DownloadContent <T> downloadContent);
 	}
@@ -105,59 +110,117 @@ public class HttpDownload <EXTRA_TYPE> extends Thread {
 		try {
 			MyResult <Integer> ret = new MyResult <Integer>(0, null, null);
 
-			if (this.isAlive() || this.running) {
+			if (this.running) {
 				ret = this.stopDownload();
 			}
 
 			return ret;
 		} catch (Exception e) {
 			return new MyResult <Integer>(errno.EXTRA_EEUNRESOLVED * 1,
-				e.getMessage(), null);
+				"ERROR: " + e.getMessage(), null);
 		}
 	}
 
 
+	private boolean started, stop;
+
+	private static int nnn = 0;
+
+
+	/* none block */
 	public MyResult <Integer> startDownload (boolean started, boolean stop) {
 		try {
-			this.downloadArgs.downloadContent.outStarted = System
-				.currentTimeMillis();
+			this.started = started;
+			this.stop = stop;
 
-			Log.i(TAG, "startDownload");
+			new Thread() {
+				@Override
+				public void run () {
+					try {
+						HttpDownload.this.downloadArgs.downloadContent.outStarted = System
+							.currentTimeMillis();
 
-			if (this.running && (!started)) {
-				return new MyResult <Integer>(errno.EBUSY * -1,
-					"start failed: already running", null);
+						Log.i(TAG, "startDownload");
 
-			}
+						if (HttpDownload.this.running
+							&& (!HttpDownload.this.started)) {
+							MyResult <Integer> ret = new MyResult <Integer>(
+								errno.EBUSY * -1,
+								"start failed: already running", null);
 
-			if (this.running && started && (!stop)) {
-				return new MyResult <Integer>(0, null, null);
-			} else if (this.running && started && stop) {
-				MyResult <Integer> ret = this.stopDownload();
+							if ((null != HttpDownload.this.downloadArgs)
+								&& (null != HttpDownload.this.downloadArgs.downloadListener)) {
+								HttpDownload.this.downloadArgs.downloadListener
+									.onDownloadFailed(
+										HttpDownload.this.downloadArgs.downloadContent,
+										ret);
+								return;
+							}
+						}
 
-				if (null == ret || 0 != ret.code) {
-					return ret;
+						if (HttpDownload.this.running
+							&& HttpDownload.this.started
+							&& (!HttpDownload.this.stop)) {
+							return;/* ok */
+						} else if (HttpDownload.this.running
+							&& HttpDownload.this.started
+							&& HttpDownload.this.stop) {
+							MyResult <Integer> ret = HttpDownload.this
+								.stopDownload();
+
+							if (0 != ret.code) {
+								if ((null != HttpDownload.this.downloadArgs)
+									&& (null != HttpDownload.this.downloadArgs.downloadListener)) {
+									HttpDownload.this.downloadArgs.downloadListener
+										.onDownloadFailed(
+											HttpDownload.this.downloadArgs.downloadContent,
+											ret);
+								}
+								return;
+							}
+						}
+
+						if (!HttpDownload.this.running) {
+							HttpDownload.this.terminate = false;
+							++nnn;
+							Log.v(TAG + "start main thread: ", "n: " + nnn);
+
+							/* FIXME: the BAD start */
+							/* HttpDownload.this.start(); */
+							HttpDownload.this.run();/* now just use run */
+						}
+						/* ok */
+					} catch (Exception e) {
+						Log.e(TAG + ":startDownload:thread",
+							"ERROR: " + e.getMessage());
+						MyResult <Integer> ret = new MyResult <Integer>(
+							errno.EXTRA_EEUNRESOLVED * -1, e.getMessage(),
+							null);
+						if ((null != HttpDownload.this.downloadArgs)
+							&& (null != HttpDownload.this.downloadArgs.downloadListener)) {
+							HttpDownload.this.downloadArgs.downloadListener
+								.onDownloadFailed(
+									HttpDownload.this.downloadArgs.downloadContent,
+									ret);
+						}
+					}
 				}
-			}
-
-			if (!this.running) {
-				this.terminate = false;
-				this.start();
-			}
+			}.start();
 
 			return new MyResult <Integer>(0, null, null);
 		} catch (Exception e) {
 			return new MyResult <Integer>(errno.EXTRA_EEUNRESOLVED * 1,
-				e.getMessage(), null);
+				"ERROR: " + e.getMessage(), null);
 		}
 	}
 
 
+	/* block */
 	public MyResult <Integer> stopDownload () {
 		try {
-			Log.i(TAG, "startDownload");
+			Log.i(TAG, "stopDownload");
 
-			if (this.isAlive() || this.running) {
+			if (this.running) {
 				this.terminate = true;
 
 				for (int i = 0; i < HttpDownload.STOP_RETRY; ++i) {
@@ -173,7 +236,7 @@ public class HttpDownload <EXTRA_TYPE> extends Thread {
 				}
 			}
 
-			if (this.isAlive() || this.running) {
+			if (this.running) {
 				return new MyResult <Integer>(errno.EPERM * -1,
 					"stop failed: still running", null);
 			} else {
@@ -181,14 +244,15 @@ public class HttpDownload <EXTRA_TYPE> extends Thread {
 			}
 		} catch (Exception e) {
 			return new MyResult <Integer>(errno.EXTRA_EEUNRESOLVED * 1,
-				e.getMessage(), null);
+				"ERROR: " + e.getMessage(), null);
 		}
 	}
 
 
-	/*** XXX @Override ***/
-	@Override
-	public void run () {
+	MyResult <String> rmOldRet;
+
+
+	private void run () {
 		try {
 			this.running = true;
 
@@ -211,8 +275,20 @@ public class HttpDownload <EXTRA_TYPE> extends Thread {
 				if (firstRemoteFilesize > 0) {
 					downloadArgs.downloadContent.outFirstRemoteFilesize = firstRemoteFilesize;
 					if (null != this.downloadArgs.downloadListener) {
-						this.downloadArgs.downloadListener
-							.onDownloadStarted(this.downloadArgs.downloadContent);
+						new Thread() {
+							@Override
+							public void run () {
+								try {
+									HttpDownload.this.downloadArgs.downloadListener
+										.onDownloadStarted(HttpDownload.this.downloadArgs.downloadContent);
+								} catch (Exception e) {
+									Log.e(TAG
+										+ ":run:onDownloadStarted:thread",
+										"ERROR: " + e.getMessage());
+
+								}
+							}
+						}.start();
 					}
 
 					MyResult <Boolean> exists = NiceFileUtils
@@ -235,27 +311,56 @@ public class HttpDownload <EXTRA_TYPE> extends Thread {
 						&& (null != this.downloadArgs.downloadListener)) {
 						if (!this.downloadArgs.downloadListener
 							.overwrite(this.downloadArgs.downloadContent)) {
-							MyResult <Integer> retval = new MyResult <Integer>(
-								errno.EEXIST * -1, "File exists", errno.EPERM
-									* -1);
-							this.downloadArgs.downloadListener
-								.onDownloadFailed(
-									this.downloadArgs.downloadContent, retval);
+
+							new Thread() {
+								@Override
+								public void run () {
+									try {
+										MyResult <Integer> retval = new MyResult <Integer>(
+											errno.EEXIST * -1, "File exists",
+											errno.EPERM * -1);
+										HttpDownload.this.downloadArgs.downloadListener
+											.onDownloadFailed(
+												HttpDownload.this.downloadArgs.downloadContent,
+												retval);
+									} catch (Exception e) {
+										Log.e(TAG
+											+ ":run:onDownloadFailed:thread",
+											"ERROR: " + e.getMessage());
+
+									}
+								}
+							}.start();
 							break;
 						} else {
-							MyResult <String> ret = NiceFileUtils.rm(
+							rmOldRet = NiceFileUtils.rm(
 								this.downloadArgs.downloadContent.saveTo,
 								false, false);
 
-							if (0 != ret.code) {
-								MyResult <Integer> retval = new MyResult <Integer>(
-									ret.code, ret.msg, errno.EPERM * -1);
-								this.downloadArgs.downloadListener
-									.onDownloadFailed(
-										this.downloadArgs.downloadContent,
-										retval);
-								Log.v(TAG + ":run", "rm fail: " + ret.code
-									+ " " + ret.msg);
+							if (0 != rmOldRet.code) {
+								new Thread() {
+									@Override
+									public void run () {
+										try {
+											MyResult <Integer> retval = new MyResult <Integer>(
+												rmOldRet.code, rmOldRet.msg,
+												errno.EPERM * -1);
+											HttpDownload.this.downloadArgs.downloadListener
+												.onDownloadFailed(
+													HttpDownload.this.downloadArgs.downloadContent,
+													retval);
+											Log.v(TAG + ":run", "rm fail: "
+												+ rmOldRet.code + " "
+												+ rmOldRet.msg);
+										} catch (Exception e) {
+											Log.e(
+												TAG
+													+ ":run:onDownloadFailed:thread",
+												"ERROR: " + e.getMessage());
+
+										}
+									}
+								}.start();
 								break;
 							}
 						}
@@ -281,13 +386,28 @@ public class HttpDownload <EXTRA_TYPE> extends Thread {
 								Log.w(TAG + ":run", "timeout");
 
 								if (null != this.downloadArgs.downloadListener) {
-									MyResult <Integer> retval = new MyResult <Integer>(
-										errno.ETIME * -1, "download timeout",
-										errno.EPERM * -1);
-									this.downloadArgs.downloadListener
-										.onDownloadFailed(
-											this.downloadArgs.downloadContent,
-											retval);
+									new Thread() {
+										@Override
+										public void run () {
+											try {
+												MyResult <Integer> retval = new MyResult <Integer>(
+													errno.ETIME * -1,
+													"download timeout",
+													errno.EPERM * -1);
+												HttpDownload.this.downloadArgs.downloadListener
+													.onDownloadFailed(
+														HttpDownload.this.downloadArgs.downloadContent,
+														retval);
+											} catch (Exception e) {
+												Log.e(
+													TAG
+														+ ":run:onDownloadFailed:thread",
+													"ERROR: "
+														+ e.getMessage());
+
+											}
+										}
+									}.start();
 								}
 
 								Log.e(TAG + ":run", "timeout");
@@ -312,8 +432,19 @@ public class HttpDownload <EXTRA_TYPE> extends Thread {
 						.currentTimeMillis();
 					this.downloadArgs.downloadContent.outTotal = total;
 					if (null != this.downloadArgs.downloadListener) {
-						this.downloadArgs.downloadListener
-							.onDownloadFinished(this.downloadArgs.downloadContent);
+						new Thread() {
+							@Override
+							public void run () {
+								try {
+									HttpDownload.this.downloadArgs.downloadListener
+										.onDownloadFinished(HttpDownload.this.downloadArgs.downloadContent);
+								} catch (Exception e) {
+									Log.e(TAG
+										+ ":run:onDownloadFinished:thread",
+										"ERROR: " + e.getMessage());
+								}
+							}
+						}.start();
 					}
 					break;
 				}
@@ -325,26 +456,49 @@ public class HttpDownload <EXTRA_TYPE> extends Thread {
 			/* exit */
 			Log.w(TAG + ":run", "exit");
 			if (null != this.downloadArgs.downloadListener) {
-				this.downloadArgs.downloadListener
-					.onDownloadStopped(this.downloadArgs.downloadContent);
+				new Thread() {
+					@Override
+					public void run () {
+						try {
+							HttpDownload.this.downloadArgs.downloadListener
+								.onDownloadStopped(HttpDownload.this.downloadArgs.downloadContent);
+						} catch (Exception e) {
+							Log.e(TAG + ":run:onDownloadStopped:thread",
+								"ERROR: " + e.getMessage());
+						}
+					}
+				}.start();
 			}
 			this.running = false;
 		} catch (Exception e) {
 			Log.e(TAG + ":run", "ERROR: " + e.getMessage());
 			if (null != this.downloadArgs.downloadListener) {
-				MyResult <Integer> retval = new MyResult <Integer>(
-					errno.EXTRA_EEUNRESOLVED * -1, e.getMessage(),
-					errno.EPERM * -1);
+				new Thread() {
+					@Override
+					public void run () {
+						try {
+							MyResult <Integer> retval = new MyResult <Integer>(
+								errno.EXTRA_EEUNRESOLVED * -1, "",
+								errno.EPERM * -1);
 
-				this.downloadArgs.downloadListener.onDownloadFailed(
-					this.downloadArgs.downloadContent, retval);
+							HttpDownload.this.downloadArgs.downloadListener
+								.onDownloadFailed(
+									HttpDownload.this.downloadArgs.downloadContent,
+									retval);
+						} catch (Exception e) {
+							Log.e(TAG + ":run:onDownloadFailed:thread",
+								"ERROR: " + e.getMessage());
+
+						}
+					}
+				}.start();
 			}
 			this.running = false;
 		}
 	}
 
 
-	private static final int STOP_RETRY = 10;
+	private static final int STOP_RETRY = 500;
 
 	private static final int RUN_TIME_SLICE = 20;/* 20 ms */
 
