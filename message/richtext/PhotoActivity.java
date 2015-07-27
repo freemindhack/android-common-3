@@ -2,6 +2,7 @@
 package common.message.richtext;
 
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -79,10 +80,8 @@ public class PhotoActivity extends Activity {
 					MyBMP.max = 0;
 					String torm = NiceFileUtils
 						.getAlbumStorageDir(NewMessageActivity.albumNameCompressed).cc;
-					MyResult <String> ret = NiceFileUtils.rm(torm, true,
-						false);
-					NiceFileUtils.refreshGallery(getApplicationContext(),
-						torm);
+					MyResult <String> ret = NiceFileUtils.rmGallery(new File(
+						torm), true, false, getApplicationContext());
 
 					if (null == ret || 0 != ret.code) {
 						Toast.makeText(getApplicationContext(),
