@@ -2,14 +2,7 @@
 package common.message.richtext;
 
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
-
-
-import com.za.smartlock.manufacturer.R;
-import common.utils.MyResult;
-import common.utils.NiceFileUtils;
 
 
 import android.app.Activity;
@@ -28,23 +21,19 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 
-public class PhotoActivity extends Activity {
+import com.za.smartlock.manufacturer.R;
+import common.datastructure.ThreeValuesSet;
+import common.utils.MyResult;
+import common.utils.NiceFileUtils;
+
+
+public class ShowPictureActivity extends Activity {
 
 	private ArrayList <View> listViews = null;
 
 	private ViewPager pager;
 
 	private MyPageAdapter adapter;
-
-	private int count;
-
-	public List <Bitmap> bmp = new ArrayList <Bitmap>();
-
-	public List <String> drr = new ArrayList <String>();
-
-	public List <String> del = new ArrayList <String>();
-
-	public int max;
 
 	RelativeLayout photo_relativeLayout;
 
@@ -56,32 +45,26 @@ public class PhotoActivity extends Activity {
 		photo_relativeLayout = (RelativeLayout) findViewById(R.id.photo_relativeLayout);
 		photo_relativeLayout.setBackgroundColor(0x70000000);
 
-		for (int i = 0; i < MyBMP.bmps.size(); i++) {
-			bmp.add(MyBMP.bmps.get(i));
+		for (int i = 0; i < MyBMP.compressedBmps.size(); i++) {
+			this.showDatas.add(MyBMP.compressedBmps.get(i),
+				MyBMP.compressedImgPathes.get(i), null);
 		}
-		for (int i = 0; i < MyBMP.bmpAddres.size(); i++) {
-			drr.add(MyBMP.bmpAddres.get(i));
-		}
-		max = MyBMP.max;
 
 		Button photo_bt_exit = (Button) findViewById(R.id.photo_bt_exit);
 		photo_bt_exit.setOnClickListener(new View.OnClickListener() {
 			public void onClick (View v) {
-
 				finish();
 			}
 		});
+
 		Button photo_bt_del = (Button) findViewById(R.id.photo_bt_del);
 		photo_bt_del.setOnClickListener(new View.OnClickListener() {
 			public void onClick (View v) {
-				if (listViews.size() == 1) {
-					MyBMP.bmps.clear();
-					MyBMP.bmpAddres.clear();
-					MyBMP.max = 0;
+				if (listViews.size() <= 0) {
 					String torm = NiceFileUtils
 						.getAlbumStorageDir(NewMessageActivity.albumNameCompressed).cc;
-					MyResult <String> ret = NiceFileUtils.rmGallery(new File(
-						torm), true, false, getApplicationContext());
+					MyResult <String> ret = NiceFileUtils.rm(torm, true,
+						false);
 
 					if (null == ret || 0 != ret.code) {
 						Toast.makeText(getApplicationContext(),
@@ -91,52 +74,54 @@ public class PhotoActivity extends Activity {
 
 					finish();
 				} else {
-					String c2rm = drr.get(count).substring(
-						drr.get(count).lastIndexOf("/") + 1,
-						drr.get(count).lastIndexOf("."));
-					bmp.remove(count);
-					drr.remove(count);
+					int d = ShowPictureActivity.this.currentPage;
 
-					Log.v(TAG + ":btn-del", "add-c2rm: " + c2rm);
-					del.add(c2rm);
+					ThreeValuesSet <Bitmap, String, String> r = ShowPictureActivity.this.showDatas
+						.remove(d);
 
-					max--;
+					String rs = r.v2(0);
+					ShowPictureActivity.this.compressed2DelPaths.add(rs);
+
+					Log.v(TAG + ":btn-del", "rm compressed: " + rs);
+
 					pager.removeAllViews();
-					listViews.remove(count);
+					listViews.remove(d);
 					adapter.setListViews(listViews);
 					adapter.notifyDataSetChanged();
 				}
 			}
 		});
+
 		Button photo_bt_enter = (Button) findViewById(R.id.photo_bt_enter);
 		photo_bt_enter.setOnClickListener(new View.OnClickListener() {
-
 			public void onClick (View v) {
+				int n = ShowPictureActivity.this.compressed2DelPaths.size();
 
-				MyBMP.bmps = bmp;
-				MyBMP.bmpAddres = drr;
-				MyBMP.max = max;
-				for (int i = 0; i < del.size(); i++) {
-					String c2rm = NiceFileUtils
-						.getAlbumStorageDir(NewMessageActivity.albumNameCompressed).cc
-						+ "/" + del.get(i) + ".jpg";
+				for (int i = 0; i < n; i++) {
+					String c2rm = ShowPictureActivity.this.compressed2DelPaths
+						.get(i);
 
 					Log.v(TAG + ":btn-done", "do-c2rm: " + c2rm);
 					MyResult <String> ret = NiceFileUtils.rm(c2rm, false,
 						false);
 					NiceFileUtils.refreshGallery(getApplicationContext(),
 						c2rm);
+
 					Log.v(TAG + ":btn-done", "do-c2rm: " + "code: "
 						+ ret.code + " msg: " + ret.msg);
 				}
+
 				finish();
 			}
 		});
 
 		pager = (ViewPager) findViewById(R.id.viewpager);
 		pager.setOnPageChangeListener(pageChangeListener);
-		for (int i = 0; i < bmp.size(); i++) {
-			initListViews(bmp.get(i));//
+
+		ArrayList <Bitmap> bmps = this.showDatas.v1s();
+		int n = bmps.size();
+		for (int i = 0; i < n; i++) {
+			initListViews(bmps.get(i));
 		}
 
 		adapter = new MyPageAdapter(listViews);// 构造adapter
@@ -147,6 +132,7 @@ public class PhotoActivity extends Activity {
 	}
 
 
+	@SuppressWarnings ("deprecation")
 	private void initListViews (Bitmap bm) {
 		if (listViews == null)
 			listViews = new ArrayList <View>();
@@ -161,17 +147,17 @@ public class PhotoActivity extends Activity {
 
 	private OnPageChangeListener pageChangeListener = new OnPageChangeListener() {
 
-		public void onPageSelected (int arg0) {// 页面选择响应函数
-			count = arg0;
+		public void onPageSelected (int currentPage) {
+			ShowPictureActivity.this.currentPage = currentPage;
 		}
 
 
-		public void onPageScrolled (int arg0, float arg1, int arg2) {// 滑动中。。。
+		public void onPageScrolled (int arg0, float arg1, int arg2) {
 
 		}
 
 
-		public void onPageScrollStateChanged (int arg0) {// 滑动状态改变
+		public void onPageScrollStateChanged (int arg0) {
 
 		}
 	};
@@ -233,5 +219,12 @@ public class PhotoActivity extends Activity {
 	}
 
 
-	private static final String TAG = PhotoActivity.class.getSimpleName();
+	private static final String TAG = ShowPictureActivity.class
+		.getSimpleName();
+
+	private ThreeValuesSet <Bitmap, String, String> showDatas = new ThreeValuesSet <Bitmap, String, String>();
+
+	private ArrayList <String> compressed2DelPaths = new ArrayList <String>();
+
+	private int currentPage = 0;
 }

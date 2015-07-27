@@ -167,6 +167,8 @@ public class NiceFileUtils {
 	public static MyResult <String> rmGallery (File file2delete,
 		boolean recursion, boolean force, Context context) {
 		try {
+			Log.v(TAG + ":rmGallery", "f; " + file2delete);
+
 			if (!file2delete.exists() && force) {
 				return new MyResult <String>(0, null,
 					file2delete.getAbsolutePath());

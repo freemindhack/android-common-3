@@ -5,14 +5,10 @@ package common.message.richtext;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 
 import p7zip.P7zipProcess;
-
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -87,7 +83,7 @@ public class NewMessageActivity extends Activity {
 		Log.v(TAG, "onResume");
 
 		if (null != this.adapter) {
-			this.adapter.update();
+			this.adapter.updatePreview();
 		}
 
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
@@ -141,26 +137,26 @@ public class NewMessageActivity extends Activity {
 			}
 		}
 
-		this.noScrollgridview = (GridView) findViewById(R.id.noScrollGridViewANM);
-		this.noScrollgridview
-			.setSelector(new ColorDrawable(Color.TRANSPARENT));
+		this.scrollGridViewPreview = (GridView) findViewById(R.id.noScrollGridViewANM);
+		this.scrollGridViewPreview.setSelector(new ColorDrawable(
+			Color.TRANSPARENT));
 		this.adapter = new GridAdapter(this);
-		// MyBMP.bmps.clear();
-		// MyBMP.bmpAddres.clear();
-		this.adapter.update();
-		this.noScrollgridview.setAdapter(adapter);
 
-		this.noScrollgridview
+		this.scrollGridViewPreview.setAdapter(this.adapter);
+		this.adapter.updatePreview();
+
+		this.scrollGridViewPreview
 			.setOnItemClickListener(new OnItemClickListener() {
-
 				public void onItemClick (AdapterView <?> arg0, View arg1,
 					int pos, long arg3) {
-					if (pos == MyBMP.bmps.size()) {
+					Log.v(TAG + ":scrollGridViewPreview", "clicked: " + pos);
+
+					if (pos == MyBMP.originalImgPathes.size()) {
 						new PopupWindows(NewMessageActivity.this,
-							NewMessageActivity.this.noScrollgridview);
+							NewMessageActivity.this.scrollGridViewPreview);
 					} else {
 						Intent intent = new Intent(NewMessageActivity.this,
-							PhotoActivity.class);
+							ShowPictureActivity.class);
 						intent.putExtra("ID", pos);
 						startActivity(intent);
 					}
@@ -171,22 +167,12 @@ public class NewMessageActivity extends Activity {
 		this.textViewANMDone.setOnClickListener(new OnClickListener() {
 
 			public void onClick (View v) {
-				List <String> list = new ArrayList <String>();
-				for (int i = 0; i < MyBMP.bmpAddres.size(); i++) {
-					String s = MyBMP.bmpAddres.get(i).substring(
-						MyBMP.bmpAddres.get(i).lastIndexOf("/") + 1,
-						MyBMP.bmpAddres.get(i).lastIndexOf("."));
-
-					list.add(new File(
-						Environment
+				/*
+				 * compressed in MyBMP.originalImgPathes
+				 * and: Environment
 							.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
-						albumNameCompressed)
-						+ s + ".jpg");
-				}
-
-				// 高清的压缩图片全部就在 list 路径里面了
-				// 高清的压缩过的 BMP 对象 都在 Bimp.bmp里面
-				/* zip file */
+						albumNameCompressed
+				 */
 
 				P7zipProcess z = new P7zipProcess(null);
 				z.startCompress(P7zipProcess.TargetType.TARGET_TAR,
@@ -224,12 +210,19 @@ public class NewMessageActivity extends Activity {
 				Log.w(TAG + ":deinit", "ERROR: " + ret.code + " " + ret.msg);
 			}
 
-			if (null != MyBMP.bmpAddres) {
-				MyBMP.bmps.clear();
-				MyBMP.bmpAddres.clear();
-				MyBMP.max = 0;
+			if (null != MyBMP.originalImgPathes) {
+				MyBMP.originalImgPathes.clear();
 			}
-			this.adapter.update();
+
+			if (null != MyBMP.compressedImgPathes) {
+				MyBMP.compressedImgPathes.clear();
+			}
+
+			if (null != MyBMP.compressedBmps) {
+				MyBMP.compressedBmps.clear();
+			}
+
+			this.adapter.updatePreview();
 		} catch (Exception e) {
 			Log.e(TAG + ":deinit", "ERROR: " + e.getMessage());
 		}
@@ -238,21 +231,7 @@ public class NewMessageActivity extends Activity {
 
 	@SuppressLint ("HandlerLeak")
 	private class GridAdapter extends BaseAdapter {
-		private LayoutInflater inflater; // 视图容器
-
-		private int selectedPosition = -1;// 选中的位置
-
-		private boolean shape;
-
-
-		public boolean isShape () {
-			return shape;
-		}
-
-
-		public void setShape (boolean shape) {
-			this.shape = shape;
-		}
+		private LayoutInflater inflater;/* 视图容器  */
 
 
 		public GridAdapter (Context context) {
@@ -260,46 +239,27 @@ public class NewMessageActivity extends Activity {
 		}
 
 
-		public void update () {
-			loading();
-		}
-
-
 		public int getCount () {
-			return (MyBMP.bmps.size() + 1);
+			return (MyBMP.compressedBmps.size() + 1);
 		}
 
 
-		public Object getItem (int arg0) {
-
+		public Object getItem (int arg) {
 			return null;
 		}
 
 
-		public long getItemId (int arg0) {
+		@Override
+		public long getItemId (int arg) {
 
 			return 0;
 		}
 
 
-		public void setSelectedPosition (int position) {
-			selectedPosition = position;
-		}
-
-
-		public int getSelectedPosition () {
-			return selectedPosition;
-		}
-
-
-		/**
-		 * ListView Item设置
-		 */
-		public View getView (int position, View convertView, ViewGroup parent) {
-			final int coord = position;
+		@Override
+		public View getView (int which, View convertView, ViewGroup parent) {
 			ViewHolder holder = null;
 			if (convertView == null) {
-
 				convertView = inflater.inflate(R.layout.item_published_grida,
 					parent, false);
 				holder = new ViewHolder();
@@ -310,14 +270,14 @@ public class NewMessageActivity extends Activity {
 				holder = (ViewHolder) convertView.getTag();
 			}
 
-			if (position == MyBMP.bmps.size()) {
+			if (which == MyBMP.compressedBmps.size()) {
 				holder.image.setImageBitmap(BitmapFactory.decodeResource(
 					getResources(), R.drawable.icon_addpic_unfocused));
-				if (position == 9) {
+				if (which == 9) {
 					holder.image.setVisibility(View.GONE);
 				}
 			} else {
-				holder.image.setImageBitmap(MyBMP.bmps.get(position));
+				holder.image.setImageBitmap(MyBMP.compressedBmps.get(which));
 			}
 
 			return convertView;
@@ -348,38 +308,45 @@ public class NewMessageActivity extends Activity {
 		};
 
 
-		public void loading () {
+		public void updatePreview () {
 			new Thread(new Runnable() {
 				public void run () {
-					while (true) {
-						if (MyBMP.max >= MyBMP.bmpAddres.size()) {
-							Log.i(TAG + ":loading:run", "max: " + MyBMP.max
-								+ " " + "sz: " + MyBMP.bmpAddres.size());
-							if (MyBMP.max > MyBMP.bmpAddres.size()) {
-								MyBMP.max = MyBMP.bmpAddres.size();
-							}
+					if (MyBMP.compressedBmps.size() >= 9) {
+						Log.v(TAG + ":loadingPreview:run", "sz: "
+							+ MyBMP.compressedBmps.size());
 
-							Message message = new Message();
-							message.what = 1;
-							handler.sendMessage(message);
-							break;
-						} else {
-							try {
-								String path = MyBMP.bmpAddres.get(MyBMP.max);
-								System.out.println(path);
-								Bitmap bm = MyBMP.revitionImageSize(path);
-								MyBMP.bmps.add(bm);
+						Message message = new Message();
+						message.what = 1;
+						handler.sendMessage(message);
+					} else if (MyBMP.originalImgPathes.size() > 0) {
+						try {
+							int add = MyBMP.originalImgPathes.size()
+								- MyBMP.compressedImgPathes.size();
 
-								String newStr = path.substring(
+							for (int i = 0; i < add; ++i) {
+								String oriPath = MyBMP.originalImgPathes
+									.get(MyBMP.originalImgPathes.size() - i
+										- 1);
+								Log.v(TAG + ":updatePreview:run", "oriPath: "
+									+ oriPath);
+
+								Bitmap revedbmp = MyBMP
+									.revitionImageSize(oriPath);
+
+								String compressedName = oriPath.substring(
 									path.lastIndexOf("/") + 1,
 									path.lastIndexOf("."))
 									+ ".jpg";
 
-								MyResult <File> ret = NiceFileUtils.saveCompressedBitmap(
-									bm,
-									NiceFileUtils
-										.getAlbumStorageDir(albumNameCompressed).cc,
-									newStr, 90, true, true);
+								Log.v(TAG + ":updatePreview:run",
+									"compressedName: " + compressedName);
+
+								MyResult <File> ret = NiceFileUtils
+									.saveCompressedBitmap(
+										revedbmp,
+										NiceFileUtils
+											.getAlbumStorageDir(albumNameCompressed).cc,
+										compressedName, 90, true, true);
 
 								if (null == ret || 0 != ret.code) {
 									lastError.code = ret.code;
@@ -388,18 +355,24 @@ public class NewMessageActivity extends Activity {
 									message.what = 999;
 									handler.sendMessage(message);
 								} else {
+									/* the preview */
+									MyBMP.compressedBmps.add(revedbmp);
+									MyBMP.compressedImgPathes.add(ret.cc
+										.getAbsolutePath());
 									NiceFileUtils.refreshGallery(context,
 										ret.cc);
-								}
 
-								MyBMP.max += 1;
+								}
+							}
+
+							if (add > 0) {
 								Message message = new Message();
 								message.what = 1;
 								handler.sendMessage(message);
-							} catch (IOException e) {
-								Log.e(TAG + ":loading",
-									"ERROR: " + e.getMessage());
 							}
+						} catch (IOException e) {
+							Log.e(TAG + ":updatePreview:run",
+								"ERROR: " + e.getMessage());
 						}
 					}
 				}
@@ -514,7 +487,6 @@ public class NewMessageActivity extends Activity {
 			Intent openCameraIntent = new Intent(
 				MediaStore.ACTION_IMAGE_CAPTURE);
 			File file = new File(dir.cc, name);
-			lastFile = file;
 			path = file.getPath();
 			Uri imageUri = Uri.fromFile(file);
 			openCameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
@@ -530,10 +502,12 @@ public class NewMessageActivity extends Activity {
 		Intent data) {
 		switch (requestCode) {
 		case TAKE_PICTURE:
-			if (MyBMP.bmpAddres.size() < 9 && resultCode == -1) {
-				MyBMP.bmpAddres.add(path);
+			if (MyBMP.originalImgPathes.size() < 9 && resultCode == -1) {
+				Log.v(TAG, "TAKE_PICTURE: " + path);
 
-				NiceFileUtils.refreshGallery(context, lastFile);
+				MyBMP.originalImgPathes.add(path);
+
+				NiceFileUtils.refreshGallery(context, new File(path));
 			}
 			break;
 		}
@@ -547,7 +521,7 @@ public class NewMessageActivity extends Activity {
 	private static final String TAG = NewMessageActivity.class
 		.getSimpleName();
 
-	private GridView noScrollgridview;
+	private GridView scrollGridViewPreview;
 
 	private GridAdapter adapter;
 
@@ -556,8 +530,6 @@ public class NewMessageActivity extends Activity {
 	private TextView textViewANMDone;
 
 	private MyResult <String> lastError = new MyResult <String>(0, "", "");
-
-	private File lastFile;
 
 	private Context context;
 

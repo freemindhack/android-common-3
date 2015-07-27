@@ -30,13 +30,11 @@ import common.message.richtext.ImageGridAdapter.TextCallback;
 
 public class ImageGridActivity extends Activity {
 	public static final String EXTRA_IMAGE_LIST = "imagelist";
-
-	// ArrayList<Entity> dataList;//鐢ㄦ潵瑁呰浇鏁版嵁婧愮殑鍒楄〃
 	List <ImageItem> dataList;
 
 	GridView gridView;
 
-	ImageGridAdapter adapter;// 鑷畾涔夌殑閫傞厤鍣�
+	ImageGridAdapter adapter;
 
 	AlbumHelper helper;
 
@@ -89,8 +87,8 @@ public class ImageGridActivity extends Activity {
 					MyBMP.act_bool = false;
 				}
 				for (int i = 0; i < list.size(); i++) {
-					if (MyBMP.bmpAddres.size() < 9) {
-						MyBMP.bmpAddres.add(list.get(i));
+					if (MyBMP.originalImgPathes.size() < 9) {
+						MyBMP.originalImgPathes.add(list.get(i));
 					}
 				}
 				finish();
@@ -120,18 +118,12 @@ public class ImageGridActivity extends Activity {
 			@Override
 			public void onItemClick (AdapterView <?> parent, View view,
 				int position, long id) {
-				/**
-				 * 鏍规嵁position鍙傛暟锛屽彲浠ヨ幏寰楄窡GridView鐨勫瓙View鐩哥粦瀹氱殑瀹炰綋绫伙紝鐒跺悗鏍规嵁瀹冪殑isSelected鐘舵
-				 * �锛� 鏉ュ垽鏂槸鍚︽樉绀洪�涓晥鏋溿� 鑷充簬閫変腑鏁堟灉鐨勮鍒欙紝涓嬮潰閫傞厤鍣ㄧ殑浠ｇ爜涓細鏈夎鏄�
-				 */
 				// if(dataList.get(position).isSelected()){
 				// dataList.get(position).setSelected(false);
 				// }else{
 				// dataList.get(position).setSelected(true);
 				// }
-				/**
-				 * 閫氱煡閫傞厤鍣紝缁戝畾鐨勬暟鎹彂鐢熶簡鏀瑰彉锛屽簲褰撳埛鏂拌鍥�
-				 */
+				
 				adapter.notifyDataSetChanged();
 			}
 
