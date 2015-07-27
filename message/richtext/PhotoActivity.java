@@ -77,10 +77,12 @@ public class PhotoActivity extends Activity {
 					MyBMP.bmps.clear();
 					MyBMP.bmpAddres.clear();
 					MyBMP.max = 0;
-					MyResult <String> ret = NiceFileUtils.rm(
-						NiceFileUtils
-							.getAlbumStorageDir(NewMessageActivity.albumNameCompressed).cc,
-						true, false);
+					String torm = NiceFileUtils
+						.getAlbumStorageDir(NewMessageActivity.albumNameCompressed).cc;
+					MyResult <String> ret = NiceFileUtils.rm(torm, true,
+						false);
+					NiceFileUtils.refreshGallery(getApplicationContext(),
+						torm);
 
 					if (null == ret || 0 != ret.code) {
 						Toast.makeText(getApplicationContext(),
@@ -123,6 +125,8 @@ public class PhotoActivity extends Activity {
 					Log.v(TAG + ":btn-done", "do-c2rm: " + c2rm);
 					MyResult <String> ret = NiceFileUtils.rm(c2rm, false,
 						false);
+					NiceFileUtils.refreshGallery(getApplicationContext(),
+						c2rm);
 					Log.v(TAG + ":btn-done", "do-c2rm: " + "code: "
 						+ ret.code + " msg: " + ret.msg);
 				}

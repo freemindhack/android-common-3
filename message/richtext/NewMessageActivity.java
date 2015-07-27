@@ -213,10 +213,12 @@ public class NewMessageActivity extends Activity {
 			Log.w(TAG, "deinit");
 
 			MyResult <String> ret = NiceFileUtils
-				.rm(new File(
-					Environment
-						.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
-					albumNameCompressed), true, false);
+				.rmGallery(
+					new File(
+						Environment
+							.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+						albumNameCompressed), true, false,
+					getApplicationContext());
 
 			if (null != ret && ret.code != 0) {
 				Log.w(TAG + ":deinit", "ERROR: " + ret.code + " " + ret.msg);
@@ -386,7 +388,7 @@ public class NewMessageActivity extends Activity {
 									message.what = 999;
 									handler.sendMessage(message);
 								} else {
-									NiceFileUtils.addToGallery(context,
+									NiceFileUtils.refreshGallery(context,
 										ret.cc);
 								}
 
@@ -531,7 +533,7 @@ public class NewMessageActivity extends Activity {
 			if (MyBMP.bmpAddres.size() < 9 && resultCode == -1) {
 				MyBMP.bmpAddres.add(path);
 
-				NiceFileUtils.addToGallery(context, lastFile);
+				NiceFileUtils.refreshGallery(context, lastFile);
 			}
 			break;
 		}

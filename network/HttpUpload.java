@@ -135,7 +135,7 @@ public class HttpUpload {
 
 			@Override
 			public void onSuccess () {
-				JsonElement result = getContent();
+				/* JsonElement result = getContent(); */
 			}
 		});
 

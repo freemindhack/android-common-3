@@ -164,6 +164,52 @@ public class NiceFileUtils {
 	}
 
 
+	public static MyResult <String> rmGallery (File file2delete,
+		boolean recursion, boolean force, Context context) {
+		try {
+			if (!file2delete.exists() && force) {
+				return new MyResult <String>(0, null,
+					file2delete.getAbsolutePath());
+			} else if (!file2delete.exists()) {
+				return new MyResult <String>(errno.ENOENT * -1,
+					"No such file or directory", null);
+			} else if (file2delete.isDirectory() && (!recursion)) {
+				return new MyResult <String>(errno.EISDIR * -1,
+					"Is a directory", null);
+			}
+
+			if (file2delete.isDirectory()) {
+				for (File file : file2delete.listFiles()) {
+					if (file.isFile()) {
+						file.delete();
+						NiceFileUtils.refreshGallery(context, file);
+					} else if (file.isDirectory()) {
+						MyResult <String> last = NiceFileUtils.rm(file,
+							recursion, force);
+						if (null == last || 0 != last.code) {
+							if (!force) {
+								return last;
+							} else {
+								return new MyResult <String>(0, null,
+									file2delete.getAbsolutePath());
+							}
+						}
+					}
+				}
+			}
+
+			file2delete.delete();/* the file/folder itself */
+			NiceFileUtils.refreshGallery(context, file2delete);
+
+			return new MyResult <String>(0, null,
+				file2delete.getAbsolutePath());
+		} catch (Exception e) {
+			return new MyResult <String>(errno.EXTRA_EEUNRESOLVED * -1,
+				e.getMessage(), null);
+		}
+	}
+
+
 	public static int isDirExists (String path) {
 		try {
 			File f = new File(path);
@@ -266,7 +312,7 @@ public class NiceFileUtils {
 	}
 
 
-	public static MyResult <String> addToGallery (Context context, File file) {
+	public static MyResult <String> refreshGallery (Context context, File file) {
 		try {
 			Intent mediaScanIntent = new Intent(
 				Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
@@ -275,6 +321,23 @@ public class NiceFileUtils {
 			context.sendBroadcast(mediaScanIntent);
 
 			return new MyResult <String>(0, null, file.getAbsolutePath());
+		} catch (Exception e) {
+			return new MyResult <String>(errno.EXTRA_EEUNRESOLVED * -1,
+				e.getMessage(), null);
+		}
+	}
+
+
+	public static MyResult <String> refreshGallery (Context context,
+		String filePath) {
+		try {
+			Intent mediaScanIntent = new Intent(
+				Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+			Uri contentUri = Uri.fromFile(new File(filePath));
+			mediaScanIntent.setData(contentUri);
+			context.sendBroadcast(mediaScanIntent);
+
+			return new MyResult <String>(0, null, filePath);
 		} catch (Exception e) {
 			return new MyResult <String>(errno.EXTRA_EEUNRESOLVED * -1,
 				e.getMessage(), null);
