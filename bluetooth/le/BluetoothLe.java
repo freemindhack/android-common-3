@@ -17,7 +17,7 @@
  * version 1.0.0.1 20150717 AM class BluetoothLe
  */
 
-package nocom.bluetooth.le;
+package common.bluetooth.le;
 
 
 import java.util.List;

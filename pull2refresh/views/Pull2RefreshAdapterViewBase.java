@@ -1,8 +1,7 @@
 
-package nocom.pull2refresh.views;
+package common.pull2refresh.views;
 
 
-import nocom.pull2refresh.interfaces.EmptyViewMethodAccessor;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
@@ -22,6 +21,7 @@ import android.widget.ListAdapter;
 
 
 import com.za.smartlock.manufacturer.R;
+import common.pull2refresh.interfaces.EmptyViewMethodAccessor;
 
 
 public abstract class Pull2RefreshAdapterViewBase <T extends AbsListView>

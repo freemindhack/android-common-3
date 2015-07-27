@@ -1,5 +1,5 @@
 
-package nocom.pull2refresh.interfaces;
+package common.pull2refresh.interfaces;
 
 
 import android.graphics.Typeface;

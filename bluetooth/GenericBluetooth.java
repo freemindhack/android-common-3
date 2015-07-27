@@ -2,7 +2,7 @@
  * version 1.0.0.1 20150717 AM
  */
 
-package nocom.bluetooth;
+package common.bluetooth;
 
 
 import java.io.IOException;
@@ -16,14 +16,14 @@ import java.util.Set;
 import java.util.UUID;
 
 
-import nocom.bluetooth.le.BluetoothLe;
-import nocom.bluetooth.le.BluetoothLe.OnConnectListener;
-import nocom.bluetooth.le.BluetoothLe.OnDataAvailableListener;
-import nocom.bluetooth.le.BluetoothLe.OnDisconnectListener;
-import nocom.bluetooth.le.BluetoothLe.OnServiceDiscoverListener;
-
-
 import org.apache.http.util.EncodingUtils;
+
+
+import common.bluetooth.le.BluetoothLe;
+import common.bluetooth.le.BluetoothLe.OnConnectListener;
+import common.bluetooth.le.BluetoothLe.OnDataAvailableListener;
+import common.bluetooth.le.BluetoothLe.OnDisconnectListener;
+import common.bluetooth.le.BluetoothLe.OnServiceDiscoverListener;
 
 
 import android.annotation.SuppressLint;

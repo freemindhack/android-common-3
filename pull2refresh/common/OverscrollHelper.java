@@ -1,10 +1,12 @@
 
-package nocom.pull2refresh.common;
+package common.pull2refresh.common;
 
 
-import nocom.pull2refresh.views.Pull2RefreshBase;
-import nocom.pull2refresh.views.Pull2RefreshBase.Mode;
-import nocom.pull2refresh.views.Pull2RefreshBase.State;
+import common.pull2refresh.views.Pull2RefreshBase;
+import common.pull2refresh.views.Pull2RefreshBase.Mode;
+import common.pull2refresh.views.Pull2RefreshBase.State;
+
+
 import android.annotation.TargetApi;
 import android.util.Log;
 import android.view.View;

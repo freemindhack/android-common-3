@@ -1,13 +1,15 @@
 
-package nocom.pull2refresh.interfaces;
+package common.pull2refresh.interfaces;
 
 
 import java.util.HashMap;
 
 
-import nocom.pull2refresh.views.Pull2RefreshBase;
-import nocom.pull2refresh.views.Pull2RefreshBase.Mode;
-import nocom.pull2refresh.views.Pull2RefreshBase.State;
+import common.pull2refresh.views.Pull2RefreshBase;
+import common.pull2refresh.views.Pull2RefreshBase.Mode;
+import common.pull2refresh.views.Pull2RefreshBase.State;
+
+
 import android.content.Context;
 import android.media.MediaPlayer;
 import android.view.View;
