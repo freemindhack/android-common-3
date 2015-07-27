@@ -10,6 +10,9 @@ import java.util.Date;
 import java.util.List;
 
 
+import p7zip.P7zipProcess;
+
+
 import nocom.common.utils.MyResult;
 import nocom.common.utils.NiceFileUtils;
 import nocom.common.utils.UIUtils;
@@ -183,7 +186,14 @@ public class NewMessageActivity extends Activity {
 
 				// 高清的压缩图片全部就在 list 路径里面了
 				// 高清的压缩过的 BMP 对象 都在 Bimp.bmp里面
+				/* zip file */
 				/* TODO: send to server */
+				P7zipProcess z = new P7zipProcess(null);
+				z.starCompress(P7zipProcess.TargetType.TARGET_TAR_BZ2,
+					NiceFileUtils.getAppDirStr(getApplicationContext()).cc
+						+ "upload",
+					NiceFileUtils.getAlbumStorageDir(albumNameCompressed).cc,
+					"123");
 
 				// 完成上传服务器后 .........
 				/* FileUtils.deleteDir(); */
@@ -408,6 +418,7 @@ public class NewMessageActivity extends Activity {
 
 	public class PopupWindows extends PopupWindow {
 
+		@SuppressWarnings ("deprecation")
 		public PopupWindows (Context mContext, View parent) {
 			Log.v(TAG, "PopupWindows");
 

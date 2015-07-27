@@ -20,6 +20,7 @@ import android.os.Bundle;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
@@ -91,12 +92,15 @@ public class PhotoActivity extends Activity {
 
 					finish();
 				} else {
-					String newStr = drr.get(count).substring(
+					String c2rm = drr.get(count).substring(
 						drr.get(count).lastIndexOf("/") + 1,
 						drr.get(count).lastIndexOf("."));
 					bmp.remove(count);
 					drr.remove(count);
-					del.add(newStr);
+
+					Log.v(TAG + ":btn-del", "add-c2rm: " + c2rm);
+					del.add(c2rm);
+
 					max--;
 					pager.removeAllViews();
 					listViews.remove(count);
@@ -114,7 +118,15 @@ public class PhotoActivity extends Activity {
 				MyBMP.bmpAddres = drr;
 				MyBMP.max = max;
 				for (int i = 0; i < del.size(); i++) {
-					FileUtils.delFile(del.get(i) + ".JPEG");
+					String c2rm = NiceFileUtils
+						.getAlbumStorageDir(NewMessageActivity.albumNameCompressed).cc
+						+ "/" + del.get(i) + ".jpg";
+
+					Log.v(TAG + ":btn-done", "do-c2rm: " + c2rm);
+					MyResult <String> ret = NiceFileUtils.rm(c2rm, false,
+						false);
+					Log.v(TAG + ":btn-done", "do-c2rm: " + "code: "
+						+ ret.code + " msg: " + ret.msg);
 				}
 				finish();
 			}
@@ -218,4 +230,7 @@ public class PhotoActivity extends Activity {
 		}
 
 	}
+
+
+	private static final String TAG = PhotoActivity.class.getSimpleName();
 }

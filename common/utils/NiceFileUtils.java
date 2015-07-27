@@ -167,6 +167,7 @@ public class NiceFileUtils {
 	public static int isDirExists (String path) {
 		try {
 			File f = new File(path);
+
 			if (!f.exists()) {
 				return errno.ENOENT * -1;
 			} else if (f.isDirectory()) {
@@ -252,7 +253,12 @@ public class NiceFileUtils {
 				file.delete();
 			}
 
-			return new MyResult <File>(0, null, file);
+			if (file.createNewFile()) {
+				return new MyResult <File>(0, null, file);
+			} else {
+				return new MyResult <File>(errno.EPERM * -1,
+					"Operation not permitted: createNewFile fail", null);
+			}
 		} catch (Exception e) {
 			return new MyResult <File>(errno.EXTRA_EEUNRESOLVED * -1,
 				e.getMessage(), null);
@@ -420,6 +426,24 @@ public class NiceFileUtils {
 		boolean overwrite) {
 		try {
 			Log.v(TAG + ":mv", "from: " + from + " to: " + to);
+
+			boolean done = false;
+			try {
+				File fromf = new File(from);
+				if (fromf.renameTo(new File(to))) {
+					done = true;
+				} else {
+					done = false;
+				}
+			} catch (Exception e) {
+				done = false;
+				Log.e(TAG + ":mv", "E: " + e.getMessage());
+			}
+
+			if (done) {
+				Log.v(TAG + ":mv", "fast mv done");
+				return new MyResult <String>(0, null, to);
+			}
 
 			MyResult <String> ret = NiceFileUtils.cp(from, to, true,
 				overwrite);
