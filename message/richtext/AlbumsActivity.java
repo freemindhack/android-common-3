@@ -6,13 +6,8 @@ import java.io.Serializable;
 import java.util.List;
 
 
-import com.za.smartlock.manufacturer.R;
-
-
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -21,7 +16,10 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.GridView;
 
 
-public class PictureAddActivity extends Activity {
+import com.za.smartlock.manufacturer.R;
+
+
+public class AlbumsActivity extends Activity {
 
 	@Override
 	protected void onCreate (Bundle savedInstanceState) {
@@ -30,8 +28,8 @@ public class PictureAddActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_add_picture);
 
-		this.helper = AlbumHelper.getHelper();
-		this.helper.init(getApplicationContext());
+		this.helper = new AlbumHelper();
+		this.helper.prepare(getApplicationContext());
 
 		this.initData();
 		this.initView();
@@ -40,14 +38,7 @@ public class PictureAddActivity extends Activity {
 
 	private void initData () {
 		Log.v(TAG, "initData");
-		/* 这里 我们假设已经从网络或者本地解析好了数据
-		 * 所以直接在这里模拟了10个实体类，直接装进列表中
-		 */
-		// dataList = new ArrayList<Entity>();
-		// for(int i=-0;i<10;i++){
-		// Entity entity = new Entity(R.drawable.picture, false);
-		// dataList.add(entity);
-		// }
+
 		this.dataList = this.helper.getImagesBucketList(false);
 		// PictureAddActivity.bitmap =
 		// BitmapFactory.decodeResource(getResources(),
@@ -59,7 +50,7 @@ public class PictureAddActivity extends Activity {
 		Log.v(TAG, "initView");
 
 		gridView = (GridView) findViewById(R.id.gridViewAAP);
-		adapter = new ImageBucketAdapter(PictureAddActivity.this, dataList);
+		adapter = new ImageBucketAdapter(AlbumsActivity.this, dataList);
 		gridView.setAdapter(adapter);
 
 		gridView.setOnItemClickListener(new OnItemClickListener() {
@@ -79,10 +70,10 @@ public class PictureAddActivity extends Activity {
 				/**
 				 * 通知适配器，绑定的数据发生了改变，应当刷新视图
 				 */
-				// adapter.notifyDataSetChanged();
-				Intent intent = new Intent(PictureAddActivity.this,
+				adapter.notifyDataSetChanged();
+				Intent intent = new Intent(AlbumsActivity.this,
 					ImageGridActivity.class);
-				intent.putExtra(PictureAddActivity.EXTRA_IMAGE_LIST,
+				intent.putExtra(AlbumsActivity.EXTRA_IMAGE_LIST,
 					(Serializable) dataList.get(position).imageList);
 				startActivity(intent);
 				finish();
@@ -94,16 +85,13 @@ public class PictureAddActivity extends Activity {
 
 	public static final String EXTRA_IMAGE_LIST = "imagelist";
 
-	private static final String TAG = PictureAddActivity.class
-		.getSimpleName();
-
-	// public static Bitmap bitmap;
+	private static final String TAG = AlbumsActivity.class.getSimpleName();
 
 	private List <ImageBucket> dataList;
 
 	private GridView gridView;
 
-	private ImageBucketAdapter adapter;// 自定义的适配器
+	private ImageBucketAdapter adapter;
 
 	private AlbumHelper helper;
 }

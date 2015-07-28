@@ -7,24 +7,50 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
 
-public class MyBMP {
-	public static boolean act_bool = true;
-
-	public static List <Bitmap> compressedBmps = new ArrayList <Bitmap>();
-
-	public static List <String> originalImgPathes = new ArrayList <String>();
-
-	public static List <String> compressedImgPathes = new ArrayList <String>();
+import common.datastructure.MyArrayList;
 
 
-	public static Bitmap revitionImageSize (String path) throws IOException {
+public class MyImage {
+
+	public static class ImgData {
+		public ImgData (Bitmap bmp, String originalPath, String compressedPath) {
+			this.bmp = bmp;
+			this.originalPath = originalPath;
+			this.compressedPath = compressedPath;
+		}
+
+
+		public Bitmap getBmp () {
+			return this.bmp;
+		}
+
+
+		public String getOriginalPath () {
+			return this.originalPath;
+		}
+
+
+		public String getCompressedPath () {
+			return this.compressedPath;
+		}
+
+
+		public Bitmap bmp;
+
+		public String originalPath;
+
+		public String compressedPath;
+
+	};
+
+
+	public static Bitmap revisionImageSize (String path) throws IOException {
 		BufferedInputStream in = new BufferedInputStream(new FileInputStream(
 			new File(path)));
 
@@ -50,4 +76,9 @@ public class MyBMP {
 
 		return bitmap;
 	}
+
+
+	public static ArrayList <String> originalImgPathes = new ArrayList <String>();
+
+	public static MyArrayList <ImgData> imgData = new MyArrayList <ImgData>();
 }

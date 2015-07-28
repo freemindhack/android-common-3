@@ -10,6 +10,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 
+import posix.generic.errno.errno;
+
+
+import common.utils.MyResult;
+
+
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
@@ -19,57 +25,44 @@ import android.provider.MediaStore.Images.Thumbnails;
 import android.util.Log;
 
 
-/**
- * 专辑帮助类
- * 
- * @author Administrator
- * 
- */
 public class AlbumHelper {
-	final String TAG = getClass().getSimpleName();
+	private final static String TAG = AlbumHelper.class.getSimpleName();
 
-	Context context;
+	private ContentResolver cr;
 
-	ContentResolver cr;
+	/* 缩略图列表 */
+	private HashMap <String, String> thumbnailList = new HashMap <String, String>();
 
-	// 缩略图列表
-	HashMap <String, String> thumbnailList = new HashMap <String, String>();
+	/* 相册列表 */
+	private List <HashMap <String, String>> albumList = new ArrayList <HashMap <String, String>>();
 
-	// 专辑列表
-	List <HashMap <String, String>> albumList = new ArrayList <HashMap <String, String>>();
-
-	HashMap <String, ImageBucket> bucketList = new HashMap <String, ImageBucket>();
-
-	private static AlbumHelper instance;
+	private HashMap <String, ImageBucket> bucketList = new HashMap <String, ImageBucket>();
 
 
-	private AlbumHelper () {
+	public AlbumHelper () {
+		Log.v(TAG, "AlbumHelper");
+
+		this.thumbnailList.clear();
+		this.albumList.clear();
+		this.bucketList.clear();
 	}
 
 
-	public static AlbumHelper getHelper () {
-		if (instance == null) {
-			instance = new AlbumHelper();
+	public MyResult <Context> prepare (Context context) {
+		Log.v(TAG, "prepare");
+
+		if (null == context) {
+			return new MyResult <Context>(errno.EINVAL * -1,
+				"Invalid argument", context);
 		}
-		return instance;
+
+		this.cr = context.getContentResolver();
+
+		return new MyResult <Context>(0, null, context);
 	}
 
 
-	/**
-	 * 初始化
-	 * 
-	 * @param context
-	 */
-	public void init (Context context) {
-		if (this.context == null) {
-			this.context = context;
-			cr = context.getContentResolver();
-		}
-	}
-
-
-	/* get thumb nails
-	 */
+	/* get thumb nails */
 	private void getThumbnail () {
 		Log.v(TAG, "getThumbnail");
 
@@ -124,14 +117,11 @@ public class AlbumHelper {
 		Cursor cursor = cr.query(Albums.EXTERNAL_CONTENT_URI, projection,
 			null, null, null);
 		getAlbumColumnData(cursor);
-
 	}
 
 
 	/**
 	 * 从本地数据库中得到原图
-	 * 
-	 * @param cur
 	 */
 	private void getAlbumColumnData (Cursor cur) {
 		if (cur.moveToFirst()) {

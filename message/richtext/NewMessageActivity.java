@@ -3,8 +3,8 @@ package common.message.richtext;
 
 
 import java.io.File;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 
@@ -47,6 +47,8 @@ import android.widget.Toast;
 
 
 import com.za.smartlock.manufacturer.R;
+import common.datastructure.MyArrayList;
+import common.message.richtext.MyImage.ImgData;
 import common.utils.MyResult;
 import common.utils.NiceFileUtils;
 import common.utils.UIUtils;
@@ -82,8 +84,8 @@ public class NewMessageActivity extends Activity {
 	protected void onResume () {
 		Log.v(TAG, "onResume");
 
-		if (null != this.adapter) {
-			this.adapter.updatePreview();
+		if ((null != this.adapter) && (!this.isInDeleting)) {
+			this.updateView();
 		}
 
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
@@ -105,8 +107,56 @@ public class NewMessageActivity extends Activity {
 	}
 
 
+	@Override
+	protected void onActivityResult (int requestCode, int resultCode,
+		Intent data) {
+		Log.v(TAG, "onActivityResult");
+
+		switch (requestCode) {
+		case MessageConfig.REQCODE_TAKE_PHOTO: {
+			if (MyImage.originalImgPathes.size() < 9 && resultCode == -1) {
+				Log.v(TAG + ":onActivityResult", "REQCODE_TAKE_PHOTO: "
+					+ NewMessageActivity.this.takePhotoPath);
+
+				MyImage.originalImgPathes
+					.add(NewMessageActivity.this.takePhotoPath);
+
+				NiceFileUtils.refreshGallery(NewMessageActivity.this.context,
+					new File(NewMessageActivity.this.takePhotoPath));
+
+				NewMessageActivity.this.updateView();
+			}
+		}
+			break;
+
+		case MessageConfig.REQCODE_THUMBNAIL_DELETED: {
+			if (MyImage.imgData.size() > 0
+				&& MessageConfig.RESULTCODE_THUMBNAIL_DELETED == resultCode) {
+				Log.v(TAG + ":onActivityResult", "REQCODE_THUMBNAIL_DELETED");
+
+				Bundle bundle = data.getExtras();
+				if (null != bundle) {
+					ArrayList <String> dd = bundle
+						.getStringArrayList(MessageConfig.GETKEY_THUMBNAIL_DELETED);
+					if (null != dd && dd.size() > 0) {
+						Log.v(TAG
+							+ ":onActivityResult:REQCODE_THUMBNAIL_DELETED",
+							"sz: " + dd.size());
+						NewMessageActivity.this.updateView(dd);
+					}
+				}
+			}
+		}
+			break;
+		}
+	}
+
+
 	private void init () {
 		Log.v(TAG, "init");
+
+		MyImage.imgData.clear();
+		MyImage.originalImgPathes.clear();
 
 		TextView tvNMADummyStatusbar = (TextView) findViewById(R.id.tvNMADummyStatusbar);
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
@@ -143,7 +193,7 @@ public class NewMessageActivity extends Activity {
 		this.adapter = new GridAdapter(this);
 
 		this.scrollGridViewPreview.setAdapter(this.adapter);
-		this.adapter.updatePreview();
+		this.updateView();
 
 		this.scrollGridViewPreview
 			.setOnItemClickListener(new OnItemClickListener() {
@@ -151,14 +201,15 @@ public class NewMessageActivity extends Activity {
 					int pos, long arg3) {
 					Log.v(TAG + ":scrollGridViewPreview", "clicked: " + pos);
 
-					if (pos == MyBMP.originalImgPathes.size()) {
+					if (pos == MyImage.originalImgPathes.size()) {
 						new PopupWindows(NewMessageActivity.this,
 							NewMessageActivity.this.scrollGridViewPreview);
 					} else {
 						Intent intent = new Intent(NewMessageActivity.this,
 							ShowPictureActivity.class);
 						intent.putExtra("ID", pos);
-						startActivity(intent);
+						startActivityForResult(intent,
+							MessageConfig.REQCODE_THUMBNAIL_DELETED);
 					}
 				}
 			});
@@ -210,19 +261,15 @@ public class NewMessageActivity extends Activity {
 				Log.w(TAG + ":deinit", "ERROR: " + ret.code + " " + ret.msg);
 			}
 
-			if (null != MyBMP.originalImgPathes) {
-				MyBMP.originalImgPathes.clear();
+			if (null != MyImage.originalImgPathes) {
+				MyImage.originalImgPathes.clear();
 			}
 
-			if (null != MyBMP.compressedImgPathes) {
-				MyBMP.compressedImgPathes.clear();
+			if (null != MyImage.imgData) {
+				MyImage.imgData.clear();
 			}
 
-			if (null != MyBMP.compressedBmps) {
-				MyBMP.compressedBmps.clear();
-			}
-
-			this.adapter.updatePreview();
+			this.updateView();
 		} catch (Exception e) {
 			Log.e(TAG + ":deinit", "ERROR: " + e.getMessage());
 		}
@@ -230,6 +277,26 @@ public class NewMessageActivity extends Activity {
 
 
 	@SuppressLint ("HandlerLeak")
+	private Handler __handler = new Handler() {
+		public void handleMessage (Message msg) {
+			switch (msg.what) {
+			case NewMessageActivity.MSG_WHAT_UPDATE: {
+				adapter.notifyDataSetChanged();
+			}
+				break;
+
+			case NewMessageActivity.MSG_WHAT_ERROR: {
+				Toast.makeText(context,
+					"Oops .." + lastError.code + " " + lastError.msg,
+					Toast.LENGTH_SHORT).show();
+			}
+				break;
+			}
+			super.handleMessage(msg);
+		}
+	};
+
+
 	private class GridAdapter extends BaseAdapter {
 		private LayoutInflater inflater;/* 视图容器  */
 
@@ -240,7 +307,7 @@ public class NewMessageActivity extends Activity {
 
 
 		public int getCount () {
-			return (MyBMP.compressedBmps.size() + 1);
+			return (MyImage.imgData.size() + 1);
 		}
 
 
@@ -270,14 +337,15 @@ public class NewMessageActivity extends Activity {
 				holder = (ViewHolder) convertView.getTag();
 			}
 
-			if (which == MyBMP.compressedBmps.size()) {
+			if (which == MyImage.imgData.size()) {
 				holder.image.setImageBitmap(BitmapFactory.decodeResource(
 					getResources(), R.drawable.icon_addpic_unfocused));
 				if (which == 9) {
 					holder.image.setVisibility(View.GONE);
 				}
 			} else {
-				holder.image.setImageBitmap(MyBMP.compressedBmps.get(which));
+				holder.image.setImageBitmap(MyImage.imgData.get(which)
+					.getBmp());
 			}
 
 			return convertView;
@@ -287,113 +355,10 @@ public class NewMessageActivity extends Activity {
 		public class ViewHolder {
 			public ImageView image;
 		}
-
-
-		Handler handler = new Handler() {
-			public void handleMessage (Message msg) {
-				switch (msg.what) {
-				case 1:
-					adapter.notifyDataSetChanged();
-					break;
-
-				case 999: {
-					Toast.makeText(context,
-						"Oops .." + lastError.code + " " + lastError.msg,
-						Toast.LENGTH_SHORT).show();
-				}
-					break;
-				}
-				super.handleMessage(msg);
-			}
-		};
-
-
-		public void updatePreview () {
-			new Thread(new Runnable() {
-				public void run () {
-					if (MyBMP.compressedBmps.size() >= 9) {
-						Log.v(TAG + ":loadingPreview:run", "sz: "
-							+ MyBMP.compressedBmps.size());
-
-						Message message = new Message();
-						message.what = 1;
-						handler.sendMessage(message);
-					} else if (MyBMP.originalImgPathes.size() > 0) {
-						try {
-							int add = MyBMP.originalImgPathes.size()
-								- MyBMP.compressedImgPathes.size();
-
-							for (int i = 0; i < add; ++i) {
-								String oriPath = MyBMP.originalImgPathes
-									.get(MyBMP.originalImgPathes.size() - i
-										- 1);
-								Log.v(TAG + ":updatePreview:run", "oriPath: "
-									+ oriPath);
-
-								Bitmap revedbmp = MyBMP
-									.revitionImageSize(oriPath);
-
-								String compressedName = oriPath.substring(
-									path.lastIndexOf("/") + 1,
-									path.lastIndexOf("."))
-									+ ".jpg";
-
-								Log.v(TAG + ":updatePreview:run",
-									"compressedName: " + compressedName);
-
-								MyResult <File> ret = NiceFileUtils
-									.saveCompressedBitmap(
-										revedbmp,
-										NiceFileUtils
-											.getAlbumStorageDir(albumNameCompressed).cc,
-										compressedName, 90, true, true);
-
-								if (null == ret || 0 != ret.code) {
-									lastError.code = ret.code;
-									lastError.msg = ret.msg;
-									Message message = new Message();
-									message.what = 999;
-									handler.sendMessage(message);
-								} else {
-									/* the preview */
-									MyBMP.compressedBmps.add(revedbmp);
-									MyBMP.compressedImgPathes.add(ret.cc
-										.getAbsolutePath());
-									NiceFileUtils.refreshGallery(context,
-										ret.cc);
-
-								}
-							}
-
-							if (add > 0) {
-								Message message = new Message();
-								message.what = 1;
-								handler.sendMessage(message);
-							}
-						} catch (IOException e) {
-							Log.e(TAG + ":updatePreview:run",
-								"ERROR: " + e.getMessage());
-						}
-					}
-				}
-			}).start();
-		}
 	}
 
 
-	public String getString (String s) {
-		String path = null;
-		if (s == null)
-			return "";
-		for (int i = s.length() - 1; i > 0; i++) {
-			s.charAt(i);
-		}
-		return path;
-	}
-
-
-	public class PopupWindows extends PopupWindow {
-
+	private class PopupWindows extends PopupWindow {
 		@SuppressWarnings ("deprecation")
 		public PopupWindows (Context mContext, View parent) {
 			Log.v(TAG, "PopupWindows");
@@ -444,7 +409,7 @@ public class NewMessageActivity extends Activity {
 				public void onClick (View v) {
 					Log.v(TAG + ":PopupWindows:btnSelectPhoto", "onClick");
 					Intent intent = new Intent(NewMessageActivity.this,
-						PictureAddActivity.class);
+						AlbumsActivity.class);
 					startActivity(intent);
 					dismiss();
 				}
@@ -459,13 +424,8 @@ public class NewMessageActivity extends Activity {
 	}
 
 
-	private static final int TAKE_PICTURE = 0x000000;
-
-	private String path = "";
-
-
 	@SuppressLint ({ "SimpleDateFormat", "DefaultLocale" })
-	public void takePhoto () {
+	private void takePhoto () {
 		try {
 			long nowMs = System.currentTimeMillis();
 			Date nowDate = new Date(nowMs);
@@ -487,10 +447,11 @@ public class NewMessageActivity extends Activity {
 			Intent openCameraIntent = new Intent(
 				MediaStore.ACTION_IMAGE_CAPTURE);
 			File file = new File(dir.cc, name);
-			path = file.getPath();
+			this.takePhotoPath = file.getAbsolutePath();
 			Uri imageUri = Uri.fromFile(file);
 			openCameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
-			startActivityForResult(openCameraIntent, TAKE_PICTURE);
+			startActivityForResult(openCameraIntent,
+				MessageConfig.REQCODE_TAKE_PHOTO);
 		} catch (Exception e) {
 			Toast.makeText(context, "Opps.. " + e.getMessage(),
 				Toast.LENGTH_SHORT).show();
@@ -498,28 +459,165 @@ public class NewMessageActivity extends Activity {
 	}
 
 
-	protected void onActivityResult (int requestCode, int resultCode,
-		Intent data) {
-		switch (requestCode) {
-		case TAKE_PICTURE:
-			if (MyBMP.originalImgPathes.size() < 9 && resultCode == -1) {
-				Log.v(TAG, "TAKE_PICTURE: " + path);
-
-				MyBMP.originalImgPathes.add(path);
-
-				NiceFileUtils.refreshGallery(context, new File(path));
-			}
-			break;
-		}
+	private enum UpdateMode {
+		Add, Delete,
 	}
 
 
-	public static String albumName = "Attachment";
+	private void updateView () {
+		new UpdateThread().start();
+	}
 
-	public static String albumNameCompressed = "Attachment.compressed";
+
+	private void updateView (ArrayList <String> delete) {
+		this.isInDeleting = true;
+		new UpdateThread(delete).start();
+	}
+
+
+	private class UpdateThread extends Thread {
+		public UpdateThread () {
+			this.um = UpdateMode.Add;
+		}
+
+
+		public UpdateThread (ArrayList <String> delete) {
+			this.delete = delete;
+			this.um = UpdateMode.Delete;
+		}
+
+
+		@Override
+		public void run () {
+			try {
+				if (UpdateMode.Add == this.um) {
+					if (MyImage.originalImgPathes.size() > 0) {
+
+						int orisz = MyImage.originalImgPathes.size();
+						int add = orisz - MyImage.imgData.size();
+
+						Log.v(TAG + ":updatePreview:run", "add: " + add);
+
+						for (int i = 0; i < add; ++i) {
+							String oriPath = MyImage.originalImgPathes
+								.get(orisz - i - 1);
+							Log.v(TAG + ":updatePreview:run", "oriPath: "
+								+ oriPath);
+
+							Bitmap revedbmp = MyImage
+								.revisionImageSize(oriPath);
+
+							String pureName = oriPath.substring(
+								oriPath.lastIndexOf("/") + 1,
+								oriPath.lastIndexOf("."))
+								+ ".jpg";
+
+							Log.v(TAG + ":updatePreview:run", "pureName: "
+								+ pureName);
+
+							MyResult <File> ret = NiceFileUtils
+								.saveCompressedBitmap(
+									revedbmp,
+									NiceFileUtils
+										.getAlbumStorageDir(albumNameCompressed).cc,
+									pureName, 90, true, true);
+
+							if (null == ret || 0 != ret.code) {
+								lastError.code = ret.code;
+								lastError.msg = ret.msg;
+								Message message = new Message();
+								message.what = NewMessageActivity.MSG_WHAT_ERROR;
+								NewMessageActivity.this.__handler
+									.sendMessage(message);
+							} else {
+								/* the preview */
+								MyImage.imgData.add(new ImgData(revedbmp,
+									oriPath, ret.cc.getAbsolutePath()));
+								NiceFileUtils.refreshGallery(context, ret.cc);
+							}
+						}
+
+						if (add > 0) {
+							Message message = new Message();
+							message.what = NewMessageActivity.MSG_WHAT_UPDATE;
+							NewMessageActivity.this.__handler
+								.sendMessage(message);
+						}
+					}
+				} else if (UpdateMode.Delete == this.um) {
+					if (null != this.delete && this.delete.size() > 0) {
+						Log.v(TAG + ":updatePreview:run", "Delete");
+
+						int n = this.delete.size();
+						for (int i = 0; i < n; ++i) {
+							String r = this.delete.get(i);
+							MyArrayList <ImgData> rr = MyImage.imgData
+								.removeByCmp(
+									r,
+									new MyArrayList.CompareMethod <MyImage.ImgData>() {
+
+										@Override
+										public int cmp (Object l, ImgData r) {
+											if (((String) l).equals(r
+												.getCompressedPath())) {
+												return 0;
+											}
+											return -1;
+										}
+									});
+
+							int sz = rr.size();
+
+							Log.v(TAG + ":updatePreview:run", "Delete: sz: "
+								+ sz);
+							for (int zz = 0; zz < sz; ++zz) {
+								NiceFileUtils.rmGallery(new File(rr.get(zz)
+									.getCompressedPath()), false, false,
+									context);
+								MyImage.originalImgPathes.remove(rr.get(zz)
+									.getOriginalPath());
+							}
+						}
+
+						if (n > 0) {
+							Message message = new Message();
+							message.what = NewMessageActivity.MSG_WHAT_UPDATE;
+							NewMessageActivity.this.__handler
+								.sendMessage(message);
+						}
+
+						if (NewMessageActivity.this.isInDeleting) {
+							NewMessageActivity.this.isInDeleting = false;
+						}
+					}
+				}
+
+				super.run();
+			} catch (Exception e) {
+				Log.e(TAG + ":UpdateThread:run", "ERROR: " + e.getMessage());
+			}
+
+		}
+
+
+		private UpdateMode um;
+
+		private ArrayList <String> delete;
+	}
+
+
+	public static final String albumName = "Attachment";
+
+	public static final String albumNameCompressed = "Attachment.compressed";
 
 	private static final String TAG = NewMessageActivity.class
 		.getSimpleName();
+
+	private static final int MSG_WHAT_UPDATE = 0x0;
+
+	private static final int MSG_WHAT_ERROR = 0x1;
+
+	private String takePhotoPath = "";
 
 	private GridView scrollGridViewPreview;
 
@@ -532,5 +630,7 @@ public class NewMessageActivity extends Activity {
 	private MyResult <String> lastError = new MyResult <String>(0, "", "");
 
 	private Context context;
+
+	private boolean isInDeleting = false;
 
 }

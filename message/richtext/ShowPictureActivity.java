@@ -18,19 +18,14 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 
 import com.za.smartlock.manufacturer.R;
-import common.datastructure.ThreeValuesSet;
-import common.utils.MyResult;
-import common.utils.NiceFileUtils;
+import common.datastructure.MyArrayList;
+import common.message.richtext.MyImage.ImgData;
 
 
 public class ShowPictureActivity extends Activity {
-
-	private ArrayList <View> listViews = null;
-
 	private ViewPager pager;
 
 	private MyPageAdapter adapter;
@@ -45,103 +40,113 @@ public class ShowPictureActivity extends Activity {
 		photo_relativeLayout = (RelativeLayout) findViewById(R.id.photo_relativeLayout);
 		photo_relativeLayout.setBackgroundColor(0x70000000);
 
-		for (int i = 0; i < MyBMP.compressedBmps.size(); i++) {
-			this.showDatas.add(MyBMP.compressedBmps.get(i),
-				MyBMP.compressedImgPathes.get(i), null);
+		int sz = MyImage.imgData.size();
+		if (sz > 0) {
+			this.showDatas.addAll(MyImage.imgData);
 		}
 
-		Button photo_bt_exit = (Button) findViewById(R.id.photo_bt_exit);
-		photo_bt_exit.setOnClickListener(new View.OnClickListener() {
+		Button btnAPCancel = (Button) findViewById(R.id.btnAPCancel);
+		btnAPCancel.setOnClickListener(new View.OnClickListener() {
 			public void onClick (View v) {
 				finish();
 			}
 		});
 
-		Button photo_bt_del = (Button) findViewById(R.id.photo_bt_del);
-		photo_bt_del.setOnClickListener(new View.OnClickListener() {
+		Button btnAPReadyDelete = (Button) findViewById(R.id.btnAPReadyDelete);
+		btnAPReadyDelete.setOnClickListener(new View.OnClickListener() {
 			public void onClick (View v) {
-				if (listViews.size() <= 0) {
-					String torm = NiceFileUtils
-						.getAlbumStorageDir(NewMessageActivity.albumNameCompressed).cc;
-					MyResult <String> ret = NiceFileUtils.rm(torm, true,
-						false);
-
-					if (null == ret || 0 != ret.code) {
-						Toast.makeText(getApplicationContext(),
-							"Opps.. " + (null != ret ? ret.msg : ""),
-							Toast.LENGTH_SHORT).show();
-					}
-
+				if (ShowPictureActivity.this.viewsList.size() <= 0) {
 					finish();
 				} else {
 					int d = ShowPictureActivity.this.currentPage;
 
-					ThreeValuesSet <Bitmap, String, String> r = ShowPictureActivity.this.showDatas
-						.remove(d);
+					ImgData r = ShowPictureActivity.this.showDatas
+						.removeByIndex(d);
 
-					String rs = r.v2(0);
+					if (null == r) {
+						Log.w(TAG + ":btnAPReadyDelete:onClick",
+							"no found to delete");
+						return;
+					}
+
+					String rs = r.getCompressedPath();
+
+					Log.v(
+						TAG + ":btnAPReadyDelete",
+						"ready to rm compressed: " + d + " path: " + rs
+							+ "lv sz: "
+							+ ShowPictureActivity.this.viewsList.size());
+
+					ShowPictureActivity.this.deletedViews
+						.add(ShowPictureActivity.this.viewsList.remove(d));
+					adapter.notifyDataSetChanged();
+
 					ShowPictureActivity.this.compressed2DelPaths.add(rs);
 
-					Log.v(TAG + ":btn-del", "rm compressed: " + rs);
-
-					pager.removeAllViews();
-					listViews.remove(d);
-					adapter.setListViews(listViews);
-					adapter.notifyDataSetChanged();
+					if (ShowPictureActivity.this.viewsList.size() <= 0) {
+						ShowPictureActivity.this.finishResult();
+					}
 				}
 			}
 		});
 
-		Button photo_bt_enter = (Button) findViewById(R.id.photo_bt_enter);
-		photo_bt_enter.setOnClickListener(new View.OnClickListener() {
+		Button btnAPDone = (Button) findViewById(R.id.btnAPDone);
+		btnAPDone.setOnClickListener(new View.OnClickListener() {
 			public void onClick (View v) {
 				int n = ShowPictureActivity.this.compressed2DelPaths.size();
 
-				for (int i = 0; i < n; i++) {
-					String c2rm = ShowPictureActivity.this.compressed2DelPaths
-						.get(i);
-
-					Log.v(TAG + ":btn-done", "do-c2rm: " + c2rm);
-					MyResult <String> ret = NiceFileUtils.rm(c2rm, false,
-						false);
-					NiceFileUtils.refreshGallery(getApplicationContext(),
-						c2rm);
-
-					Log.v(TAG + ":btn-done", "do-c2rm: " + "code: "
-						+ ret.code + " msg: " + ret.msg);
+				if (n > 0) {
+					ShowPictureActivity.this.finishResult();
+				} else {
+					ShowPictureActivity.this.finish();
 				}
-
-				finish();
 			}
 		});
 
 		pager = (ViewPager) findViewById(R.id.viewpager);
 		pager.setOnPageChangeListener(pageChangeListener);
 
-		ArrayList <Bitmap> bmps = this.showDatas.v1s();
-		int n = bmps.size();
+		int n = this.showDatas.size();
+		Log.v(TAG + ":onCreate", "show total: " + n);
+		this.viewsList = new ArrayList <View>();
 		for (int i = 0; i < n; i++) {
-			initListViews(bmps.get(i));
+			initListViews(this.showDatas.get(i).getBmp());
 		}
 
-		adapter = new MyPageAdapter(listViews);// 构造adapter
-		pager.setAdapter(adapter);// 设置适配器
+		adapter = new MyPageAdapter(viewsList);
+		pager.setAdapter(adapter);
 		Intent intent = getIntent();
 		int id = intent.getIntExtra("ID", 0);
 		pager.setCurrentItem(id);
 	}
 
 
+	private void finishResult () {
+		Log.v(TAG + ":finishResult", "feedback rm compressed: sz: "
+			+ ShowPictureActivity.this.compressed2DelPaths.size());
+
+		Bundle bundle = new Bundle();
+		ArrayList <String> feedbackDeleted = ShowPictureActivity.this.compressed2DelPaths;
+		bundle.putStringArrayList(MessageConfig.GETKEY_THUMBNAIL_DELETED,
+			feedbackDeleted);
+		// ShowPictureActivity.this.compressed2DelPaths.clear();
+
+		Intent intent = new Intent();
+		intent.putExtras(bundle);
+		setResult(MessageConfig.RESULTCODE_THUMBNAIL_DELETED, intent);
+
+		finish();
+	}
+
+
 	@SuppressWarnings ("deprecation")
 	private void initListViews (Bitmap bm) {
-		if (listViews == null)
-			listViews = new ArrayList <View>();
-		ImageView img = new ImageView(this);// 构造textView对象
+		ImageView img = new ImageView(this);
 		img.setBackgroundColor(0xff000000);
 		img.setImageBitmap(bm);
 		img.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT,
 			LayoutParams.FILL_PARENT));
-		listViews.add(img);// 添加view
+		this.viewsList.add(img);
 	}
 
 
@@ -164,27 +169,21 @@ public class ShowPictureActivity extends Activity {
 
 
 	class MyPageAdapter extends PagerAdapter {
-
-		private ArrayList <View> listViews;// content
-
-		private int size;// 页数
+		private ArrayList <View> viewsList;
 
 
-		public MyPageAdapter (ArrayList <View> listViews) {// 构造函数
-															// 初始化viewpager的时候给的一个页面
-			this.listViews = listViews;
-			size = listViews == null ? 0 : listViews.size();
+		public MyPageAdapter (ArrayList <View> viewsList) {
+			this.viewsList = viewsList;
 		}
 
 
-		public void setListViews (ArrayList <View> listViews) {// 自己写的一个方法用来添加数据
-			this.listViews = listViews;
-			size = listViews == null ? 0 : listViews.size();
+		public void setListViews (ArrayList <View> viewsList) {// 自己写的一个方法用来添加数据
+			this.viewsList = viewsList;
 		}
 
 
-		public int getCount () {// 返回数量
-			return size;
+		public int getCount () {
+			return this.viewsList == null ? 0 : this.viewsList.size();
 		}
 
 
@@ -193,8 +192,21 @@ public class ShowPictureActivity extends Activity {
 		}
 
 
-		public void destroyItem (View arg0, int arg1, Object arg2) {// 销毁view对象
-			((ViewPager) arg0).removeView(listViews.get(arg1 % size));
+		public void destroyItem (View v, int index, Object arg2) {
+			int n = ShowPictureActivity.this.deletedViews.size();
+
+			for (int i = 0; i < n; ++i) {
+				try {
+					((ViewPager) v)
+						.removeView(ShowPictureActivity.this.deletedViews
+							.get(i));
+				} catch (Exception e) {
+					Log.e(TAG + ":MyPageAdapterdestroyItem",
+						"ERROR: " + e.getMessage());
+				}
+			}
+
+			ShowPictureActivity.this.deletedViews.clear();
 		}
 
 
@@ -202,13 +214,17 @@ public class ShowPictureActivity extends Activity {
 		}
 
 
-		public Object instantiateItem (View arg0, int arg1) {// 返回view对象
+		public Object instantiateItem (View v, int i) {
 			try {
-				((ViewPager) arg0).addView(listViews.get(arg1 % size), 0);
-
+				int c = this.getCount();
+				if (c > 0) {
+					((ViewPager) v).addView(this.viewsList.get(i % c), 0);
+				}
 			} catch (Exception e) {
+				;
 			}
-			return listViews.get(arg1 % size);
+
+			return this.viewsList.get(i);
 		}
 
 
@@ -222,9 +238,13 @@ public class ShowPictureActivity extends Activity {
 	private static final String TAG = ShowPictureActivity.class
 		.getSimpleName();
 
-	private ThreeValuesSet <Bitmap, String, String> showDatas = new ThreeValuesSet <Bitmap, String, String>();
+	private MyArrayList <MyImage.ImgData> showDatas = new MyArrayList <MyImage.ImgData>();
 
 	private ArrayList <String> compressed2DelPaths = new ArrayList <String>();
 
 	private int currentPage = 0;
+
+	private ArrayList <View> viewsList = new ArrayList <View>();
+
+	private ArrayList <View> deletedViews = new ArrayList <View>();
 }

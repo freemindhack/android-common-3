@@ -11,15 +11,15 @@ import java.net.SocketTimeoutException;
 import java.util.regex.Pattern;
 
 
-import common.datastructure.CompareMethod;
-import common.datastructure.MyQueue;
-import common.utils.StringUtils;
-
-
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+
+
+import common.datastructure.MyCompareMethod;
+import common.datastructure.MyQueue;
+import common.utils.StringUtils;
 
 
 public abstract class SocketClient implements SocketClientInterface {
@@ -789,7 +789,7 @@ public abstract class SocketClient implements SocketClientInterface {
 			return null;
 		} else {
 			SendRecvData srd = this.waitAckBuffers.removeFound(recvedDataId,
-				new CompareMethod <byte[], SendRecvData>() {
+				new MyCompareMethod <byte[], SendRecvData>() {
 					@Override
 					public int compare (byte[] l, SendRecvData r) {
 						byte[] rcmp = r.data;

@@ -95,7 +95,7 @@ public class MyQueue <T> {
 	}
 
 
-	public T find (byte[] key, CompareMethod <byte[], T> cmp) {
+	public T find (byte[] key, MyCompareMethod <byte[], T> cmp) {
 		boolean found = false;
 		int sz = this.datas.size();
 		int i = 0;
@@ -114,7 +114,7 @@ public class MyQueue <T> {
 	}
 
 
-	public T removeFound (byte[] key, CompareMethod <byte[], T> cmp) {
+	public T removeFound (byte[] key, MyCompareMethod <byte[], T> cmp) {
 		boolean found = false;
 		int sz = this.datas.size();
 		int i = 0;
