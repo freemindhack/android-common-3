@@ -22,8 +22,9 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.Button;
 import android.widget.GridView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
@@ -40,7 +41,7 @@ public class ImageGridActivity extends Activity {
 
 		super.onCreate(savedInstanceState);
 
-		setContentView(R.layout.activity_image_grid);
+		setContentView(R.layout.activity_album);
 
 		this.helper = new AlbumHelper();
 		this.helper.prepare(getApplicationContext());
@@ -55,8 +56,20 @@ public class ImageGridActivity extends Activity {
 		}
 
 		initView();
-		this.btnFinish = (Button) findViewById(R.id.bt);
-		this.btnFinish.setOnClickListener(new OnClickListener() {
+
+		this.relativeLayoutAALCancel = (RelativeLayout) findViewById(R.id.relativeLayoutAALCancel);
+		this.relativeLayoutAALCancel
+			.setOnClickListener(new OnClickListener() {
+
+				@Override
+				public void onClick (View arg0) {
+					finish();
+				}
+
+			});
+
+		this.textViewAALDone = (TextView) findViewById(R.id.textViewAALDone);
+		this.textViewAALDone.setOnClickListener(new OnClickListener() {
 
 			public void onClick (View v) {
 				ArrayList <String> newList = new ArrayList <String>();
@@ -102,8 +115,9 @@ public class ImageGridActivity extends Activity {
 				public void onListen (int count) {
 					Log.v(TAG + ":initView:adapter:TextCallback", "onListen");
 
-					ImageGridActivity.this.btnFinish.setText("完成" + "("
-						+ count + ")");
+					ImageGridActivity.this.textViewAALDone
+						.setText(getString(R.string.wording_finish) + " "
+							+ count);
 				}
 			});
 
@@ -158,5 +172,9 @@ public class ImageGridActivity extends Activity {
 
 	private AlbumHelper helper;
 
-	private Button btnFinish;
+	private TextView tvAALDummyStatusbar;
+
+	private RelativeLayout relativeLayoutAALCancel;
+
+	private TextView textViewAALDone;
 }
