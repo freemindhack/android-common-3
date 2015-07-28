@@ -66,9 +66,10 @@ public class ImageGridActivity extends Activity {
 					newList.add(it.next());
 				}
 
+				MyImage mi = MyImage.getInstance(true, true);
 				for (int i = 0; i < newList.size(); i++) {
-					if (MyImage.originalImgPathes.size() < 9) {
-						MyImage.originalImgPathes.add(newList.get(i));
+					if (mi.originalImgPathes.size() < 9) {
+						mi.originalImgPathes.add(newList.get(i));
 					} else {
 						break;
 					}

@@ -40,9 +40,10 @@ public class ShowPictureActivity extends Activity {
 		photo_relativeLayout = (RelativeLayout) findViewById(R.id.photo_relativeLayout);
 		photo_relativeLayout.setBackgroundColor(0x70000000);
 
-		int sz = MyImage.imgData.size();
+		MyImage mi = MyImage.getInstance(true, true);
+		int sz = mi.imgData.size();
 		if (sz > 0) {
-			this.showDatas.addAll(MyImage.imgData);
+			this.showDatas.addAll(mi.imgData);
 		}
 
 		Button btnAPCancel = (Button) findViewById(R.id.btnAPCancel);

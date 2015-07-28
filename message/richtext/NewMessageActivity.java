@@ -68,6 +68,8 @@ public class NewMessageActivity extends Activity {
 
 		this.context = this.getApplicationContext();
 
+		NewMessageActivity.myImage = MyImage.getInstance(true, true);
+
 		this.init();
 	}
 
@@ -86,7 +88,7 @@ public class NewMessageActivity extends Activity {
 
 		if ((null != this.adapter) && (!this.isInDeleting)
 			&& (!this.isAfterTakePhoto)) {
-			this.updateView(false);
+			this.updateView();
 		}
 
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
@@ -115,23 +117,24 @@ public class NewMessageActivity extends Activity {
 
 		switch (requestCode) {
 		case MessageConfig.REQCODE_TAKE_PHOTO: {
-			if (MyImage.originalImgPathes.size() < 9 && resultCode == -1) {
+			if (NewMessageActivity.myImage.originalImgPathes.size() < 9
+				&& resultCode == -1) {
 				Log.v(TAG + ":onActivityResult", "REQCODE_TAKE_PHOTO: "
 					+ NewMessageActivity.this.takePhotoPath);
 
-				MyImage.originalImgPathes
+				NewMessageActivity.myImage.originalImgPathes
 					.add(NewMessageActivity.this.takePhotoPath);
 
 				NiceFileUtils.refreshGallery(NewMessageActivity.this.context,
 					new File(NewMessageActivity.this.takePhotoPath));
 
-				NewMessageActivity.this.updateView(true);
+				NewMessageActivity.this.updateView("");
 			}
 		}
 			break;
 
 		case MessageConfig.REQCODE_THUMBNAIL_DELETED: {
-			if (MyImage.imgData.size() > 0
+			if (NewMessageActivity.myImage.imgData.size() > 0
 				&& MessageConfig.RESULTCODE_THUMBNAIL_DELETED == resultCode) {
 				Log.v(TAG + ":onActivityResult", "REQCODE_THUMBNAIL_DELETED");
 
@@ -155,9 +158,6 @@ public class NewMessageActivity extends Activity {
 
 	private void init () {
 		Log.v(TAG, "init");
-
-		MyImage.imgData.clear();
-		MyImage.originalImgPathes.clear();
 
 		TextView tvNMADummyStatusbar = (TextView) findViewById(R.id.tvNMADummyStatusbar);
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
@@ -194,7 +194,7 @@ public class NewMessageActivity extends Activity {
 		this.adapter = new GridAdapter(this);
 
 		this.scrollGridViewPreview.setAdapter(this.adapter);
-		this.updateView(false);
+		this.updateView();
 
 		this.scrollGridViewPreview
 			.setOnItemClickListener(new OnItemClickListener() {
@@ -202,7 +202,8 @@ public class NewMessageActivity extends Activity {
 					int pos, long arg3) {
 					Log.v(TAG + ":scrollGridViewPreview", "clicked: " + pos);
 
-					if (pos == MyImage.originalImgPathes.size()) {
+					if (pos == NewMessageActivity.myImage.originalImgPathes
+						.size()) {
 						new PopupWindows(NewMessageActivity.this,
 							NewMessageActivity.this.scrollGridViewPreview);
 					} else {
@@ -262,15 +263,15 @@ public class NewMessageActivity extends Activity {
 				Log.w(TAG + ":deinit", "ERROR: " + ret.code + " " + ret.msg);
 			}
 
-			if (null != MyImage.originalImgPathes) {
-				MyImage.originalImgPathes.clear();
+			if (null != NewMessageActivity.myImage.originalImgPathes) {
+				NewMessageActivity.myImage.originalImgPathes.clear();
 			}
 
-			if (null != MyImage.imgData) {
-				MyImage.imgData.clear();
+			if (null != NewMessageActivity.myImage.imgData) {
+				NewMessageActivity.myImage.imgData.clear();
 			}
 
-			this.updateView(false);
+			this.updateView();
 		} catch (Exception e) {
 			Log.e(TAG + ":deinit", "ERROR: " + e.getMessage());
 		}
@@ -308,7 +309,7 @@ public class NewMessageActivity extends Activity {
 
 
 		public int getCount () {
-			return (MyImage.imgData.size() + 1);
+			return (NewMessageActivity.myImage.imgData.size() + 1);
 		}
 
 
@@ -338,15 +339,16 @@ public class NewMessageActivity extends Activity {
 				holder = (ViewHolder) convertView.getTag();
 			}
 
-			if (which == MyImage.imgData.size()) {
+			if (which == NewMessageActivity.myImage.imgData.size()) {
 				holder.image.setImageBitmap(BitmapFactory.decodeResource(
 					getResources(), R.drawable.icon_addpic_unfocused));
 				if (which == 9) {
 					holder.image.setVisibility(View.GONE);
 				}
 			} else {
-				holder.image.setImageBitmap(MyImage.imgData.get(which)
-					.getBmp());
+				holder.image
+					.setImageBitmap(NewMessageActivity.myImage.imgData.get(
+						which).getBmp());
 			}
 
 			return convertView;
@@ -465,8 +467,13 @@ public class NewMessageActivity extends Activity {
 	}
 
 
-	private void updateView (boolean isAfterTakePhoto) {
-		this.isAfterTakePhoto = isAfterTakePhoto;
+	private void updateView () {
+		new UpdateThread().start();
+	}
+
+
+	private void updateView (String ss) {
+		this.isAfterTakePhoto = true;
 		new UpdateThread().start();
 	}
 
@@ -493,15 +500,17 @@ public class NewMessageActivity extends Activity {
 		public void run () {
 			try {
 				if (UpdateMode.Add == this.um) {
-					if (MyImage.originalImgPathes.size() > 0) {
+					if (NewMessageActivity.myImage.originalImgPathes.size() > 0) {
 
-						int orisz = MyImage.originalImgPathes.size();
-						int add = orisz - MyImage.imgData.size();
+						int orisz = NewMessageActivity.myImage.originalImgPathes
+							.size();
+						int add = orisz
+							- NewMessageActivity.myImage.imgData.size();
 
 						Log.v(TAG + ":updatePreview:run", "add: " + add);
 
 						for (int i = 0; i < add; ++i) {
-							String oriPath = MyImage.originalImgPathes
+							String oriPath = NewMessageActivity.myImage.originalImgPathes
 								.get(orisz - i - 1);
 							Log.v(TAG + ":updatePreview:run", "oriPath: "
 								+ oriPath);
@@ -533,8 +542,9 @@ public class NewMessageActivity extends Activity {
 									.sendMessage(message);
 							} else {
 								/* the preview */
-								MyImage.imgData.add(new ImgData(revedbmp,
-									oriPath, ret.cc.getAbsolutePath()));
+								NewMessageActivity.myImage.imgData
+									.add(new ImgData(revedbmp, oriPath,
+										ret.cc.getAbsolutePath()));
 								NiceFileUtils.refreshGallery(context, ret.cc);
 							}
 						}
@@ -557,7 +567,7 @@ public class NewMessageActivity extends Activity {
 						int n = this.delete.size();
 						for (int i = 0; i < n; ++i) {
 							String r = this.delete.get(i);
-							MyArrayList <ImgData> rr = MyImage.imgData
+							MyArrayList <ImgData> rr = NewMessageActivity.myImage.imgData
 								.removeByCmp(
 									r,
 									new MyArrayList.CompareMethod <MyImage.ImgData>() {
@@ -580,8 +590,8 @@ public class NewMessageActivity extends Activity {
 								NiceFileUtils.rmGallery(new File(rr.get(zz)
 									.getCompressedPath()), false, false,
 									context);
-								MyImage.originalImgPathes.remove(rr.get(zz)
-									.getOriginalPath());
+								NewMessageActivity.myImage.originalImgPathes
+									.remove(rr.get(zz).getOriginalPath());
 							}
 						}
 
@@ -640,5 +650,7 @@ public class NewMessageActivity extends Activity {
 	private boolean isInDeleting = false;
 
 	private boolean isAfterTakePhoto = false;
+
+	private static MyImage myImage;
 
 }
