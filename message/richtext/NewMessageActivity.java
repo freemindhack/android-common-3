@@ -84,8 +84,9 @@ public class NewMessageActivity extends Activity {
 	protected void onResume () {
 		Log.v(TAG, "onResume");
 
-		if ((null != this.adapter) && (!this.isInDeleting)) {
-			this.updateView();
+		if ((null != this.adapter) && (!this.isInDeleting)
+			&& (!this.isAfterTakePhoto)) {
+			this.updateView(false);
 		}
 
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
@@ -124,7 +125,7 @@ public class NewMessageActivity extends Activity {
 				NiceFileUtils.refreshGallery(NewMessageActivity.this.context,
 					new File(NewMessageActivity.this.takePhotoPath));
 
-				NewMessageActivity.this.updateView();
+				NewMessageActivity.this.updateView(true);
 			}
 		}
 			break;
@@ -193,7 +194,7 @@ public class NewMessageActivity extends Activity {
 		this.adapter = new GridAdapter(this);
 
 		this.scrollGridViewPreview.setAdapter(this.adapter);
-		this.updateView();
+		this.updateView(false);
 
 		this.scrollGridViewPreview
 			.setOnItemClickListener(new OnItemClickListener() {
@@ -269,7 +270,7 @@ public class NewMessageActivity extends Activity {
 				MyImage.imgData.clear();
 			}
 
-			this.updateView();
+			this.updateView(false);
 		} catch (Exception e) {
 			Log.e(TAG + ":deinit", "ERROR: " + e.getMessage());
 		}
@@ -464,7 +465,8 @@ public class NewMessageActivity extends Activity {
 	}
 
 
-	private void updateView () {
+	private void updateView (boolean isAfterTakePhoto) {
+		this.isAfterTakePhoto = isAfterTakePhoto;
 		new UpdateThread().start();
 	}
 
@@ -543,6 +545,10 @@ public class NewMessageActivity extends Activity {
 							NewMessageActivity.this.__handler
 								.sendMessage(message);
 						}
+					}
+
+					if (NewMessageActivity.this.isAfterTakePhoto) {
+						NewMessageActivity.this.isAfterTakePhoto = false;
 					}
 				} else if (UpdateMode.Delete == this.um) {
 					if (null != this.delete && this.delete.size() > 0) {
@@ -632,5 +638,7 @@ public class NewMessageActivity extends Activity {
 	private Context context;
 
 	private boolean isInDeleting = false;
+
+	private boolean isAfterTakePhoto = false;
 
 }
