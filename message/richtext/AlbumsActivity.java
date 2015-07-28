@@ -11,9 +11,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.GridView;
+import android.widget.RelativeLayout;
 
 
 import com.za.smartlock.manufacturer.R;
@@ -48,6 +50,16 @@ public class AlbumsActivity extends Activity {
 
 	private void initView () {
 		Log.v(TAG, "initView");
+
+		RelativeLayout relativeLayoutAAPCancel = (RelativeLayout) findViewById(R.id.relativeLayoutAAPCancel);
+		relativeLayoutAAPCancel.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick (View v) {
+				finish();
+			}
+
+		});
 
 		gridView = (GridView) findViewById(R.id.gridViewAAP);
 		adapter = new ImageBucketAdapter(AlbumsActivity.this, dataList);
