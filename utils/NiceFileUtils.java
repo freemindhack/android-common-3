@@ -11,9 +11,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 
 
 import posix.generic.errno.errno;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -105,6 +107,139 @@ public class NiceFileUtils {
 		} catch (Exception e) {
 			return new MyResult <String>(errno.EXTRA_EEUNRESOLVED * -1,
 				e.getMessage(), null);
+		}
+	}
+
+
+	public static class LsResult {
+		public int count = -2;/* -2: not set; -1: file */
+
+		public long fileSize = -1;/* not set */
+
+		public String path;
+
+		boolean readable;
+
+		boolean writeable;
+
+		boolean executable;
+
+		public FILE type;
+
+		public long lastModified;
+
+		public String url;
+
+		public File file;
+
+		public static final String urlPrefix = "file://";
+	};
+
+
+	@SuppressLint ("NewApi")
+	public static MyResult <ArrayList <LsResult>> ls (String path, FILE mode) {
+		try {
+			File f = new File(path);
+
+			if (!f.exists()) {
+				return new MyResult <ArrayList <LsResult>>(errno.ENOENT * -1,
+					"No such file or directory", null);
+			}
+
+			FILE usedMode;
+			if (null != mode) {
+				usedMode = mode;
+			} else {
+				usedMode = new FILE(FILE.dirOrReg);
+			}
+
+			ArrayList <LsResult> ret = new ArrayList <LsResult>();
+
+			if (f.isFile()) {
+				if (FILE.regular == (usedMode.file() & FILE.regular)) {
+					LsResult res = new LsResult();
+					res.count = -1;
+					res.fileSize = f.getTotalSpace();
+					res.path = path;
+					res.type = new FILE(FILE.regular);
+					res.readable = f.canRead();
+					res.writeable = f.canWrite();
+					res.executable = f.canExecute();
+					res.lastModified = f.lastModified();
+					res.url = LsResult.urlPrefix + f.getAbsolutePath();
+					res.file = f;
+
+					ret.add(res);
+				}
+			} else {
+				File[] childs = f.listFiles();
+
+				if (childs != null) {
+					LsResult res = new LsResult();
+					res.count = -2;
+					res.fileSize = -1;
+					res.path = path;
+					res.type = new FILE(FILE.directory);
+					res.readable = f.canRead();
+					res.writeable = f.canWrite();
+					res.executable = f.canExecute();
+					res.lastModified = f.lastModified();
+					res.file = f;
+
+					ret.add(res);
+
+					long totalFilesz = 0;
+
+					for (File child : childs) {
+						if (child.isFile()) {
+							if (FILE.regular == (usedMode.file() & FILE.regular)) {
+								res = new LsResult();
+
+								res.count = -1;
+								totalFilesz += res.fileSize = child
+									.getTotalSpace();
+								res.path = child.getAbsolutePath();
+								res.type = new FILE(FILE.regular);
+								res.readable = child.canRead();
+								res.writeable = child.canWrite();
+								res.executable = child.canExecute();
+								res.lastModified = child.lastModified();
+								res.url = LsResult.urlPrefix
+									+ child.getAbsolutePath();
+								res.file = child;
+
+								ret.add(res);
+							}
+						} else {
+							if (FILE.directory == (usedMode.file() & FILE.directory)) {
+								res = new LsResult();
+
+								res.count = -2;
+								res.fileSize = -1;
+								res.path = child.getAbsolutePath();
+								res.type = new FILE(FILE.directory);
+								res.readable = child.canRead();
+								res.writeable = child.canWrite();
+								res.executable = child.canExecute();
+								res.lastModified = child.lastModified();
+								res.url = LsResult.urlPrefix
+									+ child.getAbsolutePath();
+								res.file = child;
+
+								ret.add(res);
+							}
+						}
+					}
+
+					ret.get(0).count = ret.size() - 1;
+					ret.get(0).fileSize = totalFilesz;
+				}
+			}
+
+			return new MyResult <ArrayList <LsResult>>(0, null, ret);
+		} catch (Exception e) {
+			return new MyResult <ArrayList <LsResult>>(
+				errno.EXTRA_EEUNRESOLVED * -1, e.getMessage(), null);
 		}
 	}
 
@@ -775,6 +910,11 @@ public class NiceFileUtils {
 	public static class FILE {
 		public FILE (int w) {
 			this.w = w;
+		}
+
+
+		public FILE (FILE another) {
+			this.w = another.w;
 		}
 
 
