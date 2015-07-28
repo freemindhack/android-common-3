@@ -42,6 +42,7 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -89,6 +90,14 @@ public class NewMessageActivity extends Activity {
 		if ((null != this.adapter) && (!this.isInDeleting)
 			&& (!this.isAfterTakePhoto)) {
 			this.updateView();
+		}
+
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT
+			&& UIUtils.checkDeviceHasNavigationBar(this)
+			&& UIUtils.isPortrait(getApplicationContext())) {
+			tvANMDummyNavigation.setVisibility(View.VISIBLE);
+		} else {
+			tvANMDummyNavigation.setVisibility(View.GONE);
 		}
 
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
@@ -167,13 +176,17 @@ public class NewMessageActivity extends Activity {
 			tvNMADummyStatusbar.setVisibility(View.GONE);
 		}
 
-		TextView tvANMDummyNavigation = (TextView) findViewById(R.id.tvANMDummyNavigation);
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT
-			&& UIUtils.checkDeviceHasNavigationBar(this)) {
-			tvANMDummyNavigation.setVisibility(View.VISIBLE);
-		} else {
-			tvANMDummyNavigation.setVisibility(View.GONE);
-		}
+		tvANMDummyNavigation = (TextView) findViewById(R.id.tvANMDummyNavigation);
+
+		RelativeLayout relativeLayoutANMCancel = (RelativeLayout) findViewById(R.id.relativeLayoutANMCancel);
+		relativeLayoutANMCancel.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick (View arg0) {
+				finish();
+			}
+
+		});
 
 		this.editTextANMText = (EditText) findViewById(R.id.editTextANMText);
 		MyResult <Integer> maxHeight = UIUtils
@@ -189,7 +202,7 @@ public class NewMessageActivity extends Activity {
 			}
 		}
 
-		this.scrollGridViewPreview = (GridView) findViewById(R.id.noScrollGridViewANM);
+		this.scrollGridViewPreview = (GridView) findViewById(R.id.scrollGridViewANM);
 		this.scrollGridViewPreview.setSelector(new ColorDrawable(
 			Color.TRANSPARENT));
 		this.adapter = new GridAdapter(this);
@@ -243,6 +256,9 @@ public class NewMessageActivity extends Activity {
 				// Environment
 				// .getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
 				// albumNameCompressed), true, false);
+
+				deinit();
+				finish();
 			}
 		});
 	}
@@ -651,6 +667,8 @@ public class NewMessageActivity extends Activity {
 	private boolean isInDeleting = false;
 
 	private boolean isAfterTakePhoto = false;
+
+	private TextView tvANMDummyNavigation;
 
 	private static MyImage myImage;
 
