@@ -7,6 +7,8 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.os.Build;
 import android.util.DisplayMetrics;
 import android.view.KeyCharacterMap;
@@ -114,6 +116,32 @@ public class UIUtils {
 		} catch (Exception e) {
 			return new MyResult <Integer>(errno.EXTRA_EEUNRESOLVED * -1,
 				e.getMessage(), null);
+		}
+	}
+
+
+	public static boolean isPortrait (Context c) {
+		if (Configuration.ORIENTATION_PORTRAIT == c.getResources()
+			.getConfiguration().orientation) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+
+	public static void setScreenPortrait (Activity a) {
+		if (Configuration.ORIENTATION_PORTRAIT != a.getResources()
+			.getConfiguration().orientation) {
+			a.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+		}
+	}
+
+
+	public static void setScreenLandscape (Activity a) {
+		if (Configuration.ORIENTATION_LANDSCAPE != a.getResources()
+			.getConfiguration().orientation) {
+			a.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 		}
 	}
 }
