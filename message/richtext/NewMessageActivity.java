@@ -62,7 +62,10 @@ public class NewMessageActivity extends Activity {
 
 		super.onCreate(savedInstanceState);
 		UIUtils.transparentStatus(getWindow());
-		UIUtils.transparentNavigation(getWindow());
+		if (UIUtils.isPortrait(getApplicationContext())) {
+			/* FIXED !! */
+			UIUtils.transparentNavigation(getWindow());
+		}
 		setContentView(R.layout.activity_new_message);
 
 		UIUtils.hideInputMethod(getWindow());
@@ -193,9 +196,11 @@ public class NewMessageActivity extends Activity {
 			.getScreenHeightPx(NewMessageActivity.this);
 		if (null != maxHeight) {
 			if (0 == maxHeight.code) {
-				this.editTextANMText.setMaxHeight(maxHeight.cc.intValue()
+				int h = maxHeight.cc.intValue()
 					- getResources().getDimensionPixelSize(
-						R.dimen.message_margin_bottom));
+						R.dimen.message_margin_bottom);
+				this.editTextANMText.setMaxHeight(h);
+				this.editTextANMText.setMinHeight(h);
 			} else {
 				Log.e(TAG + ":init:getScreenHeight", "ERROR: "
 					+ maxHeight.msg);
@@ -346,11 +351,11 @@ public class NewMessageActivity extends Activity {
 		public View getView (int which, View convertView, ViewGroup parent) {
 			ViewHolder holder = null;
 			if (convertView == null) {
-				convertView = inflater.inflate(R.layout.item_published_grida,
+				convertView = inflater.inflate(R.layout.item_new_msg_img,
 					parent, false);
 				holder = new ViewHolder();
 				holder.image = (ImageView) convertView
-					.findViewById(R.id.item_grida_image);
+					.findViewById(R.id.imgViewINMI);
 				convertView.setTag(holder);
 			} else {
 				holder = (ViewHolder) convertView.getTag();
