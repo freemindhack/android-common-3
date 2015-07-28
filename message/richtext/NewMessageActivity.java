@@ -113,20 +113,21 @@ public class NewMessageActivity extends Activity {
 	@Override
 	protected void onActivityResult (int requestCode, int resultCode,
 		Intent data) {
-		Log.v(TAG, "onActivityResult");
+		Log.v(TAG, "onActivityResult: reqcode: " + requestCode + " rescode: "
+			+ resultCode);
 
 		switch (requestCode) {
 		case MessageConfig.REQCODE_TAKE_PHOTO: {
 			if (NewMessageActivity.myImage.originalImgPathes.size() < 9
 				&& resultCode == -1) {
 				Log.v(TAG + ":onActivityResult", "REQCODE_TAKE_PHOTO: "
-					+ NewMessageActivity.this.takePhotoPath);
+					+ NewMessageActivity.takePhotoPath);
 
 				NewMessageActivity.myImage.originalImgPathes
-					.add(NewMessageActivity.this.takePhotoPath);
+					.add(NewMessageActivity.takePhotoPath);
 
 				NiceFileUtils.refreshGallery(NewMessageActivity.this.context,
-					new File(NewMessageActivity.this.takePhotoPath));
+					new File(NewMessageActivity.takePhotoPath));
 
 				NewMessageActivity.this.updateView("");
 			}
@@ -450,7 +451,7 @@ public class NewMessageActivity extends Activity {
 			Intent openCameraIntent = new Intent(
 				MediaStore.ACTION_IMAGE_CAPTURE);
 			File file = new File(dir.cc, name);
-			this.takePhotoPath = file.getAbsolutePath();
+			NewMessageActivity.takePhotoPath = file.getAbsolutePath();
 			Uri imageUri = Uri.fromFile(file);
 			openCameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
 			startActivityForResult(openCameraIntent,
@@ -633,7 +634,7 @@ public class NewMessageActivity extends Activity {
 
 	private static final int MSG_WHAT_ERROR = 0x1;
 
-	private String takePhotoPath = "";
+	private static String takePhotoPath = "";
 
 	private GridView scrollGridViewPreview;
 
