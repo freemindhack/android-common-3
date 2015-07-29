@@ -23,6 +23,7 @@ package common.bluetooth.le;
 import java.util.List;
 
 
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
@@ -39,6 +40,7 @@ import android.util.Log;
  * Service for managing connection and data communication with a GATT server
  * hosted on a given Bluetooth LE device.
  */
+@SuppressLint ("NewApi")
 public class BluetoothLe {
 	private final static String TAG = BluetoothLe.class.getSimpleName();
 
@@ -260,7 +262,9 @@ public class BluetoothLe {
 	 *         {@code BluetoothGattCallback#onConnectionStateChange(android.bluetooth.BluetoothGatt, int, int)}
 	 *         callback.
 	 */
-	public boolean connect (final String address, boolean noExists) {
+	@SuppressLint ("NewApi")
+	public boolean connect (final String address, boolean autoConnect,
+		boolean noExists) {
 		if (BluetoothLe.this.bluetoothAdapter == null || address == null) {
 			Log.w(TAG,
 				"BluetoothAdapter not initialized or unspecified address.");
@@ -292,7 +296,7 @@ public class BluetoothLe {
 		// We want to directly connect to the device, so we are setting the
 		// autoConnect
 		// parameter to false.
-		bluetoothGatt = device.connectGatt(mContext, false, gattcb);
+		bluetoothGatt = device.connectGatt(mContext, autoConnect, gattcb);
 		Log.d(TAG, "Trying to create a new connection.");
 		bluetoothDevAddr = address;
 		return true;
@@ -352,11 +356,12 @@ public class BluetoothLe {
 	 */
 	public boolean triggerReadCharacteristic (
 		BluetoothGattCharacteristic characteristic) {
-		Log.v(TAG, "triggerReadCharacteristic");
+		/* Log.v(TAG, "triggerReadCharacteristic"); */
 
 		if (BluetoothLe.this.bluetoothAdapter == null
 			|| bluetoothGatt == null) {
-			Log.e(TAG, "BluetoothAdapter not initialized");
+			Log.e(TAG + ":triggerReadCharacteristic",
+				"BluetoothAdapter not initialized");
 			return false;
 		}
 

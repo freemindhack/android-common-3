@@ -19,6 +19,9 @@ import java.util.UUID;
 import org.apache.http.util.EncodingUtils;
 
 
+import posix.generic.errno.errno;
+
+
 import common.bluetooth.le.BluetoothLe;
 import common.bluetooth.le.BluetoothLe.OnConnectListener;
 import common.bluetooth.le.BluetoothLe.OnDataAvailableListener;
@@ -75,6 +78,7 @@ public class GenericBluetooth {
 		if (null == this.bluetoothAdapter) {
 			Log.e(TAG + ":onCreate", "null bluetoothAdapter");
 		} else {
+			this.savedEnable = this.bluetoothAdapter.isEnabled();
 			Log.v(TAG + ":onCreate", "bluetoothAdapter ok");
 		}
 
@@ -88,6 +92,8 @@ public class GenericBluetooth {
 
 	public static boolean leCheck (Context c) {
 		try {
+			Log.v(TAG, "leCheck");
+
 			/*
 			 * Use this check to determine whether BLE is supported on the
 			 * device. Then you can selectively disable BLE-related features.
@@ -147,20 +153,26 @@ public class GenericBluetooth {
 
 	public boolean isBluetoothAvailable () {
 		try {
+			Log.v(TAG, "isBluetoothAvailable");
+
 			if (this.bluetoothAdapter == null
-				|| this.bluetoothAdapter.getAddress().equals(null)) {
+				|| null == this.bluetoothAdapter.getAddress()
+				|| this.bluetoothAdapter.getAddress().length() <= 0) {
 				return false;
+			} else {
+				return true;
 			}
-		} catch (NullPointerException e) {
+			/* NullPointerException */
+		} catch (Exception e) {
 			return false;
 		}
-
-		return true;
 	} /* isBluetoothAvailable */
 
 
 	public boolean isBluetoothEnabled () {
 		try {
+			Log.v(TAG, "isBluetoothEnabled");
+
 			return this.bluetoothAdapter.isEnabled();
 		} catch (Exception e) {
 			return false;
@@ -242,23 +254,30 @@ public class GenericBluetooth {
 	/**
 	 * LE part
 	 */
-	public int startGetLEDevices (LeScanCallback cb, long timeout) {
+	public int startGetLEDevices (LeScanCallback cb, long timeout,
+		LeScanStopListener leScanStopListener) {
 		try {
+			Log.v(TAG, "startGetLEDevices");
+
 			try {
 				if (null != this.leScanThread) {
 					this.leScanThread.finish();
 					this.leScanThread = null;
 				}
+
+				this.leScanThread = new LeScanThread(cb, timeout);
+				this.leScanThread.setLeScanStopListener(leScanStopListener);
+				this.leScanThread.start();
+
+				return 0;
 			} catch (Exception e) {
-				;
+				Log.e(TAG + ":startGetLEDevices", "E: " + e.getMessage());
+
+				return errno.EXTRA_EEUNRESOLVED * -1;
 			}
-
-			this.leScanThread = new LeScanThread(cb, timeout);
-			this.leScanThread.start();
-
-			return 0;
 		} catch (Exception e) {
-			return -1;
+			Log.e(TAG + ":startGetLEDevices", "E: " + e.getMessage());
+			return errno.EXTRA_EEUNRESOLVED * -1;
 		}
 	} /* startGetLEDevices */
 
@@ -338,14 +357,18 @@ public class GenericBluetooth {
 	} /* leSetOnServiceDiscoverListener */
 
 
-	public int leStartConnect (String addr, boolean noExists) {
+	public int leStartConnect (String addr, boolean autoConnect,
+		boolean noExists) {
 		if (null == this.LE) {
 			return -1;
 		}
 
 		this.finishGetLEDevices();
 
-		if (this.LE.connect(addr, noExists)) {
+		Log.v(TAG + ":leStartConnect", "autoConnect: " + autoConnect
+			+ " noExists: " + noExists);
+
+		if (this.LE.connect(addr, autoConnect, noExists)) {
 			try {
 				if (null != this.leReadyThread) {
 					this.leReadyThread.finish();
@@ -378,6 +401,97 @@ public class GenericBluetooth {
 	} /* leDisconnect */
 
 
+	public void leFinish () {
+		try {
+			try {
+				if (null != this.bluetoothAdapter) {
+					if (this.savedEnable
+						&& !this.bluetoothAdapter.isEnabled()) {
+						this.enableBluetooth();
+					} else if (!this.savedEnable
+						&& this.bluetoothAdapter.isEnabled()) {
+						this.disableBluetooth();
+					}
+				}
+			} catch (Exception e) {
+				Log.w(TAG + "leFinish", "E: " + e.getMessage());
+			}
+
+			// new Thread() {
+			// @Override
+			// public void run () {
+			try {
+				try {
+					GenericBluetooth.this.serverSocket = null;
+
+					GenericBluetooth.this.clientSocket = null;
+
+					GenericBluetooth.this.context = null;
+
+					GenericBluetooth.this.bluetoothAdapter = null;
+
+				} catch (Exception e) {
+					Log.w(TAG + "leFinish:thread:run", "E: " + e.getMessage());
+				}
+
+				/* LE */
+
+				try {
+					GenericBluetooth.this.le = -1;
+
+					if (null != GenericBluetooth.this.LE) {
+						if (null != GenericBluetooth.this.leReadyThread) {
+							GenericBluetooth.this.leReadyThread.finish();
+							GenericBluetooth.this.leReadyThread = null;
+						}
+
+						GenericBluetooth.this.LE.disconnect();
+						GenericBluetooth.this.LE = null;
+					}
+
+				} catch (Exception e) {
+					Log.w(TAG + "leFinish:thread:run", "E: " + e.getMessage());
+				}
+
+				try {
+					if (null != GenericBluetooth.this.leReadyThread) {
+						GenericBluetooth.this.leReadyThread.finish();
+						GenericBluetooth.this.leReadyThread = null;
+					}
+
+					GenericBluetooth.this.leConnectedGatt = null;
+
+					GenericBluetooth.this.leWriteUUID = "";
+
+					GenericBluetooth.this.leReadUUID = "";
+
+					GenericBluetooth.this.leGattRead = null;
+
+					GenericBluetooth.this.leGattWrite = null;
+				} catch (Exception e) {
+					Log.w(TAG + "leFinish:thread:run", "E: " + e.getMessage());
+				}
+
+				try {
+					if (null != GenericBluetooth.this.leScanThread) {
+						GenericBluetooth.this.leScanThread.finish();
+						GenericBluetooth.this.leScanThread = null;
+					}
+				} catch (Exception e) {
+					Log.w(TAG + "leFinish:thread:run", "E: " + e.getMessage());
+				}
+			} catch (Exception e) {
+				Log.w(TAG + "leFinish:thread:run", "E: " + e.getMessage());
+			}
+
+			// }
+			// }.start();
+		} catch (Exception e) {
+			Log.w(TAG + "leFinish", "E: " + e.getMessage());
+		}
+	} /* leFinish */
+
+
 	private class LeReadyThread extends Thread {
 		public LeReadyThread (String knownReadUUID) {
 			this.knownReadUUID = knownReadUUID;
@@ -394,16 +508,18 @@ public class GenericBluetooth {
 			Log.w(TAG + ":LeReadyThread", "finish");
 
 			try {
-				Thread.sleep(150);
+				Thread.sleep(200);
 			} catch (Exception e) {
 				;
 			}
 
 			if (this.running) {
-				try {
-					Thread.sleep(150);
-				} catch (Exception e) {
-					;
+				for (int i = 0; i < 4; ++i) {
+					try {
+						Thread.sleep(200);
+					} catch (Exception e) {
+						;
+					}
 				}
 			}
 
@@ -414,107 +530,121 @@ public class GenericBluetooth {
 
 		@Override
 		public void run () {
-			this.running = true;
+			try {
+				this.running = true;
 
-			List <BluetoothGattCharacteristic> all = new ArrayList <BluetoothGattCharacteristic>();
+				Log.w(TAG + ":LeReadyThread", "run");
 
-			boolean hasReadUUID;
-			if (this.knownReadUUID != null && this.knownReadUUID.length() > 0) {
-				hasReadUUID = true;
-			} else {
-				hasReadUUID = false;
-			}
+				List <BluetoothGattCharacteristic> all = new ArrayList <BluetoothGattCharacteristic>();
 
-			while (!this.terminate) {
+				boolean hasReadUUID;
+				if (this.knownReadUUID != null
+					&& this.knownReadUUID.length() > 0) {
+					hasReadUUID = true;
+				} else {
+					hasReadUUID = false;
+				}
 
-				if (null == leGattRead) {
-					try {
-						if (null != GenericBluetooth.this.leConnectedGatt) {
+				while (!this.terminate) {
 
-							List <BluetoothGattService> okss = GenericBluetooth.this.leConnectedGatt
-								.getServices();
+					if (null == leGattRead) {
+						try {
+							if (null != GenericBluetooth.this.leConnectedGatt) {
+								List <BluetoothGattService> okss = GenericBluetooth.this.leConnectedGatt
+									.getServices();
 
-							for (BluetoothGattService s : okss) {
-								List <BluetoothGattCharacteristic> gattCharacteristics = s
-									.getCharacteristics();
+								for (BluetoothGattService s : okss) {
+									List <BluetoothGattCharacteristic> gattCharacteristics = s
+										.getCharacteristics();
 
-								/*
-								 * Log.v(TAG, "size: " +
-								 * gattCharacteristics.size());
-								 */
+									/*
+									 * Log.v(TAG, "size: " +
+									 * gattCharacteristics.size());
+									 */
 
-								for (BluetoothGattCharacteristic gattCharacteristic : gattCharacteristics) {
+									for (BluetoothGattCharacteristic gattCharacteristic : gattCharacteristics) {
 
-									if (!all.contains(gattCharacteristic)) {
+										if (!all.contains(gattCharacteristic)) {
+											if (!hasReadUUID) {
+												GenericBluetooth.this.LE
+													.setCharacteristicNotification(
+														gattCharacteristic,
+														true);
+											}
+											all.add(gattCharacteristic);
+										}
+
+										String uuid = gattCharacteristic
+											.getUuid().toString()
+											.toLowerCase();
+
+										Log.i(
+											TAG + ":LeRearThread:run",
+											"uuid: "
+												+ uuid
+												+ " w type: "
+												+ gattCharacteristic
+													.getWriteType());
 										if (!hasReadUUID) {
-											GenericBluetooth.this.LE
-												.setCharacteristicNotification(
-													gattCharacteristic, true);
+											String ruuid = GenericBluetooth.this.LE
+												.getReadUUID();
+											if (ruuid != null
+												&& ruuid.length() > 0
+												&& uuid.equals(ruuid)
+												&& null == leGattRead) {
+												leGattRead = gattCharacteristic;
+											}
+										} else {
+											if (this.knownReadUUID
+												.equals(uuid)) {
+												GenericBluetooth.this.LE
+													.setCharacteristicNotification(
+														gattCharacteristic,
+														true);
+												leGattRead = gattCharacteristic;
+											}
 										}
-										all.add(gattCharacteristic);
-									}
 
-									String uuid = gattCharacteristic
-										.getUuid().toString().toLowerCase();
-
-									Log.i(TAG + ":LeRearThread:run", "uuid: "
-										+ uuid + " w type: "
-										+ gattCharacteristic.getWriteType());
-									if (!hasReadUUID) {
-										String ruuid = GenericBluetooth.this.LE
-											.getReadUUID();
-										if (ruuid != null
-											&& ruuid.length() > 0
-											&& uuid.equals(ruuid)
-											&& null == leGattRead) {
-											leGattRead = gattCharacteristic;
+										if (uuid.equals(leWriteUUID)) {
+											leGattWrite = gattCharacteristic;
 										}
-									} else {
-										if (this.knownReadUUID.equals(uuid)) {
-											GenericBluetooth.this.LE
-												.setCharacteristicNotification(
-													gattCharacteristic, true);
-											leGattRead = gattCharacteristic;
-										}
-									}
-
-									if (uuid.equals(leWriteUUID)) {
-										leGattWrite = gattCharacteristic;
 									}
 								}
 							}
+						} catch (Exception e) {
+							Log.e(TAG, "ERROR: " + e.getMessage());
+							// this.running = false;
+							// return;
 						}
-					} catch (Exception e) {
-						Log.e(TAG, "ERROR: " + e.getMessage());
-						// this.running = false;
-						// return;
+
+						try {
+							Thread.sleep(200);
+						} catch (Exception e) {
+							;
+						}
+					} else {
+						/* Log.v(TAG, "triggerReadCharacteristic"); */
+						try {
+							GenericBluetooth.this.LE
+								.triggerReadCharacteristic(leGattRead);
+						} catch (Exception e) {
+							Log.e(TAG, "ERROR: " + e.getMessage());
+						}
 					}
 
 					try {
-						Thread.sleep(100);
+						Thread.sleep(150);
 					} catch (Exception e) {
 						;
 					}
-				} else {
-					Log.v(TAG, "triggerReadCharacteristic");
-					try {
-						GenericBluetooth.this.LE
-							.triggerReadCharacteristic(leGattRead);
-					} catch (Exception e) {
-						Log.e(TAG, "ERROR: " + e.getMessage());
-					}
-					Log.v(TAG, "triggerReadCharacteristi2");
 				}
 
-				try {
-					Thread.sleep(100);
-				} catch (Exception e) {
-					;
-				}
+				Log.w(TAG + ":LeReadyThread", "exit");
+				this.running = false;
+			} catch (Exception e) {
+				Log.w(TAG + ":LeReadyThread", "exit: E");
+				this.running = false;
 			}
-
-			Log.w(TAG + ":LeReadyThread", "exit");
-			this.running = false;
 		}
 
 
@@ -565,6 +695,11 @@ public class GenericBluetooth {
 	}
 
 
+	public interface LeScanStopListener {
+		public void onLeScanStopped (int retval);
+	};
+
+
 	private class LeScanThread extends Thread {
 		public LeScanThread (LeScanCallback cb, long timeout) {
 			this.cb = cb;
@@ -575,8 +710,18 @@ public class GenericBluetooth {
 
 		private boolean scaning = false;
 
+		private LeScanStopListener leScanStopListener;
+
+
+		public void setLeScanStopListener (
+			LeScanStopListener leScanStopListener) {
+			this.leScanStopListener = leScanStopListener;
+		}
+
 
 		public void finish () {
+			Log.v(TAG + ":LeScanThread", "finish");
+
 			this.scaning = false;
 
 			try {
@@ -590,27 +735,17 @@ public class GenericBluetooth {
 		@Override
 		public void run () {
 			try {
-				try {
-					GenericBluetooth.this.bluetoothAdapter
-						.stopLeScan(this.cb);
-				} catch (Exception e) {
-					;
-				}
-
-				for (int i = 0; i < 5; ++i) {
-					try {
-						Thread.sleep(200);
-					} catch (Exception e) {
-						;
-					}
-				}
-
-				/* FIXME: check retVal */
-				GenericBluetooth.this.bluetoothAdapter.startLeScan(this.cb);
+				Log.v(TAG + ":LeScanThread", "run");
 
 				long time2stop = System.currentTimeMillis() + timeout;
+
 				while (time2stop > System.currentTimeMillis()) {
 					if (!this.scaning) {
+						Log.v(TAG + ":LeScanThread:run", "get stop signal");
+						break;
+					}
+
+					if (GenericBluetooth.this.bluetoothAdapter.isEnabled()) {
 						break;
 					}
 
@@ -621,11 +756,125 @@ public class GenericBluetooth {
 					}
 				}
 
-				GenericBluetooth.this.bluetoothAdapter.stopLeScan(this.cb);
+				if (this.scaning) {
+					try {
+						if (true) {
+							/* if (GenericBluetooth.this.isInLeScan) { */
+							GenericBluetooth.this.bluetoothAdapter
+								.stopLeScan(this.cb);
+
+							for (int i = 0; i < 5; ++i) {
+								try {
+									Thread.sleep(200);
+								} catch (Exception e) {
+									;
+								}
+							}
+						}
+					} catch (Exception e) {
+						Log.e(TAG + ":LeScanThread:run:stop",
+							"E: " + e.getMessage());
+					}
+
+					/* FIXME: check retVal */
+					boolean ret = GenericBluetooth.this.bluetoothAdapter
+						.startLeScan(this.cb);
+					Log.v(TAG + ":LeScanThread:run", "startLeScan:result: "
+						+ ret);
+
+					if (!ret) {
+						this.scaning = false;
+						Log.v(TAG + ":LeScanThread:run", "stop");
+						if (null != this.leScanStopListener) {
+							new Thread() {
+								@Override
+								public void run () {
+									try {
+										LeScanThread.this.leScanStopListener
+											.onLeScanStopped(errno.EPERM * -1);
+									} catch (Exception e) {
+										;
+									}
+								}
+							}.start();
+						}
+
+						try {
+							if (true) {
+								GenericBluetooth.this.bluetoothAdapter
+									.stopLeScan(this.cb);
+
+								for (int i = 0; i < 5; ++i) {
+									try {
+										Thread.sleep(200);
+									} catch (Exception e) {
+										;
+									}
+								}
+							}
+						} catch (Exception e) {
+							Log.e(TAG + ":LeScanThread:run:stop",
+								"E: " + e.getMessage());
+						}
+						return;
+					}
+
+					while (time2stop > System.currentTimeMillis()) {
+						if (!this.scaning) {
+							Log.v(TAG + ":LeScanThread:run",
+								"get stop signal");
+							break;
+						}
+
+						try {
+							Thread.sleep(100);
+						} catch (Exception e) {
+							;
+						}
+					}
+
+					if (time2stop > System.currentTimeMillis()) {
+						Log.v(TAG + ":LeScanThread:run", "timeout");
+					}
+
+					GenericBluetooth.this.bluetoothAdapter
+						.stopLeScan(this.cb);
+
+				}
+
+				Log.v(TAG + ":LeScanThread:run", "stop");
 
 				this.scaning = false;
+				if (null != this.leScanStopListener) {
+					new Thread() {
+						@Override
+						public void run () {
+							try {
+								LeScanThread.this.leScanStopListener
+									.onLeScanStopped(0);
+							} catch (Exception e) {
+								;
+							}
+						}
+					}.start();
+				}
 			} catch (Exception e) {
+				Log.e(TAG + ":LeScanThread:run:final", "E: " + e.getMessage());
 				this.scaning = false;
+				if (null != this.leScanStopListener) {
+					new Thread() {
+						@Override
+						public void run () {
+							try {
+								LeScanThread.this.leScanStopListener
+									.onLeScanStopped(errno.EXTRA_EEUNRESOLVED
+										* -1);
+							} catch (Exception e) {
+								;
+							}
+						}
+					}.start();
+				}
 			}
 		}
 
@@ -1519,10 +1768,12 @@ public class GenericBluetooth {
 	private BluetoothSocket clientSocket = null;
 
 	/* Context from activity which call this class */
-	private Context context;
+	private Context context = null;
 
 	/* Local Blue tooth adapter */
 	private BluetoothAdapter bluetoothAdapter = null;
+
+	private boolean savedEnable = false;
 
 	/* LE */
 
@@ -1536,11 +1787,12 @@ public class GenericBluetooth {
 
 	private String leReadUUID = "";
 
+	private BluetoothGattCharacteristic leGattRead = null;
+
+	private BluetoothGattCharacteristic leGattWrite = null;
+
 	private LeScanThread leScanThread = null;
 
-	BluetoothGattCharacteristic leGattRead = null;
-
-	BluetoothGattCharacteristic leGattWrite = null;
-
 	private LeReadyThread leReadyThread = null;
+
 }
