@@ -230,8 +230,12 @@ public abstract class ProcessBarActivity extends Activity implements
 					Log.w(TAG + ":run", "NOT exit:selfTerminate");
 				}
 				this.running = false;
+
+				super.run();
 			} catch (Exception e) {
 				this.running = false;
+
+				super.run();
 			}
 		}
 	}
