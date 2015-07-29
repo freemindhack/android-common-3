@@ -24,7 +24,7 @@ import com.za.smartlock.manufacturer.R;
 import common.message.richtext.BitmapCache.ImageCallback;
 
 
-public class ImageGridAdapter extends BaseAdapter {
+public class AlbumAdapter extends BaseAdapter {
 
 	private TextCallback textcallback = null;
 
@@ -70,7 +70,7 @@ public class ImageGridAdapter extends BaseAdapter {
 	}
 
 
-	public ImageGridAdapter (Activity act, List <ImageItem> list,
+	public AlbumAdapter (Activity act, List <ImageItem> list,
 		Handler mHandler) {
 		this.act = act;
 		dataList = list;

@@ -14,6 +14,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -29,10 +30,11 @@ import android.widget.Toast;
 
 
 import com.za.smartlock.manufacturer.R;
-import common.message.richtext.ImageGridAdapter.TextCallback;
+import common.message.richtext.AlbumAdapter.TextCallback;
+import common.utils.UIUtils;
 
 
-public class ImageGridActivity extends Activity {
+public class ALbumActivity extends Activity {
 
 	@SuppressWarnings ("unchecked")
 	@Override
@@ -40,7 +42,10 @@ public class ImageGridActivity extends Activity {
 		Log.v(TAG, "onCreate");
 
 		super.onCreate(savedInstanceState);
-
+		UIUtils.transparentStatus(getWindow());
+		if (UIUtils.isPortrait(getApplicationContext())) {
+			UIUtils.transparentNavigation(getWindow());
+		}
 		setContentView(R.layout.activity_album);
 
 		this.helper = new AlbumHelper();
@@ -49,7 +54,7 @@ public class ImageGridActivity extends Activity {
 		Intent i = this.getIntent();
 		if (null != i) {
 			Serializable s = i
-				.getSerializableExtra(ImageGridActivity.EXTRA_IMAGE_LIST);
+				.getSerializableExtra(ALbumActivity.EXTRA_IMAGE_LIST);
 			if (null != s) {
 				this.imagesList = (List <ImageItem>) s;
 			}
@@ -82,7 +87,9 @@ public class ImageGridActivity extends Activity {
 				MyImage mi = MyImage.getInstance(true, true);
 				for (int i = 0; i < newList.size(); i++) {
 					if (mi.originalImgPathes.size() < 9) {
-						mi.originalImgPathes.add(newList.get(i));
+						String n = newList.get(i);
+						Log.v(TAG, "done: add: " + n);
+						mi.originalImgPathes.add(n);
 					} else {
 						break;
 					}
@@ -91,6 +98,33 @@ public class ImageGridActivity extends Activity {
 			}
 
 		});
+
+		this.tvAALDummyStatusbar = (TextView) findViewById(R.id.tvAALDummyStatusbar);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+			this.tvAALDummyStatusbar.setVisibility(View.VISIBLE);
+		} else {
+			this.tvAALDummyStatusbar.setVisibility(View.GONE);
+		}
+
+		this.tvAALDummyNavigation = (TextView) findViewById(R.id.tvAALDummyNavigation);
+	}
+
+
+	@Override
+	public void onResume () {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT
+			&& UIUtils.checkDeviceHasNavigationBar(this)
+			&& UIUtils.isPortrait(getApplicationContext())) {
+			this.tvAALDummyNavigation.setVisibility(View.VISIBLE);
+		} else {
+			this.tvAALDummyNavigation.setVisibility(View.GONE);
+		}
+
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
+			UIUtils.dotNavigation(getWindow());
+		}
+
+		super.onResume();
 	}
 
 
@@ -107,7 +141,7 @@ public class ImageGridActivity extends Activity {
 
 			this.gridView = (GridView) findViewById(R.id.gridview);
 			this.gridView.setSelector(new ColorDrawable(Color.TRANSPARENT));
-			this.adapter = new ImageGridAdapter(ImageGridActivity.this,
+			this.adapter = new AlbumAdapter(ALbumActivity.this,
 				this.imagesList, this.handler);
 			this.gridView.setAdapter(this.adapter);
 
@@ -115,7 +149,7 @@ public class ImageGridActivity extends Activity {
 				public void onListen (int count) {
 					Log.v(TAG + ":initView:adapter:TextCallback", "onListen");
 
-					ImageGridActivity.this.textViewAALDone
+					ALbumActivity.this.textViewAALDone
 						.setText(getString(R.string.wording_finish) + " "
 							+ count);
 				}
@@ -129,10 +163,10 @@ public class ImageGridActivity extends Activity {
 					Log.v(TAG + ":initView:gridView:OnItemClickListener",
 						"onItemClick");
 
-					ImageItem ii = ImageGridActivity.this.imagesList
+					ImageItem ii = ALbumActivity.this.imagesList
 						.get(position);
 					if (null != ii) {
-						ImageGridActivity.this.adapter.notifyDataSetChanged();
+						ALbumActivity.this.adapter.notifyDataSetChanged();
 					}
 				}
 
@@ -150,7 +184,7 @@ public class ImageGridActivity extends Activity {
 		public void handleMessage (Message msg) {
 			switch (msg.what) {
 			case 0:
-				Toast.makeText(ImageGridActivity.this, "最多选择9张图片",
+				Toast.makeText(ALbumActivity.this, "最多选择9张图片",
 					Toast.LENGTH_SHORT).show();
 				break;
 
@@ -162,13 +196,13 @@ public class ImageGridActivity extends Activity {
 
 	public static final String EXTRA_IMAGE_LIST = "imagelist";
 
-	private static final String TAG = ImageGridActivity.class.getSimpleName();
+	private static final String TAG = ALbumActivity.class.getSimpleName();
 
 	private List <ImageItem> imagesList = null;
 
 	private GridView gridView;
 
-	private ImageGridAdapter adapter;
+	private AlbumAdapter adapter;
 
 	private AlbumHelper helper;
 
@@ -177,4 +211,6 @@ public class ImageGridActivity extends Activity {
 	private RelativeLayout relativeLayoutAALCancel;
 
 	private TextView textViewAALDone;
+
+	private TextView tvAALDummyNavigation;
 }

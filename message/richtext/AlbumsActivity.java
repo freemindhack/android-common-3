@@ -117,7 +117,7 @@ public class AlbumsActivity extends Activity {
 				 */
 				adapter.notifyDataSetChanged();
 				Intent intent = new Intent(AlbumsActivity.this,
-					ImageGridActivity.class);
+					ALbumActivity.class);
 				intent.putExtra(AlbumsActivity.EXTRA_IMAGE_LIST,
 					(Serializable) dataList.get(position).imageList);
 				startActivity(intent);
