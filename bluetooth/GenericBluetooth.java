@@ -111,7 +111,7 @@ public class GenericBluetooth {
 	} /* leCheck */
 
 
-	public int enableBluetooth () {
+	public int enableBluetooth (boolean now) {
 		try {
 			if (null == this.bluetoothAdapter) {
 				return bluetooth_errno.ENOADAPTER * -1;
@@ -119,9 +119,17 @@ public class GenericBluetooth {
 
 			/* if BT is not on, request that it be enabled */
 			if (!this.bluetoothAdapter.isEnabled()) {
-				Intent intent = new Intent(
-					BluetoothAdapter.ACTION_REQUEST_ENABLE);
-				this.context.startActivity(intent);
+				if (!now) {
+					Intent intent = new Intent(
+						BluetoothAdapter.ACTION_REQUEST_ENABLE);
+					this.context.startActivity(intent);
+				} else {
+					if (this.bluetoothAdapter.enable()) {
+						return 0;
+					} else {
+						return errno.EPERM * -1;
+					}
+				}
 			}
 
 			return 0;
@@ -407,7 +415,7 @@ public class GenericBluetooth {
 				if (null != this.bluetoothAdapter) {
 					if (this.savedEnable
 						&& !this.bluetoothAdapter.isEnabled()) {
-						this.enableBluetooth();
+						this.enableBluetooth(true);
 					} else if (!this.savedEnable
 						&& this.bluetoothAdapter.isEnabled()) {
 						this.disableBluetooth();
