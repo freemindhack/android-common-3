@@ -34,7 +34,7 @@ import common.message.richtext.AlbumAdapter.TextCallback;
 import common.utils.UIUtils;
 
 
-public class ALbumActivity extends Activity {
+public class AlbumActivity extends Activity {
 
 	@SuppressWarnings ("unchecked")
 	@Override
@@ -54,7 +54,7 @@ public class ALbumActivity extends Activity {
 		Intent i = this.getIntent();
 		if (null != i) {
 			Serializable s = i
-				.getSerializableExtra(ALbumActivity.EXTRA_IMAGE_LIST);
+				.getSerializableExtra(AlbumActivity.EXTRA_IMAGE_LIST);
 			if (null != s) {
 				this.imagesList = (List <ImageItem>) s;
 			}
@@ -141,7 +141,7 @@ public class ALbumActivity extends Activity {
 
 			this.gridView = (GridView) findViewById(R.id.gridview);
 			this.gridView.setSelector(new ColorDrawable(Color.TRANSPARENT));
-			this.adapter = new AlbumAdapter(ALbumActivity.this,
+			this.adapter = new AlbumAdapter(AlbumActivity.this,
 				this.imagesList, this.handler);
 			this.gridView.setAdapter(this.adapter);
 
@@ -149,7 +149,7 @@ public class ALbumActivity extends Activity {
 				public void onListen (int count) {
 					Log.v(TAG + ":initView:adapter:TextCallback", "onListen");
 
-					ALbumActivity.this.textViewAALDone
+					AlbumActivity.this.textViewAALDone
 						.setText(getString(R.string.wording_finish) + " "
 							+ count);
 				}
@@ -163,10 +163,10 @@ public class ALbumActivity extends Activity {
 					Log.v(TAG + ":initView:gridView:OnItemClickListener",
 						"onItemClick");
 
-					ImageItem ii = ALbumActivity.this.imagesList
+					ImageItem ii = AlbumActivity.this.imagesList
 						.get(position);
 					if (null != ii) {
-						ALbumActivity.this.adapter.notifyDataSetChanged();
+						AlbumActivity.this.adapter.notifyDataSetChanged();
 					}
 				}
 
@@ -184,7 +184,7 @@ public class ALbumActivity extends Activity {
 		public void handleMessage (Message msg) {
 			switch (msg.what) {
 			case 0:
-				Toast.makeText(ALbumActivity.this, "最多选择9张图片",
+				Toast.makeText(AlbumActivity.this, "最多选择9张图片",
 					Toast.LENGTH_SHORT).show();
 				break;
 
@@ -196,7 +196,7 @@ public class ALbumActivity extends Activity {
 
 	public static final String EXTRA_IMAGE_LIST = "imagelist";
 
-	private static final String TAG = ALbumActivity.class.getSimpleName();
+	private static final String TAG = AlbumActivity.class.getSimpleName();
 
 	private List <ImageItem> imagesList = null;
 
