@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -18,11 +19,13 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 
 import com.za.smartlock.manufacturer.R;
 import common.datastructure.MyArrayList;
 import common.message.richtext.MyImage.ImgData;
+import common.utils.UIUtils;
 
 
 public class ShowPictureActivity extends Activity {
@@ -33,9 +36,14 @@ public class ShowPictureActivity extends Activity {
 	RelativeLayout photo_relativeLayout;
 
 
-	public void onCreate (Bundle savedInstanceState) {
+	@Override
+	protected void onCreate (Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_photo);
+		UIUtils.transparentStatus(getWindow());
+		if (UIUtils.isPortrait(getApplicationContext())) {
+			UIUtils.transparentNavigation(getWindow());
+		}
+		setContentView(R.layout.activity_show_picture);
 
 		photo_relativeLayout = (RelativeLayout) findViewById(R.id.photo_relativeLayout);
 		photo_relativeLayout.setBackgroundColor(0x70000000);
@@ -46,15 +54,15 @@ public class ShowPictureActivity extends Activity {
 			this.showDatas.addAll(mi.imgData);
 		}
 
-		Button btnAPCancel = (Button) findViewById(R.id.btnAPCancel);
-		btnAPCancel.setOnClickListener(new View.OnClickListener() {
+		Button btnASPCancel = (Button) findViewById(R.id.btnASPCancel);
+		btnASPCancel.setOnClickListener(new View.OnClickListener() {
 			public void onClick (View v) {
 				finish();
 			}
 		});
 
-		Button btnAPReadyDelete = (Button) findViewById(R.id.btnAPReadyDelete);
-		btnAPReadyDelete.setOnClickListener(new View.OnClickListener() {
+		Button btnASPReadyDelete = (Button) findViewById(R.id.btnASPReadyDelete);
+		btnASPReadyDelete.setOnClickListener(new View.OnClickListener() {
 			public void onClick (View v) {
 				if (ShowPictureActivity.this.viewsList.size() <= 0) {
 					finish();
@@ -91,8 +99,8 @@ public class ShowPictureActivity extends Activity {
 			}
 		});
 
-		Button btnAPDone = (Button) findViewById(R.id.btnAPDone);
-		btnAPDone.setOnClickListener(new View.OnClickListener() {
+		Button btnASPDone = (Button) findViewById(R.id.btnASPDone);
+		btnASPDone.setOnClickListener(new View.OnClickListener() {
 			public void onClick (View v) {
 				int n = ShowPictureActivity.this.compressed2DelPaths.size();
 
@@ -103,6 +111,8 @@ public class ShowPictureActivity extends Activity {
 				}
 			}
 		});
+
+		this.tvASPDummyNavigation = (TextView) findViewById(R.id.tvASPDummyNavigation);
 
 		pager = (ViewPager) findViewById(R.id.viewpager);
 		pager.setOnPageChangeListener(pageChangeListener);
@@ -119,6 +129,26 @@ public class ShowPictureActivity extends Activity {
 		Intent intent = getIntent();
 		int id = intent.getIntExtra("ID", 0);
 		pager.setCurrentItem(id);
+	}
+
+
+	@Override
+	protected void onResume () {
+		Log.v(TAG, "onResume");
+
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT
+			&& UIUtils.checkDeviceHasNavigationBar(this)
+			&& UIUtils.isPortrait(getApplicationContext())) {
+			this.tvASPDummyNavigation.setVisibility(View.VISIBLE);
+		} else {
+			this.tvASPDummyNavigation.setVisibility(View.GONE);
+		}
+
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
+			UIUtils.dotNavigation(getWindow());
+		}
+
+		super.onResume();
 	}
 
 
@@ -248,4 +278,6 @@ public class ShowPictureActivity extends Activity {
 	private ArrayList <View> viewsList = new ArrayList <View>();
 
 	private ArrayList <View> deletedViews = new ArrayList <View>();
+
+	private TextView tvASPDummyNavigation;
 }
