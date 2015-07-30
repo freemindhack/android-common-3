@@ -24,7 +24,8 @@ public interface MyWifiManagerInterface {
 	public void saveWifiState ();
 
 
-	public void restoreWifiState (boolean disableOthers);
+	// public interface
+	public void restoreWifiState (boolean ignoreOn);
 
 
 	public boolean isWifiOpened ();
@@ -92,15 +93,25 @@ public interface MyWifiManagerInterface {
 	 * connect2Wifi
 	 */
 	public boolean connect2Wifi (WifiConfiguration wifiConfiguration,
-		boolean disableOthers, boolean removeWhenExist);
-
-
-	public boolean connect2Wifi (boolean oldEnabled, String oldssid,
-		String newssid, boolean disableOthers, boolean removeWhenExist);
+		boolean disableOthers, boolean pick);
 
 
 	public boolean connect2Wifi (int whichwifiConfiguration,
-		boolean disableOthers, boolean removeWhenExist);
+		boolean disableOthers, boolean pick);
+
+
+	public boolean connect2Wifi (String ssid, boolean disableOthers,
+		boolean pick);
+
+
+	/* saved */
+	public boolean connect2Wifi (boolean disableOthers, boolean pick);
+
+
+	public boolean disconnectNetwork ();
+
+
+	public boolean disableNetwork ();
 
 
 	/*
@@ -109,8 +120,14 @@ public interface MyWifiManagerInterface {
 	public boolean removeNetwork (WifiConfiguration wifiConfiguration);
 
 
-	public boolean removeNetwork (String ssid, boolean restoreSaved,
-		boolean disableOthers);
+	public boolean removeNetwork (String ssid);
+
+
+	/* Wife lock*/
+	public void createWifilock (String key);
+
+
+	public void acquireWifiLock (boolean acquire);
 
 
 	/**

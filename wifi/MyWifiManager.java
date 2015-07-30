@@ -7,24 +7,26 @@ import java.util.List;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo.State;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.net.wifi.WifiManager.WifiLock;
 import android.util.Log;
 
 
 public class MyWifiManager implements MyWifiManagerInterface {
 	private WifiManager wifiManager = null;
 
-	// private WifiInfo wifiInfo = null;
 	private List <ScanResult> reachableWifisList = null;
 
 	protected Context savedContext = null;
 
 
+	@SuppressLint ("InlinedApi")
 	public MyWifiManager (Context c) {
 		try {
 			this.isSignaledExit = false;
@@ -39,7 +41,43 @@ public class MyWifiManager implements MyWifiManagerInterface {
 			// }
 			this.savedContext = c;
 			this.saveWifiState();
+
+			// MyWifiManager.requestAlwaysScan(savedContext);
+			// this.createWifilock(MyWifiManager.DEFAULT_WIFILOCK_TAG);
+			// this.acquireWifiLock(true);
 		} catch (Exception e) {
+			;
+		}
+	}
+
+
+	@Override
+	public void createWifilock (String tag) {
+		this.wifilock = this.wifiManager.createWifiLock(tag);
+	}
+
+
+	/* scan */
+	@SuppressLint ("InlinedApi")
+	public static void requestAlwaysScan (Context c) {
+
+		Intent intent = new Intent(
+			WifiManager.ACTION_REQUEST_SCAN_ALWAYS_AVAILABLE);
+
+		c.startActivity(intent);
+
+	}
+
+
+	@Override
+	public void acquireWifiLock (boolean acquire) {
+		if (acquire && this.wifilock.isHeld()) {
+			;
+		} else if (acquire && !this.wifilock.isHeld()) {
+			this.wifilock.acquire();
+		} else if (!acquire && this.wifilock.isHeld()) {
+			this.wifilock.release();
+		} else {
 			;
 		}
 	}
@@ -104,7 +142,7 @@ public class MyWifiManager implements MyWifiManagerInterface {
 	@SuppressWarnings ("static-access")
 	@Override
 	public boolean openWifi () {
-		try { /* for all of this func */
+		try {
 			int wifiCardState = this.wifiManager.getWifiState();
 			if (this.wifiManager.isWifiEnabled()) {
 				return true;
@@ -189,37 +227,37 @@ public class MyWifiManager implements MyWifiManagerInterface {
 			Log.println(Log.ERROR, "MyWifiManager/openWifi", e.getMessage());
 			// this.closeWifi();
 			return false;
-		} /* end of all of this func */
+		}
 	} /* end of openWifi */
 
 
 	@Override
 	public void closeWifi () {
-		try { /* for all of this func */
+		try {
 			if (this.wifiManager.isWifiEnabled()) {
 				this.wifiManager.setWifiEnabled(false);
 			}
 		} catch (Exception e) {
 			Log.println(Log.ERROR, "MyWifiManager/closeWifi", e.getMessage());
-		} /* end of all of this func */
+		}
 	} /* end of closeWifi */
 
 
 	@Override
 	public int getWifiState () {
-		try { /* for all of this func */
+		try {
 			return this.wifiManager.getWifiState();
 		} catch (Exception e) {
 			Log.println(Log.ERROR, "MyWifiManager/checkWifiState",
 				e.getMessage());
 			return -1;/* error */
-		} /* end of all of this func */
+		}
 	} /* end of getWifiState */
 
 
 	@Override
 	public boolean startScan (int retry) {
-		try { /* for all of this func */
+		try {
 			if (retry <= 0) {
 				retry = 1;
 			}
@@ -239,7 +277,7 @@ public class MyWifiManager implements MyWifiManagerInterface {
 		} catch (Exception e) {
 			Log.println(Log.ERROR, "MyWifiManager/startScan", e.getMessage());
 			return false;/* error */
-		} /* end of all of this func */
+		}
 	} /* end of startScan */
 
 
@@ -260,7 +298,7 @@ public class MyWifiManager implements MyWifiManagerInterface {
 	@SuppressLint ("UseValueOf")
 	@Override
 	public StringBuilder lookupScan () {
-		try { /* for all of this func */
+		try {
 			StringBuilder stringBuilder = new StringBuilder();
 			for (int i = 0; i < this.reachableWifisList.size(); i++) {
 				stringBuilder.append("Index_" + new Integer(i + 1).toString()
@@ -273,13 +311,13 @@ public class MyWifiManager implements MyWifiManagerInterface {
 		} catch (Exception e) {
 			Log.println(Log.ERROR, "MyWifiManager/lookupScan", e.getMessage());
 			return null;/* error */
-		} /* end of all of this func */
+		}
 	} /* end of lookupScan */
 
 
 	@Override
 	public String getMacAddress () {
-		try { /* for all of this func */
+		try {
 			WifiInfo wifiInfo = this.wifiManager.getConnectionInfo();
 			return (wifiInfo == null) ? "0:0:0:0:0:0" : wifiInfo
 				.getMacAddress();
@@ -287,70 +325,70 @@ public class MyWifiManager implements MyWifiManagerInterface {
 			Log.println(Log.ERROR, "MyWifiManager/getMacAddress",
 				e.getMessage());
 			return "0:0:0:0:0:0";/* error not got */
-		} /* end of all of this func */
+		}
 	} /* end of getMacAddress */
 
 
 	@Override
 	public String getBSSID () {
-		try { /* for all of this func */
+		try {
 			WifiInfo wifiInfo = this.wifiManager.getConnectionInfo();
 			return (wifiInfo == null) ? "" : wifiInfo.getBSSID();
 		} catch (Exception e) {
 			Log.println(Log.ERROR, "MyWifiManager/getBSSID", e.getMessage());
 			return "";/* error not got */
-		} /* end of all of this func */
+		}
 	} /* end of getBSSID */
 
 
 	@Override
 	public int getIPAddress () {
-		try { /* for all of this func */
+		try {
 			WifiInfo wifiInfo = this.wifiManager.getConnectionInfo();
 			return (wifiInfo == null) ? 0 : wifiInfo.getIpAddress();
 		} catch (Exception e) {
 			Log.println(Log.ERROR, "MyWifiManager/getIPAddress",
 				e.getMessage());
 			return 0;/* error not got */
-		} /* end of all of this func */
+		}
 	} /* end of getIPAddress */
 
 
 	@Override
 	public String getInetIPAddress () {
-		try { /* for all of this func */
+		try {
 			int intIp = this.getIPAddress();
 			return (intIp & 0xFF) + "." + ((intIp >> 8) & 0xFF) + "."
 				+ ((intIp >> 16) & 0xFF) + "." + ((intIp >> 24) & 0xFF);
 		} catch (Exception e) {
 			return "";
-		} /* end of all of this func */
+		}
 	}
 
 
 	@Override
 	public int getNetworkId () {
-		try { /* for all of this func */
+		try {
 			WifiInfo wifiInfo = this.wifiManager.getConnectionInfo();
 			return (wifiInfo == null) ? 0 : wifiInfo.getNetworkId();
 		} catch (Exception e) {
 			Log.println(Log.ERROR, "MyWifiManager/getNetworkId",
 				e.getMessage());
 			return 0;/* error not got */
-		} /* end of all of this func */
+		}
 	} /* end of getNetworkId */
 
 
 	@Override
 	public String getWifiInfo () {
-		try { /* for all of this func */
+		try {
 			WifiInfo wifiInfo = this.wifiManager.getConnectionInfo();
 			return (wifiInfo == null) ? "" : wifiInfo.toString();
 		} catch (Exception e) {
 			Log.println(Log.ERROR, "MyWifiManager/getWifiInfo",
 				e.getMessage());
 			return "";/* error not got */
-		} /* end of all of this func */
+		}
 	} /* getWifiInfo */
 
 
@@ -361,7 +399,7 @@ public class MyWifiManager implements MyWifiManagerInterface {
 	/* @param: ssid: no '\"' and '\"'. */
 	@Override
 	public boolean isWifiExsitsInSavedList (String ssid, boolean withQuotation) {
-		try { /* for all of this func */
+		try {
 			List <WifiConfiguration> savedConfigs = this.wifiManager
 				.getConfiguredNetworks();
 			for (WifiConfiguration savedConfig : savedConfigs) {
@@ -382,7 +420,7 @@ public class MyWifiManager implements MyWifiManagerInterface {
 			Log.println(Log.ERROR, "MyWifiManager/isWifiExsitsInSavedList",
 				e.getMessage());
 			return false;/* error */
-		} /* end of all of this func */
+		}
 	} /* end of isWifiExsitsInSavedList */
 
 
@@ -438,107 +476,198 @@ public class MyWifiManager implements MyWifiManagerInterface {
 	 * connect2Wifi
 	 */
 	@Override
+	public boolean connect2Wifi (boolean disableOthers, boolean pick) {
+		return this.connect2Wifi(this.savedWifiConfiguration, disableOthers,
+			pick);
+	}
+
+
+	@Override
 	public boolean connect2Wifi (WifiConfiguration wifiConfiguration,
-		boolean disableOthers, boolean removeWhenExist) {
-		try { /* for all of this func */
+		boolean disableOthers, boolean pick) {
+		try {
 			if (null == wifiConfiguration) {
-				return false;
+				if (pick) {
+					Intent intent = new Intent(
+						WifiManager.ACTION_PICK_WIFI_NETWORK);
+					this.savedContext.startActivity(intent);
+					return true;
+				} else {
+					return false;
+				}
 			}
 			boolean ret = this.isWifiExsitsInSavedList(
 				wifiConfiguration.SSID, true);
-			if (ret && removeWhenExist) {
-				this.wifiManager.disableNetwork(wifiConfiguration.networkId);
-				this.removeNetwork(wifiConfiguration);
-			}
+
 			int netId;
 			if (!ret) {
 				netId = this.wifiManager.addNetwork(wifiConfiguration);
 			} else {
 				netId = wifiConfiguration.networkId;
 			}
-			Log.println(Log.INFO, "connect2Wifi", "ssid: "
-				+ wifiConfiguration.SSID);
-			ret = this.wifiManager.enableNetwork(netId, disableOthers);
-			Log.println(Log.VERBOSE, "MyWifiManager/connect2Wifi", "netId: "
-				+ netId + "; " + "enabled: " + ret);
-			return ret;
+			Log.v(TAG + "connect2Wifi", "ssid: " + wifiConfiguration.SSID);
+
+			return this.doConnect2Wifi(wifiConfiguration.SSID, netId,
+				disableOthers, pick);
+
 		} catch (Exception e) {
-			Log.println(Log.ERROR, "MyWifiManager/connect2Wifi",
-				e.getMessage());
+			Log.e(TAG + ":connect2Wifi", "E: " + e.getMessage());
 			return false;/* error */
-		} /* end of all of this func */
+		}
 	} /* connect2Wifi */
 
 
+	private boolean doConnect2Wifi (String ssid, int netId,
+		boolean disableOthers, boolean pick) {
+		boolean ret;
+
+		ret = this.wifiManager.enableNetwork(netId, disableOthers);
+		Log.v(TAG + ":doConnect2Wifi", disableOthers + ": netId: " + netId
+			+ ": " + "enabled: " + ret);
+
+		if (ret) {
+			for (int i = 0; i < 10; ++i) {
+				try {
+					Thread.sleep(50);
+				} catch (Exception e) {
+					;
+				}
+			}
+
+			for (int i = 0; i < 20 * 5; ++i) {
+				if (this.isWifiConnected()) {
+					Log.v(TAG + ":doConnect2Wifi", "connected");
+					break;
+				}
+				try {
+					Thread.sleep(50);
+				} catch (Exception e) {
+					;
+				}
+			}
+
+			for (int i = 0; i < 20 * 5; ++i) {
+				String ip = this.getInetIPAddress();
+				if (null != ip && ip.length() > 0 && !ip.equals("0.0.0.0")) {
+					Log.v(TAG + ":doConnect2Wifi", "got ip: " + ip);
+					break;
+				}
+				try {
+					Thread.sleep(50);
+				} catch (Exception e) {
+					;
+				}
+			}
+
+			if (this.isWifiConnected(ssid)) {
+				Log.v(TAG + ":doConnect2Wifi", "connected: " + ssid);
+				return true;
+			}
+		}
+
+		for (int i = 0; i < 10; ++i) {
+			try {
+				Thread.sleep(50);
+			} catch (Exception e) {
+				;
+			}
+		}
+
+		if (this.isWifiConnected(ssid)) {
+			Log.v(TAG + ":doConnect2Wifi", "connected: " + ssid);
+			return true;
+		} else if (pick) {
+			Intent intent = new Intent(WifiManager.ACTION_PICK_WIFI_NETWORK);
+			this.savedContext.startActivity(intent);
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+
 	@Override
-	public boolean connect2Wifi (boolean oldEnabled, String oldssid,
-		String newssid, boolean disableOthers, boolean removeWhenExist) {
-		try { /* for all of this func */
+	public boolean connect2Wifi (String ssid, boolean disableOthers,
+		boolean pick) {
+		try {
 			WifiConfiguration cfg = null;
 			boolean ret;
-			int oldid = 0;
-			if ((null != oldssid) && (oldssid.length() > 0)) {
-				cfg = this.getWifiConfiguration(oldssid, false);
-				// oldid = this.wifiManager.addNetwork(cfg);
-				oldid = cfg.networkId;
-				ret = this.wifiManager.disableNetwork(oldid);
-				if (!ret) {
-					if (oldEnabled) {
-						this.wifiManager.enableNetwork(oldid, false);
-					}
-					return false;
-				}
-			}
-			cfg = this.getWifiConfiguration(newssid, false);
+
+			cfg = this.getWifiConfiguration(ssid, false);
 			if (null == cfg) {
+				Log.w(TAG + ":connect2Wifi",
+					"failed: no saved conf for ssid: " + ssid);
 				return false;
 			}
+
 			ret = this.isWifiExsitsInSavedList(cfg.SSID, true);
-			if (ret && removeWhenExist) {
-				this.wifiManager.disableNetwork(cfg.networkId);
-				this.removeNetwork(cfg);
-			}
-			int newid;
+			int netId;
 			if (!ret) {
-				newid = this.wifiManager.addNetwork(cfg);
+				netId = this.wifiManager.addNetwork(cfg);
 			} else {
-				newid = cfg.networkId;
+				netId = cfg.networkId;
 			}
-			ret = this.wifiManager.enableNetwork(newid, disableOthers);
-			if (!ret) {
-				if (oldEnabled && (null != oldssid) && (oldssid.length() > 0)) {
-					this.wifiManager.enableNetwork(oldid, disableOthers);
-				}
-				return false;
-			}
-			return true;
+
+			return this.doConnect2Wifi(cfg.SSID, netId, disableOthers, pick);
 		} catch (Exception e) {
-			Log.println(Log.ERROR, "MyWifiManager/connect2Wifi",
-				e.getMessage());
+			Log.e(TAG + "connect2Wifi", "E: " + e.getMessage());
 			return false;/* error */
-		} /* end of all of this func */
+		}
 	} /* end of connect2Wifi */
 
 
 	@Override
 	public boolean connect2Wifi (int whichwifiConfiguration,
-		boolean disableOthers, boolean removeWhenExist) {
-		try { /* for all of this func */
+		boolean disableOthers, boolean pick) {
+		try {
 			List <WifiConfiguration> savedConfigs = this.wifiManager
 				.getConfiguredNetworks();
 			if ((whichwifiConfiguration < 0) || (null == savedConfigs)
 				|| (whichwifiConfiguration > savedConfigs.size())) {
-				return false;
+				if (pick) {
+					Intent intent = new Intent(
+						WifiManager.ACTION_PICK_WIFI_NETWORK);
+					this.savedContext.startActivity(intent);
+					return true;
+				} else {
+					return false;
+				}
 			}
-			return this.wifiManager.enableNetwork(
+
+			return this.doConnect2Wifi(
+				savedConfigs.get(whichwifiConfiguration).SSID,
 				savedConfigs.get(whichwifiConfiguration).networkId,
-				disableOthers);
+				disableOthers, pick);
 		} catch (Exception e) {
-			Log.println(Log.ERROR, "MyWifiManager/connect2Wifi",
-				e.getMessage());
+			Log.e(TAG + "connect2Wifi", "E: " + e.getMessage());
 			return false;/* error */
-		} /* end of all of this func */
+		}
 	} /* connect2Wifi */
+
+
+	@Override
+	public boolean disconnectNetwork () {
+		try {
+
+			return this.wifiManager.disconnect();
+
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
+
+	@Override
+	public boolean disableNetwork () {
+		try {
+
+			return this.wifiManager
+				.disableNetwork(this.savedWifiConfiguration.networkId);
+
+		} catch (Exception e) {
+			return false;
+		}
+	}
 
 
 	/**
@@ -548,6 +677,7 @@ public class MyWifiManager implements MyWifiManagerInterface {
 	public boolean removeNetwork (WifiConfiguration wifiConfiguration) {
 		try {
 			try {
+				this.wifiManager.disconnect();
 				this.wifiManager.disableNetwork(wifiConfiguration.networkId);
 			} catch (Exception e) {
 				;
@@ -561,21 +691,23 @@ public class MyWifiManager implements MyWifiManagerInterface {
 
 
 	@Override
-	public boolean removeNetwork (String ssid, boolean restoreSaved,
-		boolean disableOthers) {
+	public boolean removeNetwork (String ssid) {
 		try {
 			try {
 				WifiConfiguration cfg = null;
 				cfg = this.getWifiConfiguration(ssid, false);
 				if (null != cfg) {
+					try {
+						this.disconnectWifi(ssid);
+					} catch (Exception e) {
+						;
+					}
 					this.removeNetwork(cfg);
 				}
 			} catch (Exception e) {
-				;
+				return false;
 			}
-			if (restoreSaved) {
-				this.restoreWifiState(disableOthers);
-			}
+
 			return true;
 		} catch (Exception e) {
 			return false;
@@ -588,21 +720,24 @@ public class MyWifiManager implements MyWifiManagerInterface {
 	 */
 	@Override
 	public boolean disconnectWifi (int netId) {
-		try { /* for all of this func */
+		try {
 			this.wifiManager.disableNetwork(netId);
 			return this.wifiManager.disconnect();
 		} catch (Exception e) {
 			Log.println(Log.ERROR, "MyWifiManager/disconnectWifi",
 				e.getMessage());
 			return false;/* error */
-		} /* end of all of this func */
+		}
 	} /* end of disconnectWifi */
 
 
 	@Override
 	public boolean disconnectWifi (String ssid) {
-		try { /* for all of this func */
+		try {
 			WifiConfiguration cfg = this.getWifiConfiguration(ssid, false);
+			if (null == cfg) {
+				return false;
+			}
 			int id = this.wifiManager.addNetwork(cfg);
 			this.wifiManager.disableNetwork(id);
 			return this.wifiManager.disconnect();
@@ -610,7 +745,7 @@ public class MyWifiManager implements MyWifiManagerInterface {
 			Log.println(Log.ERROR, "MyWifiManager/disconnectWifi",
 				e.getMessage());
 			return false;/* error */
-		} /* end of all of this func */
+		}
 	} /* end of disconnectWifi */
 
 
@@ -626,7 +761,7 @@ public class MyWifiManager implements MyWifiManagerInterface {
 	@Override
 	public WifiConfiguration createWifiConfiguration (String ssid,
 		String password, int type, boolean removeIfExist) {
-		try { /* for all of this func */
+		try {
 			WifiConfiguration config = new WifiConfiguration();
 			config.allowedAuthAlgorithms.clear();
 			config.allowedGroupCiphers.clear();
@@ -692,7 +827,7 @@ public class MyWifiManager implements MyWifiManagerInterface {
 			Log.println(Log.ERROR, "MyWifiManager/WifiConfiguration",
 				e.getMessage());
 			return null;/* error */
-		} /* end of all of this func */
+		}
 	} /* end of createWifiConfiguration */
 
 
@@ -704,7 +839,7 @@ public class MyWifiManager implements MyWifiManagerInterface {
 	@Override
 	public WifiConfiguration getWifiConfiguration (String ssid,
 		boolean withQuotation) {
-		try { /* for all of this func */
+		try {
 			List <WifiConfiguration> savedConfigs = this.wifiManager
 				.getConfiguredNetworks();
 			for (WifiConfiguration saveConfig : savedConfigs) {
@@ -723,7 +858,7 @@ public class MyWifiManager implements MyWifiManagerInterface {
 			Log.println(Log.ERROR, "MyWifiManager/getWifiConfiguration",
 				"ABORT");
 			return null;/* error */
-		} /* end of all of this func */
+		}
 	} /* end of getWifiConfiguration */
 
 
@@ -759,71 +894,153 @@ public class MyWifiManager implements MyWifiManagerInterface {
 
 	private boolean savedWifiState = false;
 
-	private String savedStaticNetowrk = "";
-
 	private WifiConfiguration savedWifiConfiguration = null;
 
 
-	@SuppressWarnings ("deprecation")
 	@Override
 	public void saveWifiState () {
 		try {
 			this.savedWifiState = this.wifiManager.isWifiEnabled();
-			this.savedStaticNetowrk = android.provider.Settings.System
-				.getString(this.savedContext.getContentResolver(),
-					android.provider.Settings.System.WIFI_USE_STATIC_IP);
+
 			this.savedWifiConfiguration = this.getWifiConfiguration(
 				this.getWifiSsid(), true);
-			Log.println(Log.VERBOSE, "saveWifiState", "WIFI_USE_STATIC_IP: "
-				+ this.savedStaticNetowrk);
 		} catch (Exception e) {
 			;
 		}
 	}
 
 
-	@SuppressWarnings ({ "deprecation", "static-access" })
+	public WifiConfiguration getSavedWifiConfiguration () {
+		return this.savedWifiConfiguration;
+	}
+
+
 	@Override
-	public void restoreWifiState (boolean disableOthers) {
+	public void restoreWifiState (boolean ignoreOn) {
 		try {
-			Log.println(Log.INFO, "restoreWifiState", "restoreWifiState");
-			if (this.savedWifiState) {
-				Log.println(Log.INFO, "restoreWifiState", "open");
-				try {
-					// this.closeWifi();
-					this.openWifi();
-					// try {
-					// Thread.currentThread().sleep(2000);
-					// } catch (Exception e) {
-					// ;
-					// }
-				} catch (Exception e) {
-					;
-				}
-				try {
-					Thread.currentThread().sleep(20);
-				} catch (Exception e) {
-					;
-				}
-				if (null == this.savedWifiConfiguration) {
+			Log.v(TAG, "restoreWifiState");
+
+			new RestoreWifiThread(this, MyWifiManager.this.savedWifiState,
+				MyWifiManager.this.savedWifiConfiguration, ignoreOn).start();
+		} catch (Exception e) {
+			Log.w("restoreWifiState", "E: " + e.getMessage());
+		}
+	}
+
+
+	private class RestoreWifiThread extends Thread {
+		public RestoreWifiThread (MyWifiManager ii,
+			boolean dumpSavedWifiState,
+			WifiConfiguration dumpSavedWifiConfiguration, boolean ignoreOn) {
+			this.ii = ii;
+			this.dumpSavedWifiState = dumpSavedWifiState;
+			this.dumpSavedWifiConfiguration = dumpSavedWifiConfiguration;
+			this.ignoreOn = ignoreOn;
+		}
+
+
+		private MyWifiManager ii = null;
+
+		private boolean dumpSavedWifiState = false;
+
+		private WifiConfiguration dumpSavedWifiConfiguration = null;
+
+		private boolean ignoreOn = false;
+
+
+		@Override
+		public void run () {
+			try {
+				Log.v(TAG + ":RestoreWifiThread", "run");
+
+				if (null == ii) {
+					Log.v(TAG + ":RestoreWifiThread:run",
+						"no instance: all done");
+					super.run();
 					return;
 				}
-				Log.println(Log.INFO, "restoreWifiState", "open: ssid: "
-					+ this.savedWifiConfiguration.SSID);
-				this.connect2Wifi(this.savedWifiConfiguration, disableOthers,
-					false);
-			} else {
-				Log.println(Log.INFO, "restoreWifiState", "close");
-				this.closeWifi();
+
+				if (dumpSavedWifiState) {
+					Log.v(TAG + ":RestoreWifiThread:run", "saved is open");
+
+					try {
+						boolean ret = ii.openWifi();
+						if (ret) {
+							Log.v(TAG + ":RestoreWifiThread:run",
+								"opening ...");
+							for (int i = 0; i < 10; ++i) {
+								try {
+									Thread.sleep(200);
+								} catch (Exception e) {
+									;
+								}
+							}
+						} else {
+							Log.v(TAG + ":RestoreWifiThread:run",
+								"start opening failed");
+						}
+					} catch (Exception e) {
+						Log.w(TAG + ":RestoreWifiThread:run", "E: openWifi: "
+							+ e.getMessage());
+					}
+					try {
+						Thread.sleep(20);
+					} catch (Exception e) {
+						;
+					}
+					if (null == dumpSavedWifiConfiguration) {
+						Log.v(TAG + ":RestoreWifiThread:run",
+							"no saved wifi conf: all done");
+
+						super.run();
+						return;
+					}
+
+					Log.v(TAG + ":restoreWifiState:Thread:run",
+						"check: ssid: " + dumpSavedWifiConfiguration.SSID);
+					boolean c = ii
+						.isWifiConnected(dumpSavedWifiConfiguration.SSID);
+					if (c) {
+						Log.v(TAG + ":RestoreWifiThread:run",
+							"connected: ssid: "
+								+ dumpSavedWifiConfiguration.SSID
+								+ ": all done");
+						// ii.connect2Wifi(dumpSavedWifiConfiguration, false,
+						// true);//
+						// ii.connect2Wifi(dumpSavedWifiConfiguration, true,
+						// true);//
+						super.run();
+						return;
+					} else {
+						// c = ii.connect2Wifi(dumpSavedWifiConfiguration,
+						// false, true);
+						c = ii.connect2Wifi(dumpSavedWifiConfiguration, true,
+							true);//
+						if (c) {
+							Log.v(TAG + ":RestoreWifiThread:run",
+								"connected: ssid: "
+									+ dumpSavedWifiConfiguration.SSID
+									+ ": all done");
+						} else {
+							Log.w(TAG + ":RestoreWifiThread:run",
+								"connecte: ssid: "
+									+ dumpSavedWifiConfiguration.SSID
+									+ ": failed: all done");
+						}
+
+						super.run();
+						return;
+					}
+				} else if (!ignoreOn) {
+					Log.v(TAG + ":RestoreWifiThread:run", "saved is closed");
+					ii.closeWifi();
+				}
+
+				super.run();
+			} catch (Exception e) {
+				Log.e(TAG + ":RestoreWifiThread:run", "E: " + e.getMessage());
+				super.run();
 			}
-			if (null != savedStaticNetowrk && savedStaticNetowrk.length() > 0) {
-				android.provider.Settings.System.putString(
-					this.savedContext.getContentResolver(),
-					android.provider.Settings.System.WIFI_USE_STATIC_IP,
-					savedStaticNetowrk);
-			}
-		} catch (Exception e) {
-			Log.println(Log.WARN, "restoreWifiState", e.getMessage());
 		}
 	}
 
@@ -888,4 +1105,12 @@ public class MyWifiManager implements MyWifiManagerInterface {
 			return false;/* abort */
 		}
 	}
+
+
+	private static final String TAG = MyWifiManager.class.getSimpleName();
+
+	// private static final String DEFAULT_WIFILOCK_TAG =
+	// "DEFAULT_WIFILOCK_TAG";
+
+	private WifiLock wifilock;
 }
