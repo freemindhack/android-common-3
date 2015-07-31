@@ -188,8 +188,8 @@ public abstract class SocketClient implements SocketClientInterface {
 		while (!this._SOCKET_MUTEX) {
 			try {
 				wait(10);
-			} catch (InterruptedException e) {
-				Log.println(Log.ERROR, "LOCK/wait", e.getMessage());
+			} catch (Exception e) {
+				Log.e(TAG + ":LOCK:wait", "E:" + e.getMessage());
 			}
 		}
 		this._SOCKET_MUTEX = false;
@@ -370,8 +370,7 @@ public abstract class SocketClient implements SocketClientInterface {
 						}
 						/** prompt alive */
 						if (0 == (prompt % 1000)) {
-							Log.println(Log.VERBOSE,
-								"SocketClient/receiveRuntime", "alive");
+							Log.v(TAG + ":receiveRuntime", "alive");
 							prompt = 0;
 						}
 						++prompt;
@@ -379,14 +378,16 @@ public abstract class SocketClient implements SocketClientInterface {
 						int dataReady = 0;
 						try {
 							dataReady = thisInputStream.available();
-						} catch (IOException e) {
-							e.printStackTrace();
+						} catch (Exception e) {
+							Log.e(TAG + ":receiveRuntime", "E: available: "
+								+ e.getMessage());
 						}
 						if ((null == socketClient)
 							|| (!socketClient.isConnected())) {
 							socketClientConnectState = SocketClient.SOCKET_STATE_RECV_BROKEN;
 							break;
 						}
+
 						if (dataReady > 0) {
 							boolean onlyWhenNoAvailable = isUseBEOnlyNoAvailable();
 							boolean hasAvailable = false;
@@ -394,27 +395,37 @@ public abstract class SocketClient implements SocketClientInterface {
 							int count = 0;
 							try {
 								count = thisInputStream.read(buffer, 0, 1024);
-								// count = inputStream.read(buffer);
 							} catch (Exception e) {
-								Log.e("SockectClient/receiveRuntime",
-									e.getMessage());
+								Log.e(TAG + ":receiveRuntime", "E: read: "
+									+ e.getMessage());
 								socketClientConnectState = SocketClient.SOCKET_STATE_RECV_ABORT;
 								break;
 							}
+
 							if (count > 0) {
-								byte[] recvedDataId = getDataIdFromRcved(
-									buffer, count);
-								SendRecvData sendRecvData = getSendRecvDataRM(recvedDataId);
-								if ((null == sendRecvData)
-									&& (onFindRcvHandlerFilter())) {
-									sendRecvData = waitAckBuffers.dequeue();
-								}
-								recvedData = StringUtils.toHexString(buffer,
-									count);
-								Log.println(Log.VERBOSE,
-									"SocketClient/receiveRuntime", "Recved: "
+								SendRecvData sendRecvData = null;
+
+								try {
+									byte[] recvedDataId = getDataIdFromRcved(
+										buffer, count);
+									sendRecvData = getSendRecvDataRM(recvedDataId);
+									if ((null == sendRecvData)
+										&& (onFindRcvHandlerFilter())) {
+										sendRecvData = waitAckBuffers
+											.dequeue();
+									}
+									recvedData = StringUtils.toHexString(
+										buffer, count);
+									Log.v(TAG + ":receiveRuntime", "Recved: "
 										+ count + " byte(s): hex: "
 										+ recvedData);
+								} catch (Exception e) {
+									Log.e(
+										TAG + ":receiveRuntime",
+										"E: dequeue and show: "
+											+ e.getMessage());
+								}
+
 								UNLOCK();
 								unlock = false;
 								boolean calledMsgHandler;
@@ -447,13 +458,13 @@ public abstract class SocketClient implements SocketClientInterface {
 										calledMsgHandler = false;
 									}
 								} catch (Exception e) {
-									Log.println(
-										Log.ERROR,
-										"SocketClient/receiveRuntime",
-										"sentRcvedMsgHandler:"
-											+ e.getMessage());
+									Log.e(
+										TAG
+											+ ":receiveRuntime:sentRcvedMsgHandler: ",
+										"E: fb: " + e.getMessage());
 									calledMsgHandler = false;
 								}
+
 								try {
 									if (null != sendRecvData
 										&& null != sendRecvData.rcvedHandler
@@ -471,10 +482,18 @@ public abstract class SocketClient implements SocketClientInterface {
 										"rcvedHandler:" + e.getMessage());
 									calledMsgHandler = false;
 								}
+
 								if ((!onlyWhenNoAvailable)
 									|| (onlyWhenNoAvailable && (!hasAvailable))) {
-									backendOnReceived(buffer, count,
-										SocketClient.WHAT_MSG_RECVED);
+									try {
+										backendOnReceived(buffer, count,
+											SocketClient.WHAT_MSG_RECVED);
+									} catch (Exception e) {
+										Log.e(
+											TAG + ":receiveRuntime",
+											"E: backendOnReceived: "
+												+ e.getMessage());
+									}
 								}
 								LOCK();
 								unlock = true;
@@ -489,9 +508,8 @@ public abstract class SocketClient implements SocketClientInterface {
 						unlock = false;
 						try {
 							Thread.sleep(20);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-							socketClientConnectState = SocketClient.SOCKET_STATE_RECV_ABORT;
+						} catch (Exception e) {
+							;
 						}
 					} /* while */
 					if (null != savedOnSocketStateChanged) {
@@ -514,16 +532,18 @@ public abstract class SocketClient implements SocketClientInterface {
 				}
 				thisIsRecvRunning = false;
 				Disconnect();
-				Log.println(Log.VERBOSE, "SocketClient/receiveRuntime",
-					"Exited");
+
+				Log.w(TAG + "SocketClient:receiveRuntime", "exit");
 			} catch (Exception e) {
-				/* end of all of this func */
+				Log.e(TAG + ":receiveRuntime", "E: all: " + e.getMessage());
+
 				try {
 					UNLOCK();
 					if (null != savedOnSocketStateChanged) {
 						savedOnSocketStateChanged
 							.onSocketStateChanged(SOCKET_STATE_RECV_ABORT);
 					}
+
 					if (null != savedStateChangedHandler) {
 						Bundle bundle = new Bundle();
 						Message msg = new Message();
@@ -687,8 +707,8 @@ public abstract class SocketClient implements SocketClientInterface {
 						unlock = false;
 						try {
 							Thread.sleep(sendRoutineTimeslice);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
+						} catch (Exception e) {
+							;
 						}
 					} /* while */
 					if (null != savedOnSocketStateChanged) {
@@ -831,6 +851,8 @@ public abstract class SocketClient implements SocketClientInterface {
 	@SuppressWarnings ("deprecation")
 	public void Disconnect () {
 		try {
+			Log.v(TAG, "Disconnect");
+
 			LOCK();
 			if (null != socketClient) {
 				Socket tmp = socketClient;
@@ -863,8 +885,8 @@ public abstract class SocketClient implements SocketClientInterface {
 			while (thisIsSendRunning && (to-- > 0)) {
 				try {
 					Thread.sleep(50);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
+				} catch (Exception e) {
+					;
 				}
 			}
 			to = 3;
@@ -872,8 +894,8 @@ public abstract class SocketClient implements SocketClientInterface {
 				try {
 					Thread.sleep(50);
 					onReceiveThread.stop();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
+				} catch (Exception e) {
+					;
 				}
 			}
 		} catch (Exception e) {
