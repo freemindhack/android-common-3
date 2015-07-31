@@ -2,6 +2,9 @@
 package common.network;
 
 
+import common.utils.MyResult;
+
+
 import android.os.Handler;
 
 
@@ -9,7 +12,7 @@ public interface SocketClientInterface {
 	/*
 	 * ============================ main interface
 	 */
-	public boolean sendData (SendRecvData data, boolean sendNow);
+	public MyResult <Boolean> sendData (SendRecvData data, boolean sendNow);
 
 
 	public boolean isUseBEOnlyNoAvailable ();

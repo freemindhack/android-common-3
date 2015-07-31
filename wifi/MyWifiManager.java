@@ -1045,49 +1045,6 @@ public class MyWifiManager implements MyWifiManagerInterface {
 	}
 
 
-	@SuppressWarnings ("deprecation")
-	@Override
-	public void setStaticNetwork (String ip, String gateway, String netmask,
-		List <String> dns) {
-		try {
-			android.provider.Settings.System.putString(
-				this.savedContext.getContentResolver(),
-				android.provider.Settings.System.WIFI_USE_STATIC_IP, "1");
-			if ((null != dns) && (dns.size() > 0)) {
-				android.provider.Settings.System.putString(
-					this.savedContext.getContentResolver(),
-					android.provider.Settings.System.WIFI_STATIC_DNS1,
-					dns.get(0));
-				if (dns.size() > 1) {
-					android.provider.Settings.System.putString(
-						this.savedContext.getContentResolver(),
-						android.provider.Settings.System.WIFI_STATIC_DNS2,
-						dns.get(1));
-				}
-			}
-			if ((null != gateway) && (gateway.length() > 0)) {
-				android.provider.Settings.System.putString(
-					this.savedContext.getContentResolver(),
-					android.provider.Settings.System.WIFI_STATIC_GATEWAY,
-					gateway);
-			}
-			if ((null != netmask) && (netmask.length() > 0)) {
-				android.provider.Settings.System.putString(
-					this.savedContext.getContentResolver(),
-					android.provider.Settings.System.WIFI_STATIC_NETMASK,
-					netmask);
-			}
-			if ((null != ip) && (ip.length() > 0)) {
-				android.provider.Settings.System.putString(
-					this.savedContext.getContentResolver(),
-					android.provider.Settings.System.WIFI_STATIC_IP, ip);
-			}
-		} catch (Exception e) {
-			;
-		}
-	}
-
-
 	@Override
 	public boolean isUrlReachable (String url) {
 		try {

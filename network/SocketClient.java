@@ -11,6 +11,9 @@ import java.net.SocketTimeoutException;
 import java.util.regex.Pattern;
 
 
+import posix.generic.errno.errno;
+
+
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -19,6 +22,7 @@ import android.util.Log;
 
 import common.datastructure.MyCompareMethod;
 import common.datastructure.MyQueue;
+import common.utils.MyResult;
 import common.utils.StringUtils;
 
 
@@ -69,6 +73,8 @@ public abstract class SocketClient implements SocketClientInterface {
 	@Override
 	public void finish () {
 		try {
+			Log.v(TAG, "finish");
+
 			this.Disconnect();
 		} catch (Exception e) {
 			;
@@ -136,12 +142,14 @@ public abstract class SocketClient implements SocketClientInterface {
 
 
 	@Override
-	public boolean sendData (SendRecvData data, boolean sendNow) {
+	public MyResult <Boolean> sendData (SendRecvData data, boolean sendNow) {
 		try {
 			Log.v(TAG, "sendData");
+
 			if (sendNow) {
 				if (null == thisOutputStream) {
-					return false;
+					return new MyResult <Boolean>(errno.ENODEV * -1,
+						"bad output stream", false);
 				}
 				try {
 					thisOutputStream.write(data.data, 0, data.data.length);
@@ -149,23 +157,29 @@ public abstract class SocketClient implements SocketClientInterface {
 					LOCK();
 					this.waitAckBuffers.enqueue(data);
 					UNLOCK();
-					return true;
-				} catch (IOException e) {
-					Log.println(Log.ERROR, "SocketClient/sendData", "write: "
-						+ e.getMessage());
-					return false;
+					return new MyResult <Boolean>(0, null, true);
+				} catch (Exception e) {
+					Log.e(TAG + ":sendData", "write: " + e.getMessage());
+					return new MyResult <Boolean>(errno.EIO * -1,
+						e.getMessage(), false);
 				}
 			} else {
+				if (!this.isConnected()) {
+					Log.e(TAG + ":sendData", "no connect");
+					return new MyResult <Boolean>(errno.ENODEV * -1,
+						"no connect", false);
+				}
+
 				LOCK();
 				this.newSendBuffers.enqueue(data);
 				this.waitAckBuffers.enqueue(data);
 				UNLOCK();
-				return true;
+				return new MyResult <Boolean>(0, null, true);
 			}
 		} catch (Exception e) {
-			Log.println(Log.ERROR, "SocketClient/sendData",
-				"all" + e.getMessage());
-			return false;
+			Log.e(TAG + ":sendData", "E: " + e.getMessage());
+			return new MyResult <Boolean>(errno.ENODEV * -1, e.getMessage(),
+				false);
 		}
 	}
 

@@ -40,10 +40,6 @@ public interface MyWifiManagerInterface {
 	public int getWifiState ();
 
 
-	public void setStaticNetwork (String ip, String gateway, String netmask,
-		List <String> dns_s);
-
-
 	/**
 	 * getWifiConfiguration
 	 */
