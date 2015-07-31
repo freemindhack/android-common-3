@@ -57,8 +57,11 @@ public class UIUtils {
 	/* any */
 	@SuppressLint ("NewApi")
 	public static void hideNavigation (Window w) {
-		w.getDecorView().setSystemUiVisibility(
-			View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+		if (View.SYSTEM_UI_FLAG_HIDE_NAVIGATION != w.getDecorView()
+			.getSystemUiVisibility()) {
+			w.getDecorView().setSystemUiVisibility(
+				View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+		}
 	}
 
 
