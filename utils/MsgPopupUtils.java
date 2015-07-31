@@ -47,7 +47,7 @@ public class MsgPopupUtils implements MsgPopupUtilsInterface {
 		} else if (MsgPopupUtils.MessageLevel.ATTENTION == messageLevel) {
 			img.setBackgroundResource(R.drawable.ic_attention);
 		} else {
-			img.setBackgroundResource(R.drawable.ic_info);
+			img.setBackgroundResource(R.drawable.info_normal2);
 		}
 		((TextView) alertDialog.getWindow().findViewById(
 			R.id.textViewDialogOkTitle)).setText(title);
@@ -101,7 +101,7 @@ public class MsgPopupUtils implements MsgPopupUtilsInterface {
 		} else if (MsgPopupUtils.MessageLevel.ATTENTION == messageLevel) {
 			img.setBackgroundResource(R.drawable.ic_attention);
 		} else {
-			img.setBackgroundResource(R.drawable.ic_info);
+			img.setBackgroundResource(R.drawable.info_normal2);
 		}
 		((TextView) alertDialog.getWindow().findViewById(
 			R.id.textViewDialogOkTitle)).setText(title);
