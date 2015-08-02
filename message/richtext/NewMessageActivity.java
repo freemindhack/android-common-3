@@ -2,13 +2,22 @@
 package common.message.richtext;
 
 
+import http.CharsetMap;
+import http.ContentTypeMap.ContentTypeValue;
+
+
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
 
+import org.apache.http.Header;
+import org.apache.http.message.BasicHeader;
+
+
 import p7zip.P7zipProcess;
+import p7zip.P7zipProcess.P7zipListener;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -47,15 +56,18 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import com.za.smartlock.Configurations;
 import com.za.smartlock.manufacturer.R;
 import common.datastructure.MyArrayList;
 import common.message.richtext.MyImage.ImgData;
+import common.network.HttpUpload;
 import common.utils.MyResult;
 import common.utils.NiceFileUtils;
 import common.utils.UIUtils;
 
 
 public class NewMessageActivity extends Activity {
+
 	@Override
 	protected void onCreate (Bundle savedInstanceState) {
 		Log.v(TAG, "onCreate");
@@ -71,6 +83,7 @@ public class NewMessageActivity extends Activity {
 		UIUtils.hideInputMethod(getWindow());
 
 		this.context = this.getApplicationContext();
+		Configurations.setCurrentContext(this.context);
 
 		NewMessageActivity.myImage = MyImage.getInstance(true, true);
 
@@ -247,23 +260,14 @@ public class NewMessageActivity extends Activity {
 				 */
 
 				P7zipProcess z = new P7zipProcess(null);
+				z.setP7zipListener(p7zipListener);
 				z.startCompress(P7zipProcess.TargetType.TARGET_TAR,
 					NiceFileUtils.getAppDirStr(getApplicationContext()).cc
 						+ "/upload",
 					NiceFileUtils.getAlbumStorageDir(albumNameCompressed).cc,
 					"123", true);
 
-				/* TODO: send to server */
-
-				/* final remove local */
-				// NiceFileUtils.rm(
-				// new File(
-				// Environment
-				// .getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
-				// albumNameCompressed), true, false);
-
-				deinit();
-				finish();
+				/* will send to server in callback */
 			}
 		});
 	}
@@ -643,6 +647,76 @@ public class NewMessageActivity extends Activity {
 		private ArrayList <String> delete;
 	}
 
+
+	@SuppressLint ("HandlerLeak")
+	private Handler handler = new Handler() {
+		@Override
+		public void handleMessage (Message msg) {
+			try {
+
+				/* final remove local */
+				// NiceFileUtils.rm(
+				// new File(
+				// Environment
+				// .getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+				// albumNameCompressed), true, false);
+
+				deinit();
+				finish();
+			} catch (Exception e) {
+				;
+			}
+		}
+	};
+
+	private P7zipListener p7zipListener = new P7zipListener() {
+
+		@Override
+		public void onProcessStarted (MyResult <String> command) {
+			// TODO Auto-generated method stub
+
+		}
+
+
+		@Override
+		public void onProcessFailed (MyResult <String> retval) {
+			try {
+				Log.e(TAG + ":p7zipListener:onProcessFailed",
+					"E: "
+						+ ((null != retval) ? retval.code + " " + retval.msg
+							: ""));
+
+				handler.sendEmptyMessage(0x0);
+			} catch (Exception e) {
+				;
+			}
+		}
+
+
+		@Override
+		public void onProcessFinished (MyResult <String> command) {
+			try {
+				Log.v(TAG + ":p7zipListener", "onProcessFinished");
+
+				HttpUpload hu = new HttpUpload();
+				String filePath = NiceFileUtils
+					.getAppDirStr(getApplicationContext()).cc
+					+ "/upload"
+					+ ".tar";
+				String postUrl = "http://" + Configurations.getServerIp();
+				Header headers[] = { new BasicHeader("file", "upload.tar"), };
+
+				hu.asyncUpload(filePath, postUrl,
+					ContentTypeValue.Application_Octet_stream,
+					CharsetMap.CharsetMapValue.utf_8, headers);
+
+				// handler.sendEmptyMessage(0x0);
+			} catch (Exception e) {
+				;
+			}
+		}
+
+	};
 
 	public static final String albumName = "Attachment";
 
