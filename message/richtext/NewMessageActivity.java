@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 
+import org.apache.http.Consts;
 import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
 
@@ -707,8 +708,8 @@ public class NewMessageActivity extends Activity {
 				Header headers[] = { new BasicHeader("file", "upload.tar"), };
 
 				hu.asyncUpload(filePath, postUrl,
-					ContentTypeValue.Application_Octet_stream,
-					CharsetMap.CharsetMapValue.utf_8, headers);
+					ContentTypeValue.Application_Octet_stream, Consts.UTF_8,
+					headers);
 
 				// handler.sendEmptyMessage(0x0);
 			} catch (Exception e) {
