@@ -2,10 +2,6 @@
 package common.message.richtext;
 
 
-import http.CharsetMap;
-import http.ContentTypeMap.ContentTypeValue;
-
-
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -700,16 +696,20 @@ public class NewMessageActivity extends Activity {
 				Log.v(TAG + ":p7zipListener", "onProcessFinished");
 
 				HttpUpload hu = new HttpUpload();
+				hu.setKEY_UPLOAD("upload");
+
 				String filePath = NiceFileUtils
 					.getAppDirStr(getApplicationContext()).cc
 					+ "/upload"
 					+ ".tar";
-				String postUrl = "http://" + Configurations.getServerIp();
-				Header headers[] = { new BasicHeader("file", "upload.tar"), };
+				String uploadUrl = "http://" + Configurations.getServerIp()
+					+ "/upload/rcv.php";
 
-				hu.asyncUpload(filePath, postUrl,
-					ContentTypeValue.Application_Octet_stream, Consts.UTF_8,
-					headers);
+				hu.startUploadFile(
+					filePath,
+					uploadUrl,
+					org.apache.http.entity.ContentType.MULTIPART_FORM_DATA,
+					Consts.UTF_8);
 
 				// handler.sendEmptyMessage(0x0);
 			} catch (Exception e) {
