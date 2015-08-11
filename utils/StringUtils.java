@@ -178,6 +178,30 @@ public class StringUtils {
 	}
 
 
+	public static String toStringOrigin (byte[] data, String encoding,
+		int start, int count) {
+		/* encoding: e.x.: UTF-8 */
+		try {
+			if (null == data || data.length <= 0 || null == encoding
+				|| count <= 0 || start < 0 || start >= data.length) {
+				return null;
+			}
+
+			if (count > (data.length - start)) {
+				count = data.length - start;
+			}
+			byte _data[] = new byte[count];
+			for (int i = 0; i < count; ++i) {
+				_data[i] = data[start + i];
+			}
+			String ret = EncodingUtils.getString(_data, encoding);
+			return ret;
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+
 	public static int toInteger (String byteCodeString) {
 		try {
 			return Integer.parseInt(byteCodeString, 10);
