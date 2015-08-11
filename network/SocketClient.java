@@ -406,19 +406,27 @@ public abstract class SocketClient implements SocketClientInterface {
 								SendRecvData sendRecvData = null;
 
 								try {
+
 									byte[] recvedDataId = getDataIdFromRcved(
 										buffer, count);
+
 									sendRecvData = getSendRecvDataRM(recvedDataId);
+
 									if ((null == sendRecvData)
 										&& (onFindRcvHandlerFilter())) {
 										sendRecvData = waitAckBuffers
 											.dequeue();
 									}
-									recvedData = StringUtils.toHexString(
-										buffer, count);
-									Log.v(TAG + ":receiveRuntime", "Recved: "
-										+ count + " byte(s): hex: "
-										+ recvedData);
+
+									if (null != sendRecvData) {
+										recvedData = StringUtils.toHexString(
+											buffer, count);
+
+										Log.v(TAG + ":receiveRuntime",
+											"Recved: " + count
+												+ " byte(s): hex: "
+												+ recvedData);
+									}
 								} catch (Exception e) {
 									Log.e(
 										TAG + ":receiveRuntime",
@@ -452,8 +460,7 @@ public abstract class SocketClient implements SocketClientInterface {
 										calledMsgHandler = true;
 										hasAvailable = true;
 									} else {
-										Log.println(Log.WARN,
-											"SocketClient/receiveRuntime",
+										Log.w(TAG + ":receiveRuntime",
 											"NO sentRcvedMsgHandler");
 										calledMsgHandler = false;
 									}
@@ -582,8 +589,7 @@ public abstract class SocketClient implements SocketClientInterface {
 						}
 						/* prompt alive */
 						if (0 == (prompt % 1000)) {
-							Log.println(Log.VERBOSE,
-								"SocketClient/sendRuntime", "alive");
+							Log.v(TAG + ":sendRuntime", "alive");
 							prompt = 0;
 						}
 						++prompt;
@@ -614,6 +620,7 @@ public abstract class SocketClient implements SocketClientInterface {
 								sentOK = false;
 								break;
 							}
+
 							if (sentOK) {
 								/* sentOK */
 								String sentFeedback = StringUtils
@@ -817,33 +824,45 @@ public abstract class SocketClient implements SocketClientInterface {
 
 
 	protected SendRecvData getSendRecvDataRM (byte[] recvedDataId) {
-		Log.println(Log.VERBOSE, "getSendRecvDataRM", "getSendRecvDataRM");
-		int sz = this.waitAckBuffers.count();
-		if (sz <= 0) {
-			return null;
-		} else {
-			SendRecvData srd = this.waitAckBuffers.removeFound(recvedDataId,
-				new MyCompareMethod <byte[], SendRecvData>() {
-					@Override
-					public int compare (byte[] l, SendRecvData r) {
-						byte[] rcmp = r.data;
-						if ((rcmp.length < 27) || (l.length < 17)) {
-							return -2;
-						}
-						for (int i = 0; i < 17; ++i) {
-							if (l[i] != rcmp[10 + i]) {
-								return -1;
-							}
-						}
-						return 0;
-					}
-				});
-			if (null == srd) {
-				Log.println(Log.INFO, "getSendRecvDataRM/find", "NOT FOUND");
-			} else {
-				Log.println(Log.INFO, "getSendRecvDataRM/find", "FOUND");
+		try {
+			Log.v(TAG, "getSendRecvDataRM");
+
+			if (null == recvedDataId) {
+				return null;
 			}
-			return srd;
+
+			int sz = this.waitAckBuffers.count();
+			if (sz <= 0) {
+				return null;
+			} else {
+				SendRecvData srd = this.waitAckBuffers.removeFound(
+					recvedDataId,
+					new MyCompareMethod <byte[], SendRecvData>() {
+						@Override
+						public int compare (byte[] l, SendRecvData r) {
+							byte[] rcmp = r.data;
+							if ((rcmp.length < 27) || (l.length < 17)) {
+								return -2;
+							}
+							for (int i = 0; i < 17; ++i) {
+								if (l[i] != rcmp[10 + i]) {
+									return -1;
+								}
+							}
+							return 0;
+						}
+					});
+				if (null == srd) {
+					Log.v(TAG + "getSendRecvDataRM/find", "NOT FOUND");
+				} else {
+					Log.println(Log.INFO, "getSendRecvDataRM/find", "FOUND");
+				}
+				return srd;
+
+			}
+		} catch (Exception e) {
+			Log.w(TAG + ":getSendRecvDataRM", "E: " + e.getMessage());
+			return null;
 		}
 	}
 
