@@ -6,6 +6,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+import android.util.Log;
+
+
 /*
  * XXX-NOTE: when access obj of this should add lock first if thread > 0
  */
@@ -115,19 +118,36 @@ public class MyQueue <T> {
 
 
 	public T removeFound (byte[] key, MyCompareMethod <byte[], T> cmp) {
-		boolean found = false;
-		int sz = this.datas.size();
-		int i = 0;
-		for (; i < sz; ++i) {
-			int ret = cmp.compare(key, this.datas.get(i));
-			if (0 == ret) {
-				found = true;
-				break;
+		try {
+			Log.v(TAG, "removeFound");
+
+			boolean found = false;
+			int sz = this.datas.size();
+			int i = 0;
+			for (; i < sz; ++i) {
+				try {
+					int ret = cmp.compare(key, this.datas.get(i));
+
+					if (0 == ret) {
+						found = true;
+						break;
+					}
+				} catch (Exception e) {
+					Log.e(TAG + ":removeFound",
+						"callback compare: E: " + e.getMessage());
+					return null;
+				}
 			}
-		}
-		if (found) {
-			return this.datas.remove(i);
-		} else {
+
+			if (found) {
+				T r = this.datas.remove(i);
+
+				return r;
+			} else {
+				return null;
+			}
+		} catch (Exception e) {
+			Log.e(TAG + ":removeFound", "E: " + e.getMessage());
 			return null;
 		}
 	}
@@ -170,4 +190,7 @@ public class MyQueue <T> {
 		}
 		return true;
 	}
+
+
+	private static final String TAG = MyQueue.class.getSimpleName();
 }
