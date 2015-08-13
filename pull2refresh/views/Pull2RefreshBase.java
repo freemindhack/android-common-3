@@ -1,13 +1,7 @@
 
-package nocom.pull2refresh.views;
+package common.pull2refresh.views;
 
 
-import nocom.pull2refresh.common.LoadingLayoutProxy;
-import nocom.pull2refresh.common.OverscrollHelper;
-import nocom.pull2refresh.common.Utils;
-import nocom.pull2refresh.common.ViewCompat;
-import nocom.pull2refresh.interfaces.LoadingLayoutInterface;
-import nocom.pull2refresh.interfaces.Pull2RefreshInterface;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -30,6 +24,12 @@ import android.widget.LinearLayout;
 
 
 import com.za.smartlock.customer.R;
+import common.pull2refresh.common.LoadingLayoutProxy;
+import common.pull2refresh.common.OverscrollHelper;
+import common.pull2refresh.common.Utils;
+import common.pull2refresh.common.ViewCompat;
+import common.pull2refresh.interfaces.LoadingLayoutInterface;
+import common.pull2refresh.interfaces.Pull2RefreshInterface;
 
 
 public abstract class Pull2RefreshBase <T extends View> extends LinearLayout

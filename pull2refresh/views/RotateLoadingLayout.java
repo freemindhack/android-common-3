@@ -1,9 +1,7 @@
 
-package nocom.pull2refresh.views;
+package common.pull2refresh.views;
 
 
-import nocom.pull2refresh.views.Pull2RefreshBase.Mode;
-import nocom.pull2refresh.views.Pull2RefreshBase.Orientation;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Matrix;
@@ -14,6 +12,8 @@ import android.widget.ImageView.ScaleType;
 
 
 import com.za.smartlock.customer.R;
+import common.pull2refresh.views.Pull2RefreshBase.Mode;
+import common.pull2refresh.views.Pull2RefreshBase.Orientation;
 
 
 public class RotateLoadingLayout extends LoadingLayout {

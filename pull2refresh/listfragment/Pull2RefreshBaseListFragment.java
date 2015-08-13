@@ -1,8 +1,10 @@
 
-package nocom.pull2refresh.listfragment;
+package common.pull2refresh.listfragment;
 
 
-import nocom.pull2refresh.views.Pull2RefreshBase;
+import common.pull2refresh.views.Pull2RefreshBase;
+
+
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.view.LayoutInflater;

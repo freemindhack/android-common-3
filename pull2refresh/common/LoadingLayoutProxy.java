@@ -1,13 +1,15 @@
 
-package nocom.pull2refresh.common;
+package common.pull2refresh.common;
 
 
 import java.util.HashSet;
 
 
-import nocom.pull2refresh.interfaces.LoadingLayoutInterface;
-import nocom.pull2refresh.views.LoadingLayout;
-import nocom.pull2refresh.views.Pull2RefreshBase;
+import common.pull2refresh.interfaces.LoadingLayoutInterface;
+import common.pull2refresh.views.LoadingLayout;
+import common.pull2refresh.views.Pull2RefreshBase;
+
+
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 

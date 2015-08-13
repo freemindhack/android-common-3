@@ -1,12 +1,7 @@
 
-package nocom.pull2refresh.views.listview;
+package common.pull2refresh.views.listview;
 
 
-import nocom.pull2refresh.common.LoadingLayoutProxy;
-import nocom.pull2refresh.common.OverscrollHelper;
-import nocom.pull2refresh.interfaces.EmptyViewMethodAccessor;
-import nocom.pull2refresh.views.LoadingLayout;
-import nocom.pull2refresh.views.Pull2RefreshAdapterViewBase;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -30,6 +25,11 @@ import android.widget.Scroller;
 
 
 import com.za.smartlock.customer.R;
+import common.pull2refresh.common.LoadingLayoutProxy;
+import common.pull2refresh.common.OverscrollHelper;
+import common.pull2refresh.interfaces.EmptyViewMethodAccessor;
+import common.pull2refresh.views.LoadingLayout;
+import common.pull2refresh.views.Pull2RefreshAdapterViewBase;
 
 
 public class Pull2RefreshListView extends
@@ -698,18 +698,18 @@ public class Pull2RefreshListView extends
 
 		private int anchorView = -1;
 
-		/* 屏幕宽度  */
+		/* 屏幕宽度 */
 		protected int screenWidth;
 
-		/* 滑动类  */
+		/* 滑动类 */
 		protected Scroller scroller;
 
 		private static final int SNAP_VELOCITY = 600;
 
-		/* 速度追踪对象  */
+		/* 速度追踪对象 */
 		public VelocityTracker velocityTracker;
 
-		/* 用户滑动的最小距离  */
+		/* 用户滑动的最小距离 */
 		private int touchSlop;
 	}
 

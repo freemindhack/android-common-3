@@ -1,5 +1,5 @@
 
-package nocom.pull2refresh.common;
+package common.pull2refresh.common;
 
 
 import android.annotation.TargetApi;

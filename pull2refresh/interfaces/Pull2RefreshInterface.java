@@ -1,12 +1,14 @@
 
-package nocom.pull2refresh.interfaces;
+package common.pull2refresh.interfaces;
 
 
-import nocom.pull2refresh.views.Pull2RefreshBase.Mode;
-import nocom.pull2refresh.views.Pull2RefreshBase.OnPullEventListener;
-import nocom.pull2refresh.views.Pull2RefreshBase.OnRefreshListener;
-import nocom.pull2refresh.views.Pull2RefreshBase.OnRefreshListener2;
-import nocom.pull2refresh.views.Pull2RefreshBase.State;
+import common.pull2refresh.views.Pull2RefreshBase.Mode;
+import common.pull2refresh.views.Pull2RefreshBase.OnPullEventListener;
+import common.pull2refresh.views.Pull2RefreshBase.OnRefreshListener;
+import common.pull2refresh.views.Pull2RefreshBase.OnRefreshListener2;
+import common.pull2refresh.views.Pull2RefreshBase.State;
+
+
 import android.view.View;
 import android.view.animation.Interpolator;
 
