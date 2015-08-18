@@ -213,6 +213,9 @@ public class BluetoothLe {
 		@Override
 		public void onCharacteristicChanged (BluetoothGatt gatt,
 			BluetoothGattCharacteristic characteristic) {
+			Log.i(TAG, "onCharacteristicChanged: "
+				+ characteristic.getUuid().toString());
+
 			BluetoothLe.this.setReadUUID(characteristic.getUuid().toString());
 
 			if (BluetoothLe.this.onDataAvailableListener != null) {
