@@ -198,6 +198,7 @@ public abstract class ProcessBarActivity extends Activity implements
 					this.running = true;
 				}
 				Log.v(TAG + ":ProcessBarThread", "run");
+
 				while ((!this.terminate) && (0 != isTimeout(baseMs))) {
 					try {
 						Thread.sleep(50);
@@ -205,10 +206,13 @@ public abstract class ProcessBarActivity extends Activity implements
 						;
 					}
 					if (isProcessRoutineDone()) {
+						Log.w(TAG + ":ProcessBarThread",
+							"isProcessRoutineDone: true");
 						this.terminate = true;
 						break;
 					}
 				}
+
 				if (!this.selfTerminate) {
 					if (ProcessRoutineState.FAIL == getProcessRoutineState()) {
 						onProcessRoutineFail();
