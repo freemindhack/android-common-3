@@ -322,6 +322,28 @@ public class GenericBluetooth {
 	} /* leOnCreate */
 
 
+	public interface OnDataChannelListener {
+		public void onReadable ();
+
+
+		public void onWriteable ();
+	};
+
+
+	private OnDataChannelListener leOnDataChannelListener;
+
+
+	public boolean leSetOnDataChannelListener (
+		OnDataChannelListener leOnDataChannelListener) {
+		if (null == this.LE) {
+			return false;
+		} else {
+			this.leOnDataChannelListener = leOnDataChannelListener;
+			return true;
+		}
+	} /* leSetOnDataChannelListener */
+
+
 	public boolean leSetOnConnectListener (OnConnectListener onConnectListener) {
 		if (null == this.LE) {
 			return false;
@@ -555,7 +577,7 @@ public class GenericBluetooth {
 
 				while (!this.terminate) {
 
-					if (null == leGattRead) {
+					if (null == leGattRead || null == leGattWrite) {
 						try {
 							if (null != GenericBluetooth.this.leConnectedGatt) {
 								List <BluetoothGattService> okss = GenericBluetooth.this.leConnectedGatt
@@ -592,15 +614,40 @@ public class GenericBluetooth {
 												+ uuid
 												+ " w type: "
 												+ gattCharacteristic
-													.getWriteType());
-										if (!hasReadUUID) {
+													.getWriteType()
+												+ " ruuid: "
+												+ this.knownReadUUID);
+										if ((!hasReadUUID)
+											|| this.knownReadUUID == null
+											|| this.knownReadUUID.length() != "00000000-1111-2222-3333-444444444444"
+												.length()) {
 											String ruuid = GenericBluetooth.this.LE
 												.getReadUUID();
 											if (ruuid != null
 												&& ruuid.length() > 0
 												&& uuid.equals(ruuid)
 												&& null == leGattRead) {
+												Log.e(TAG, "ruuid: " + ruuid);
 												leGattRead = gattCharacteristic;
+
+												if (null != leOnDataChannelListener) {
+													try {
+														new Thread() {
+															@Override
+															public void run () {
+																try {
+																	leOnDataChannelListener
+																		.onReadable();
+																} catch (Exception e) {
+																	;
+																}
+															}
+
+														}.start();
+													} catch (Exception e) {
+														;
+													}
+												}
 											}
 										} else {
 											if (this.knownReadUUID
@@ -610,11 +657,52 @@ public class GenericBluetooth {
 														gattCharacteristic,
 														true);
 												leGattRead = gattCharacteristic;
+
+												if (null != leOnDataChannelListener) {
+													try {
+														new Thread() {
+															@Override
+															public void run () {
+																try {
+																	leOnDataChannelListener
+																		.onReadable();
+																} catch (Exception e) {
+																	;
+																}
+															}
+
+														}.start();
+													} catch (Exception e) {
+														;
+													}
+												}
 											}
 										}
 
 										if (uuid.equals(leWriteUUID)) {
 											leGattWrite = gattCharacteristic;
+											GenericBluetooth.this.LE
+												.setCharacteristicNotification(
+													gattCharacteristic, true);
+
+											if (null != leOnDataChannelListener) {
+												try {
+													new Thread() {
+														@Override
+														public void run () {
+															try {
+																leOnDataChannelListener
+																	.onWriteable();
+															} catch (Exception e) {
+																;
+															}
+														}
+
+													}.start();
+												} catch (Exception e) {
+													;
+												}
+											}
 										}
 									}
 								}
@@ -625,12 +713,14 @@ public class GenericBluetooth {
 							// return;
 						}
 
-						try {
-							Thread.sleep(200);
-						} catch (Exception e) {
-							;
-						}
-					} else {
+						// try {
+						// Thread.sleep(200);
+						// } catch (Exception e) {
+						// ;
+						// }
+					}
+
+					if (null != leGattRead) {
 						/* Log.v(TAG, "triggerReadCharacteristic"); */
 						try {
 							GenericBluetooth.this.LE
