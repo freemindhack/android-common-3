@@ -56,7 +56,7 @@ public class SendRecvData {
 	}
 
 
-	protected SendRecvData (byte[] data, int whatData,
+	public SendRecvData (byte[] data, int whatData,
 		Handler sentRcvedMsgHandler) {
 		if ((null != data) && (data.length > 0)) {
 			this.data = data;
