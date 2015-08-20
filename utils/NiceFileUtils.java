@@ -622,6 +622,45 @@ public class NiceFileUtils {
 	}
 
 
+	public static MyResult <Integer> append (String appendToPath,
+		byte[] appendData, int start, int count) {
+		try {
+			/*FIXME: check arguments first */
+
+			File appendToFile = new File(appendToPath);
+			if (!appendToFile.exists()) {
+				if (!appendToFile.createNewFile()) {
+					return new MyResult <Integer>(errno.EPERM * -1,
+						"Cannot create file " + appendToPath, null);
+				}
+			}
+
+			if (appendToFile.isDirectory()) {
+				return new MyResult <Integer>(errno.EISDIR * -1,
+					"Is a directory " + appendToPath, null);
+			}
+
+			FileOutputStream os = new FileOutputStream(appendToFile, true);/* true => append */
+
+			try {
+				os.write(appendData, start, count);
+			} catch (IOException e) {
+				os.close();
+				return new MyResult <Integer>(errno.EPERM * -1, "write fail "
+					+ e.getMessage(), null);
+			}
+
+			os.close();
+			return new MyResult <Integer>(0, null, count);
+
+		} catch (Exception e) {
+			Log.e(TAG + ":appendFile", "E: " + e.getMessage());
+			return new MyResult <Integer>(errno.EPERM * -1, "fail "
+				+ e.getMessage(), null);
+		}
+	}
+
+
 	public static MyResult <String> mv (String from, String to,
 		boolean overwrite) {
 		try {

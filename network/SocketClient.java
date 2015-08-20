@@ -12,56 +12,18 @@ import java.util.regex.Pattern;
 
 
 import posix.generic.errno.errno;
-
-
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
-
-
 import common.datastructure.MyCompareMethod;
 import common.datastructure.MyQueue;
+import common.my_android_log.MyLog;
 import common.utils.MyResult;
 import common.utils.StringUtils;
 
 
 public abstract class SocketClient implements SocketClientInterface {
-	private Socket socketClient = null;
-
-	private Thread onSocketThread = null;
-
-	private Thread onReceiveThread = null;
-
-	private Thread onSendThread = null;
-
-	private InputStream thisInputStream = null;
-
-	private OutputStream thisOutputStream = null;
-
-	private int socketClientConnectState = SocketClient.SOCKET_STATE_IDLE;
-
-	private ConnectArguments connectArguments = new ConnectArguments("");
-
-	private MyQueue <SendRecvData> newSendBuffers = new MyQueue <SendRecvData>();
-
-	private MyQueue <SendRecvData> waitAckBuffers = new MyQueue <SendRecvData>();
-
-	private boolean thisIsSendRunning = false;
-
-	private boolean thisIsRecvRunning = false;
-
-	private boolean _SOCKET_MUTEX = true;
-
-	public String lastErrorString = "";
-
-	public int lastErrno = SocketClient.ERRNO_NO_ERROR;
-
-	/* saved and for ... and restartMyself */
-	private Handler savedStateChangedHandler;
-
-	private OnSocketStateChanged savedOnSocketStateChanged;
-
 
 	public SocketClient (Handler stateChangedHandler,
 		OnSocketStateChanged onSocketStateChanged) {
@@ -370,10 +332,12 @@ public abstract class SocketClient implements SocketClientInterface {
 						}
 						/** prompt alive */
 						if (0 == (prompt % 1000)) {
-							Log.v(TAG + ":receiveRuntime", "alive");
+							MyLog
+								.p(MyLog.V, TAG + ":receiveRuntime", "alive");
 							prompt = 0;
 						}
 						++prompt;
+
 						String recvedData = "";
 						int dataReady = 0;
 						try {
@@ -1010,4 +974,39 @@ public abstract class SocketClient implements SocketClientInterface {
 
 	/*** XXX private static final ***/
 	private static final String TAG = SocketClient.class.getSimpleName();
+
+	private Socket socketClient = null;
+
+	private Thread onSocketThread = null;
+
+	private Thread onReceiveThread = null;
+
+	private Thread onSendThread = null;
+
+	private InputStream thisInputStream = null;
+
+	private OutputStream thisOutputStream = null;
+
+	private int socketClientConnectState = SocketClient.SOCKET_STATE_IDLE;
+
+	private ConnectArguments connectArguments = new ConnectArguments("");
+
+	private MyQueue <SendRecvData> newSendBuffers = new MyQueue <SendRecvData>();
+
+	private MyQueue <SendRecvData> waitAckBuffers = new MyQueue <SendRecvData>();
+
+	private boolean thisIsSendRunning = false;
+
+	private boolean thisIsRecvRunning = false;
+
+	private boolean _SOCKET_MUTEX = true;
+
+	public String lastErrorString = "";
+
+	public int lastErrno = SocketClient.ERRNO_NO_ERROR;
+
+	/* saved and for ... and restartMyself */
+	private Handler savedStateChangedHandler;
+
+	private OnSocketStateChanged savedOnSocketStateChanged;
 }
