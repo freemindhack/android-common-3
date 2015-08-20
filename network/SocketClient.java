@@ -267,6 +267,7 @@ public abstract class SocketClient implements SocketClientInterface {
 						UNLOCK();
 						break;/* once */
 					} /* while true */
+
 					if (null != savedOnSocketStateChanged) {
 						savedOnSocketStateChanged
 							.onSocketStateChanged(socketClientConnectState);
@@ -355,10 +356,10 @@ public abstract class SocketClient implements SocketClientInterface {
 						if (dataReady > 0) {
 							boolean onlyWhenNoAvailable = isUseBEOnlyNoAvailable();
 							boolean hasAvailable = false;
-							byte[] buffer = new byte[1024];
+							byte[] buffer = new byte[4096];
 							int count = 0;
 							try {
-								count = thisInputStream.read(buffer, 0, 1024);
+								count = thisInputStream.read(buffer, 0, 4096);
 							} catch (Exception e) {
 								Log.e(TAG + ":receiveRuntime", "E: read: "
 									+ e.getMessage());
@@ -369,8 +370,13 @@ public abstract class SocketClient implements SocketClientInterface {
 							if (count > 0) {
 								SendRecvData sendRecvData = null;
 
-								try {
+								recvedData = StringUtils.toHexString(buffer,
+									count);
 
+								MyLog.v(TAG + ":receiveRuntime", "Recved: "
+									+ count + " byte(s): hex: " + recvedData);
+
+								try {
 									byte[] recvedDataId = getDataIdFromRcved(
 										buffer, count);
 
@@ -380,16 +386,6 @@ public abstract class SocketClient implements SocketClientInterface {
 										&& (onFindRcvHandlerFilter())) {
 										sendRecvData = waitAckBuffers
 											.dequeue();
-									}
-
-									if (null != sendRecvData) {
-										recvedData = StringUtils.toHexString(
-											buffer, count);
-
-										Log.v(TAG + ":receiveRuntime",
-											"Recved: " + count
-												+ " byte(s): hex: "
-												+ recvedData);
 									}
 								} catch (Exception e) {
 									Log.e(
