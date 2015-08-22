@@ -2,6 +2,9 @@
 package common.network;
 
 
+import generic_utils.StringUtils;
+
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -20,7 +23,6 @@ import common.datastructure.MyCompareMethod;
 import common.datastructure.MyQueue;
 import common.my_android_log.MyLog;
 import common.utils.MyResult;
-import common.utils.StringUtils;
 
 
 public abstract class SocketClient implements SocketClientInterface {

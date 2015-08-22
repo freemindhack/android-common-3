@@ -2,6 +2,9 @@
 package common.message.richtext;
 
 
+import generic_utils.NiceFileUtils;
+
+
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -53,11 +56,12 @@ import android.widget.Toast;
 
 import com.za.smartlock.Configurations;
 import com.za.smartlock.customer.R;
+
+
 import common.datastructure.MyArrayList;
 import common.message.richtext.MyImage.ImgData;
 import common.network.HttpUpload;
 import common.utils.MyResult;
-import common.utils.NiceFileUtils;
 import common.utils.UIUtils;
 
 
@@ -257,7 +261,7 @@ public class NewMessageActivity extends Activity {
 				P7zipProcess z = new P7zipProcess(null);
 				z.setP7zipListener(p7zipListener);
 				z.startCompress(P7zipProcess.TargetType.TARGET_TAR,
-					NiceFileUtils.getAppDirStr(getApplicationContext()).cc
+					NiceFileUtils.getAppPathStr(getApplicationContext()).cc
 						+ "/upload",
 					NiceFileUtils.getAlbumStorageDir(albumNameCompressed).cc,
 					"123", true);
@@ -697,7 +701,7 @@ public class NewMessageActivity extends Activity {
 				hu.setKEY_UPLOAD("upload");
 
 				String filePath = NiceFileUtils
-					.getAppDirStr(getApplicationContext()).cc
+					.getAppPathStr(getApplicationContext()).cc
 					+ "/upload"
 					+ ".tar";
 				String uploadUrl = "http://" + Configurations.getServerIp()

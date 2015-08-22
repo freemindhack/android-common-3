@@ -2,6 +2,7 @@
 package common.utils;
 
 
+import generic_utils.StringUtils;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;

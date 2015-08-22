@@ -2,6 +2,9 @@
 package common.network;
 
 
+import generic_utils.NiceFileUtils;
+
+
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -11,9 +14,6 @@ import java.net.URLConnection;
 
 import common.utils.MyResult;
 import common.utils.MyTimeUtils;
-import common.utils.NiceFileUtils;
-
-
 import posix.generic.errno.errno;
 import android.util.Log;
 
