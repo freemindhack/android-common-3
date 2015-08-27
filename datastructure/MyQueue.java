@@ -6,6 +6,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+import common.my_android_log.MyLog;
+
+
 import android.util.Log;
 
 
@@ -45,10 +48,12 @@ public class MyQueue <T> {
 			return;
 		}
 
-		for (T data : datas) {
-			this.datas.add(data);
+		int n = datas.length;
+
+		MyLog.v(TAG, "n: " + n);
+		for (int i = 0; i < n; ++i) {
+			this.datas.add(datas[i]);
 		}
-		;
 	}
 
 
@@ -126,12 +131,24 @@ public class MyQueue <T> {
 
 
 	public T get (int i) {
-		if ((datas.size() > 0) && (i > 0 && i < datas.size())) {
+		if ((datas.size() > 0) && (i >= 0 && i < datas.size())) {
 			T ret = datas.get(i);
 			return ret;
 		} else {
 			return null;
 		}
+	}
+
+
+	public ArrayList <T> getAll () {
+		ArrayList <T> r = new ArrayList <T>();
+
+		int sz = this.datas.size();
+		for (int i = 0; i < sz; ++i) {
+			r.add(this.datas.get(i));
+		}
+
+		return r;
 	}
 
 
