@@ -36,9 +36,29 @@ public class MyQueue <T> {
 	}
 
 
+	/**
+	 * NAME
+	 *   enqueueAll - enqueue All from 0 to (length - 1) to tail
+	 */
+	public void enqueueAll (T[] datas) {
+		if (null == datas) {
+			return;
+		}
+
+		for (T data : datas) {
+			this.datas.add(data);
+		}
+		;
+	}
+
+
+	/**
+	 * NAME
+	 *   dequeue - dequeue this first one
+	 */
 	public T dequeue () {
 		if (datas.size() > 0) {
-			T ret = datas.remove(datas.size() - 1);
+			T ret = datas.remove(0);
 			return ret;
 		} else {
 			return null;
@@ -46,9 +66,58 @@ public class MyQueue <T> {
 	}
 
 
+	public int find (T what) {
+		if (null == what) {
+			return -1;
+		} else {
+			int sz = this.datas.size();
+
+			for (int i = 0; i < sz; ++i) {
+				if (this.datas.get(i).equals(what)) {
+					return i;/* found */
+				}
+			}
+
+			return -1;
+		}
+	}
+
+
+	public ArrayList <T> dequeueAll () {
+		ArrayList <T> r = new ArrayList <T>();
+
+		int sz = this.datas.size();
+		for (int i = 0; i < sz; ++i) {
+			r.add(this.datas.remove(0));
+		}
+
+		return r;
+	}
+
+
+	public ArrayList <T> dequeueAll (int maxCount) {
+		if (maxCount < 0) {
+			return null;
+		}
+
+		ArrayList <T> r = new ArrayList <T>();
+
+		int sz = this.datas.size();
+		for (int i = 0; i < sz && i < maxCount; ++i) {
+			r.add(this.datas.remove(0));
+		}
+
+		return r;
+	}
+
+
+	/**
+	 * NAME
+	 *   pop - pop the last add one
+	 */
 	public T pop () {
 		if (datas.size() > 0) {
-			T ret = datas.remove(0);
+			T ret = datas.remove(datas.size() - 1);
 			return ret;
 		} else {
 			return null;
@@ -66,8 +135,34 @@ public class MyQueue <T> {
 	}
 
 
+	public ArrayList <T> getAll (int maxCount) {
+		if (maxCount < 0) {
+			return null;
+		}
+
+		ArrayList <T> r = new ArrayList <T>();
+
+		int sz = this.datas.size();
+		for (int i = 0; i < sz && i < maxCount; ++i) {
+			r.add(this.datas.get(i));
+		}
+
+		return r;
+	}
+
+
 	public int count () {
 		return datas.size();
+	}
+
+
+	public T getFirst () {
+		if (datas.size() > 0) {
+			T ret = datas.get(0);
+			return ret;
+		} else {
+			return null;
+		}
 	}
 
 
