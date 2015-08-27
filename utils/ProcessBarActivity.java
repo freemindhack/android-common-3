@@ -15,7 +15,6 @@ import android.widget.Button;
 import android.widget.TextView;
 
 
-import com.za.smartlock.Configurations;
 import com.za.smartlock.customer.R;
 
 
@@ -89,7 +88,7 @@ public abstract class ProcessBarActivity extends Activity implements
 	public boolean onKeyDown (int keyCode, KeyEvent event) {
 		if (keyCode == KeyEvent.KEYCODE_BACK && (this.isNoCancel())) {
 			moveTaskToBack(true);
-			Configurations.setLoginAction(Configurations.LoginAction.Hide);
+
 			return true;
 		}
 		return super.onKeyDown(keyCode, event);
