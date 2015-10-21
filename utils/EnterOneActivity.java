@@ -79,9 +79,9 @@ public class EnterOneActivity extends Activity {
 			et.setKeyListener(DigitsKeyListener.getInstance(digits));
 		}
 
-		RelativeLayout relativeLayoutAEOCancel = (RelativeLayout) findViewById(R.id.relativeLayoutAEOCancel);
+		TextView tvAEOCancel = (TextView) findViewById(R.id.tvAEOCancel);
 
-		relativeLayoutAEOCancel.setOnClickListener(new OnClickListener() {
+		tvAEOCancel.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick (View v) {
@@ -93,13 +93,13 @@ public class EnterOneActivity extends Activity {
 
 		});
 
-		RelativeLayout relativeLayoutAEODone = (RelativeLayout) findViewById(R.id.relativeLayoutAEODone);
+		TextView tvAEODone = (TextView) findViewById(R.id.tvAEODone);
 		if (this.maxLen > 0 && nh <= 0) {
-			relativeLayoutAEODone.setVisibility(View.GONE);
+			tvAEODone.setVisibility(View.GONE);
 		} else {
-			relativeLayoutAEODone.setVisibility(View.VISIBLE);
+			tvAEODone.setVisibility(View.VISIBLE);
 
-			relativeLayoutAEODone.setOnClickListener(new OnClickListener() {
+			tvAEODone.setOnClickListener(new OnClickListener() {
 
 				@Override
 				public void onClick (View v) {

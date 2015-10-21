@@ -2,6 +2,7 @@
 package common.utils;
 
 
+import generic_utils.MyResult;
 import posix.generic.errno.errno;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;

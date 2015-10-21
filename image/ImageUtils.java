@@ -2,6 +2,9 @@
 package common.image;
 
 
+import generic_utils.MyResult;
+
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
@@ -24,7 +27,6 @@ import android.graphics.drawable.Drawable;
 import android.util.Log;
 
 
-import common.utils.MyResult;
 import common.utils.StreamUtils;
 
 
