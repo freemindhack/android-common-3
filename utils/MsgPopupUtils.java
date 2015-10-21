@@ -2,6 +2,9 @@
 package common.utils;
 
 
+import generic_utils.FontUtil;
+
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +35,7 @@ public class MsgPopupUtils implements MsgPopupUtilsInterface {
 	@Override
 	public void showOkMsg (String title, String msg,
 		MsgPopupUtils.MessageLevel messageLevel) {
+
 		AlertDialog.Builder builder = new Builder(this.savedContex);
 		final AlertDialog alertDialog = builder.create();
 		alertDialog.show();
@@ -49,17 +53,34 @@ public class MsgPopupUtils implements MsgPopupUtilsInterface {
 		} else {
 			img.setBackgroundResource(R.drawable.info_normal2);
 		}
-		((TextView) alertDialog.getWindow().findViewById(
-			R.id.textViewDialogOkTitle)).setText(title);
-		((TextView) alertDialog.getWindow().findViewById(
-			R.id.textViewDialogOkMsg)).setText(msg);
+		TextView tv = ((TextView) alertDialog.getWindow().findViewById(
+			R.id.textViewDialogOkTitle));
+		FontUtil.setMyDefaultFont(savedContex, tv);
+		tv.setText(title);
+
+		tv = ((TextView) alertDialog.getWindow().findViewById(
+			R.id.textViewDialogOkMsg));
+		FontUtil.setMyDefaultFont(savedContex, tv);
+		tv.setText(msg);
 		alertDialog.getWindow().findViewById(R.id.btnDialogOkOk)
 			.setOnClickListener(new Button.OnClickListener() {
 				@Override
 				public void onClick (View arg0) {
 					alertDialog.dismiss();
+
+					try {
+						System.gc();
+					} catch (Exception e) {
+						;
+					}
 				}
 			});
+
+		try {
+			System.gc();
+		} catch (Exception e) {
+			;
+		}
 	}
 
 
@@ -103,13 +124,25 @@ public class MsgPopupUtils implements MsgPopupUtilsInterface {
 		} else {
 			img.setBackgroundResource(R.drawable.info_normal2);
 		}
-		((TextView) alertDialog.getWindow().findViewById(
-			R.id.textViewDialogOkTitle)).setText(title);
-		((TextView) alertDialog.getWindow().findViewById(
-			R.id.textViewDialogOkMsg)).setText(msg);
+
+		TextView tv = ((TextView) alertDialog.getWindow().findViewById(
+			R.id.textViewDialogOkTitle));
+		FontUtil.setMyDefaultFont(savedContex, tv);
+		tv.setText(title);
+
+		tv = ((TextView) alertDialog.getWindow().findViewById(
+			R.id.textViewDialogOkMsg));
+		FontUtil.setMyDefaultFont(savedContex, tv);
+		tv.setText(msg);
 		Button btnDialogOkOk = (Button) alertDialog.getWindow().findViewById(
 			R.id.btnDialogOkOk);
 		btnDialogOkOk.setOnClickListener(onOkClicked);
+
+		try {
+			System.gc();
+		} catch (Exception e) {
+			;
+		}
 	}
 
 
