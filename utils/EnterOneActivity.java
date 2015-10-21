@@ -2,6 +2,7 @@
 package common.utils;
 
 
+import generic_utils.UIUtils;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,7 +15,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.EditText;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 
@@ -62,6 +62,7 @@ public class EnterOneActivity extends Activity {
 		}
 
 		et = (EditText) findViewById(R.id.editTextAEOInput);
+		et.setCursorVisible(false);
 
 		if (null != hint) {
 			et.setHint(hint);
@@ -104,7 +105,7 @@ public class EnterOneActivity extends Activity {
 				@Override
 				public void onClick (View v) {
 					String s = et.getEditableText().toString();
-					Log.v(TAG, "r: " + s);
+					/* Log.v(TAG, "r: " + s); */
 
 					Intent intent = new Intent();
 					Bundle bundle = new Bundle();
