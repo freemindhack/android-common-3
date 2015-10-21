@@ -3,6 +3,7 @@ package common.utils;
 
 
 import generic_utils.MyTimeUtils;
+import generic_utils.UIUtils;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.Bundle;
